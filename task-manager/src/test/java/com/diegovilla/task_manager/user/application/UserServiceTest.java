@@ -1,15 +1,13 @@
 package com.diegovilla.task_manager.user.application;
 
-import com.diegovilla.task_manager.core.errors.exceptions.DomainException;
 import com.diegovilla.task_manager.core.errors.exceptions.ResourceNotFoundException;
-import com.diegovilla.task_manager.user.application.commands.UserCreateCommand;
-import com.diegovilla.task_manager.user.application.commands.UserUpdateCommand;
-import com.diegovilla.task_manager.user.application.ports.PasswordHasher;
-import com.diegovilla.task_manager.user.application.repository.UserRepository;
-import com.diegovilla.task_manager.user.application.services.UserService;
-import com.diegovilla.task_manager.user.domain.errors.UserAlreadyExistsException;
-import com.diegovilla.task_manager.user.domain.models.UserModel;
-import org.assertj.core.api.Assertions;
+import com.diegovilla.task_manager.features.user.application.commands.UserCreateCommand;
+import com.diegovilla.task_manager.features.user.application.commands.UserUpdateCommand;
+import com.diegovilla.task_manager.features.user.application.ports.PasswordHasher;
+import com.diegovilla.task_manager.features.user.application.ports.UserRepository;
+import com.diegovilla.task_manager.features.user.application.services.UserService;
+import com.diegovilla.task_manager.features.user.domain.exceptions.UserAlreadyExistsException;
+import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
