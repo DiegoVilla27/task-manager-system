@@ -3,17 +3,19 @@ package com.diegovilla.task_manager.features.task.infrastructure.controllers;
 import java.util.List;
 import java.util.UUID;
 
+import com.diegovilla.task_manager.features.task.application.commands.TaskPaginationCommand;
+import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
+import com.diegovilla.task_manager.features.task.domain.valueobjects.TaskStatus;
+import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskFiltersDTO;
+import com.diegovilla.task_manager.features.task.infrastructure.dto.response.TaskWithUserResponseDTO;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.config.Task;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.diegovilla.task_manager.features.task.application.commands.TaskCreateCommand;
 import com.diegovilla.task_manager.features.task.application.commands.TaskUpdateCommand;
@@ -63,13 +65,19 @@ public class TaskController {
    */
   @GetMapping
   @GetTasksDocumentation
-  public ResponseEntity<List<TaskResponseDTO>> getAll() {
-    List<TaskModel> tasks = taskService.getAll();
+  public ResponseEntity<Page<TaskWithUserResponseDTO>> getAll(
+    @RequestParam(defaultValue = "1")
+    @Min(value = 1, message = "Page must be greater than or equal to 0")
+    int page,
+    @RequestParam(defaultValue = "10")
+    @Min(value = 1, message = "Limit must be greater than 0")
+    int limit,
+    TaskFiltersDTO filters
+  ) {
+    TaskPaginationCommand taskPaginationCommand = new TaskPaginationCommand(page - 1, limit, filters);
+    Page<TaskWithUser> tasks = taskService.getAll(taskPaginationCommand);
 
-    return ResponseEntity.ok(tasks
-        .stream()
-        .map(taskDtoMapper::modelToResponseDTO)
-        .toList());
+    return ResponseEntity.ok(tasks.map(taskDtoMapper::modelToWithUserResponseDTO));
   }
 
   /**
@@ -80,10 +88,10 @@ public class TaskController {
    */
   @GetMapping("/{id}")
   @GetTaskDocumentation
-  public ResponseEntity<TaskResponseDTO> getById(@PathVariable UUID id) {
-    TaskModel task = taskService.getById(id);
+  public ResponseEntity<TaskWithUserResponseDTO> getById(@PathVariable UUID id) {
+    TaskWithUser response = taskService.getById(id);
 
-    return ResponseEntity.ok(taskDtoMapper.modelToResponseDTO(task));
+    return ResponseEntity.ok(taskDtoMapper.modelToWithUserResponseDTO(response));
   }
 
   /**
@@ -94,13 +102,13 @@ public class TaskController {
    */
   @PostMapping
   @CreateTaskDocumentation
-  public ResponseEntity<TaskResponseDTO> create(
-      @Valid @RequestBody TaskCreateRequestDTO dto) {
+  public ResponseEntity<TaskWithUserResponseDTO> create(
+    @Valid @RequestBody TaskCreateRequestDTO dto) {
     TaskCreateCommand command = taskDtoMapper.createRequestDTOToCommand(dto);
-    TaskModel taskCreated = taskService.create(command);
+    TaskWithUser response = taskService.create(command);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(
-        taskDtoMapper.modelToResponseDTO(taskCreated));
+      taskDtoMapper.modelToWithUserResponseDTO(response));
   }
 
   /**
@@ -112,14 +120,14 @@ public class TaskController {
    */
   @PatchMapping("/{id}")
   @UpdateTaskDocumentation
-  public ResponseEntity<TaskResponseDTO> update(
-      @PathVariable UUID id,
-      @Valid @RequestBody TaskUpdateRequestDTO dto) {
+  public ResponseEntity<TaskWithUserResponseDTO> update(
+    @PathVariable UUID id,
+    @Valid @RequestBody TaskUpdateRequestDTO dto) {
     TaskUpdateCommand taskUpdateCommand = taskDtoMapper.updateRequestDTOToCommand(dto);
-    TaskModel taskUpdated = taskService.update(id, taskUpdateCommand);
+    TaskWithUser response = taskService.update(id, taskUpdateCommand);
 
     return ResponseEntity.ok().body(
-        taskDtoMapper.modelToResponseDTO(taskUpdated));
+      taskDtoMapper.modelToWithUserResponseDTO(response));
   }
 
   /**
@@ -144,10 +152,10 @@ public class TaskController {
    */
   @PatchMapping("/{id}/start")
   @StartTaskDocumentation
-  public ResponseEntity<TaskResponseDTO> start(@PathVariable UUID id) {
-    TaskModel taskStarted = taskService.start(id);
+  public ResponseEntity<Void> start(@PathVariable UUID id) {
+    taskService.start(id);
 
-    return ResponseEntity.ok().body(taskDtoMapper.modelToResponseDTO(taskStarted));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   /**
@@ -158,9 +166,9 @@ public class TaskController {
    */
   @PatchMapping("/{id}/complete")
   @CompleteTaskDocumentation
-  public ResponseEntity<TaskResponseDTO> complete(@PathVariable UUID id) {
-    TaskModel taskCompleted = taskService.complete(id);
+  public ResponseEntity<Void> complete(@PathVariable UUID id) {
+    taskService.complete(id);
 
-    return ResponseEntity.ok().body(taskDtoMapper.modelToResponseDTO(taskCompleted));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

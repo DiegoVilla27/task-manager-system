@@ -18,15 +18,15 @@ import java.util.UUID;
  * @param title       title of the task.
  * @param description description of the task.
  * @param status      current lifecycle status of the task.
- * @param user        the user associated with the task.
+ * @param userId      the user associated with the task.
  * @param createdAt   timestamp when the task was created.
  * @since 1.0.0
  */
 public record TaskResponseDTO(
-    UUID id,
-    String title,
-    String description,
-    TaskStatus status,
-    UserResponseDTO user,
-    Instant createdAt) {
+  UUID id,
+  String title,
+  String description,
+  TaskStatus status,
+  UUID userId,
+  Instant createdAt) {
 }

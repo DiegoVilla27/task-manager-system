@@ -1,7 +1,7 @@
-package com.diegovilla.task_manager.user.domain;
+package com.diegovilla.task_manager.features.user.domain;
 
 import com.diegovilla.task_manager.core.errors.exceptions.DomainException;
-import com.diegovilla.task_manager.user.domain.models.UserModel;
+import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

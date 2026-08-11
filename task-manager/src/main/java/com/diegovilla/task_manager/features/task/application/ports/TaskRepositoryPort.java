@@ -1,12 +1,15 @@
 package com.diegovilla.task_manager.features.task.application.ports;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
 import com.diegovilla.task_manager.features.task.domain.model.TaskModel;
+import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskFiltersDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-public interface TaskRepository {
+public interface TaskRepositoryPort {
 
   /**
    * Checks whether a task with the given title already exists,
@@ -22,7 +25,7 @@ public interface TaskRepository {
    *
    * @return a list of {@link TaskModel} instances, each containing user details.
    */
-  List<TaskModel> getAll();
+  Page<TaskWithUser> getAll(Pageable pageable, TaskFiltersDTO filters);
 
   /**
    * Retrieves a single task identified by its unique identifier with their
@@ -32,6 +35,8 @@ public interface TaskRepository {
    * @return an {@link Optional} containing the task if found, or empty otherwise.
    */
   Optional<TaskModel> getById(UUID id);
+
+  Optional<TaskWithUser> getByIdWithUser(UUID id);
 
   /**
    * Persists a new or updated task.

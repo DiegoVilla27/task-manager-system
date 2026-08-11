@@ -40,6 +40,7 @@ public class UserEntity {
   // TaskEntity
   // fetch: lazy es para que no traiga la lista de tasks si no se le piden
   // explicitamente
+  @Builder.Default
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   private List<TaskEntity> tasks = new ArrayList<>();
 

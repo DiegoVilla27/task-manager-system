@@ -65,8 +65,9 @@ public class UserService {
   public UserModel update(UUID id, UserUpdateCommand userUpdateCommand) {
     UserModel userFound = getById(id);
 
-    if (!userFound.getEmail().equals(userUpdateCommand.email())
-        && userRepository.existsByEmailIgnoreCase(StringUtils.normalize(userUpdateCommand.email()))) {
+    String emailNormalized = StringUtils.normalize(userUpdateCommand.email());
+    if (!userFound.getEmail().equals(emailNormalized)
+        && userRepository.existsByEmailIgnoreCase(emailNormalized)) {
       throw new UserAlreadyExistsException();
     }
 

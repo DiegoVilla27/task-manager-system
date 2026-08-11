@@ -1,9 +1,9 @@
-package com.diegovilla.task_manager.task.domain;
+package com.diegovilla.task_manager.features.task.domain;
 
 import com.diegovilla.task_manager.core.errors.exceptions.DomainException;
-import com.diegovilla.task_manager.task.domain.enums.TaskStatus;
-import com.diegovilla.task_manager.task.domain.models.TaskModel;
-import com.diegovilla.task_manager.user.domain.models.UserModel;
+import com.diegovilla.task_manager.features.task.domain.model.TaskModel;
+import com.diegovilla.task_manager.features.task.domain.valueobjects.TaskStatus;
+import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,12 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TaskModelTest {
 
-  private final UserModel user = UserModel.create(
-    "John",
-    "Doe",
-    "john.doe@example.com",
-    "hash_1234"
-  );
+  private final UUID userId = UUID.randomUUID();
 
   @Test
   @DisplayName("Should create a task successfully with valid title and description")
@@ -31,7 +26,7 @@ public class TaskModelTest {
     TaskModel task = TaskModel.create(
       "Tarea 1",
       "Mi Tarea 1",
-      user
+      userId
     );
 
     assertThat(task).isNotNull();
@@ -44,7 +39,7 @@ public class TaskModelTest {
   @ValueSource(strings = {"   "})
   @DisplayName("Should reject creating a task if title or description is null or blank")
   void shouldRejectCreateTaskIfTitleNullOrBlank(String title) {
-    assertThatThrownBy(() -> TaskModel.create(title, "Mi Tarea 1", user))
+    assertThatThrownBy(() -> TaskModel.create(title, "Mi Tarea 1", userId))
       .isInstanceOf(DomainException.class)
       .hasMessage("Title is required");
   }
@@ -54,7 +49,7 @@ public class TaskModelTest {
   @ValueSource(strings = {"   "})
   @DisplayName("Should reject creating a task if title or description is null or blank")
   void shouldRejectCreateTaskIfDescriptionNullOrBlank(String description) {
-    assertThatThrownBy(() -> TaskModel.create("Tarea 1", description, user))
+    assertThatThrownBy(() -> TaskModel.create("Tarea 1", description, userId))
       .isInstanceOf(DomainException.class)
       .hasMessage("Description is required");
   }
@@ -64,11 +59,11 @@ public class TaskModelTest {
   @DisplayName("Should reject creating a task if title or description haven't correct length")
   void shouldRejectCreateTaskIfTitleOrDescriptionHaventCorrectLength(String fieldName, String text) {
     if (fieldName.equals("Title")) {
-      assertThatThrownBy(() -> TaskModel.create(text, "Mi Tarea 1", user))
+      assertThatThrownBy(() -> TaskModel.create(text, "Mi Tarea 1", userId))
         .isInstanceOf(DomainException.class)
         .hasMessage("Title must be between 3 and 100 characters");
     } else {
-      assertThatThrownBy(() -> TaskModel.create("Tarea 1", text, user))
+      assertThatThrownBy(() -> TaskModel.create("Tarea 1", text, userId))
         .isInstanceOf(DomainException.class)
         .hasMessage("Description must be between 3 and 400 characters");
     }
@@ -77,14 +72,14 @@ public class TaskModelTest {
   @Test
   @DisplayName("Should reconstruct a task successfully")
   void shouldReconstructTask() {
-    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", user);
+    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", userId);
 
     TaskModel taskReconstruct = TaskModel.reconstruct(
       task.getId(),
       task.getTitle(),
       task.getDescription(),
       task.getStatus(),
-      task.getUser(),
+      task.getUserId(),
       task.getCreatedAt(),
       task.getUpdatedAt()
     );
@@ -95,7 +90,7 @@ public class TaskModelTest {
   @Test
   @DisplayName("Should start a pending task")
   void shouldStartPendingTask() {
-    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", user);
+    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", userId);
 
     task.start();
 
@@ -111,7 +106,7 @@ public class TaskModelTest {
       "Tarea 1",
       "Mi Tarea 1",
       taskStatus,
-      user,
+      userId,
       Instant.now(),
       Instant.now()
     );
@@ -124,7 +119,7 @@ public class TaskModelTest {
   @Test
   @DisplayName("Should complete an in-progress task")
   void shouldCompleteInProgressTask() {
-    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", user);
+    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", userId);
 
     task.start();
     task.complete();
@@ -142,7 +137,7 @@ public class TaskModelTest {
       "Tarea 1",
       "Mi Tarea 1",
       taskStatus,
-      user,
+      userId,
       Instant.now(),
       Instant.now()
     );
@@ -155,7 +150,7 @@ public class TaskModelTest {
   @Test
   @DisplayName("Should update task information successfully")
   void shouldUpdateInformation() {
-    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", user);
+    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", userId);
 
     task.updateInformation("Tarea 1 Actualizada", "Mi Tarea 1 Actualizada");
 
@@ -166,7 +161,7 @@ public class TaskModelTest {
   @Test
   @DisplayName("Should reject updating information of a completed task")
   void shouldRejectUpdateInformation() {
-    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", user);
+    TaskModel task = TaskModel.create("Tarea 1", "Mi Tarea 1", userId);
     task.start();
     task.complete();
 
@@ -179,7 +174,7 @@ public class TaskModelTest {
   @Test
   @DisplayName("Should return normalized title")
   void shouldReturnNormalizedTitle() {
-    TaskModel task = TaskModel.create("   Tarea 1   ", "Mi Tarea 1", user);
+    TaskModel task = TaskModel.create("   Tarea 1   ", "Mi Tarea 1", userId);
     String titleNormalized = task.normalizedTitle();
 
     assertThat(titleNormalized).isEqualTo("tarea 1");

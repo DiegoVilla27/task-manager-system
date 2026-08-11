@@ -3,8 +3,10 @@ package com.diegovilla.task_manager.features.task.application.services;
 import com.diegovilla.task_manager.core.errors.exceptions.DomainException;
 import com.diegovilla.task_manager.core.errors.exceptions.ResourceNotFoundException;
 import com.diegovilla.task_manager.features.task.application.commands.TaskCreateCommand;
+import com.diegovilla.task_manager.features.task.application.commands.TaskPaginationCommand;
 import com.diegovilla.task_manager.features.task.application.commands.TaskUpdateCommand;
-import com.diegovilla.task_manager.features.task.application.ports.TaskRepository;
+import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
+import com.diegovilla.task_manager.features.task.application.ports.TaskRepositoryPort;
 import com.diegovilla.task_manager.features.task.domain.exceptions.TaskAlreadyExistsException;
 import com.diegovilla.task_manager.features.task.domain.model.TaskModel;
 import com.diegovilla.task_manager.features.user.application.ports.UserRepository;
@@ -12,6 +14,9 @@ import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import com.diegovilla.task_manager.utils.data.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +29,7 @@ import java.util.UUID;
  * <p>
  * Orchestrates CRUD operations and status-transition workflows
  * ({@code start}, {@code complete}) by delegating persistence to
- * {@link TaskRepository} and enforcing domain rules defined in
+ * {@link TaskRepositoryPort} and enforcing domain rules defined in
  * {@link TaskModel}.
  * </p>
  *
@@ -41,7 +46,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class TaskService {
 
-  private final TaskRepository taskRepository;
+  private final TaskRepositoryPort taskRepositoryPort;
   private final UserRepository userRepository;
 
   /**
@@ -49,9 +54,11 @@ public class TaskService {
    *
    * @return a list containing all {@link TaskModel} instances.
    */
-  public List<TaskModel> getAll() {
-    List<TaskModel> tasks = taskRepository.getAll();
-    log.info("Tasks retrieved successfully. size={}", tasks.size());
+  public Page<TaskWithUser> getAll(TaskPaginationCommand taskPaginationCommand) {
+    Pageable pageable = PageRequest.of(taskPaginationCommand.page(), taskPaginationCommand.limit());
+
+    Page<TaskWithUser> tasks = taskRepositoryPort.getAll(pageable, taskPaginationCommand.filters());
+    log.info("Tasks retrieved successfully. size={}", tasks.getContent().size());
 
     return tasks;
   }
@@ -63,11 +70,11 @@ public class TaskService {
    * @return the found {@link TaskModel}.
    * @throws ResourceNotFoundException if no task exists with the given id.
    */
-  public TaskModel getById(UUID id) {
-    TaskModel taskFound = taskRepository
-        .getById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Task not found."));
-    log.info("Task retrieved successfully. id={}", taskFound.getId());
+  public TaskWithUser getById(UUID id) {
+    TaskWithUser taskFound = taskRepositoryPort
+      .getByIdWithUser(id)
+      .orElseThrow(() -> new ResourceNotFoundException("Task not found."));
+    log.info("Task retrieved successfully. id={}", taskFound.task().getId());
 
     return taskFound;
   }
@@ -81,23 +88,23 @@ public class TaskService {
    *                                    already exists (case-insensitive).
    */
   @Transactional
-  public TaskModel create(TaskCreateCommand taskCreateCommand) {
-    if (taskRepository.existsByTitleIgnoreCase(StringUtils.normalize(taskCreateCommand.title()))) {
+  public TaskWithUser create(TaskCreateCommand taskCreateCommand) {
+    if (taskRepositoryPort.existsByTitleIgnoreCase(StringUtils.normalize(taskCreateCommand.title()))) {
       throw new TaskAlreadyExistsException();
     }
 
-    UserModel userFound = userRepository.getById(taskCreateCommand.userId())
-        .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+    UserModel userFound = getUserById(taskCreateCommand.userId());
 
     TaskModel taskModel = TaskModel.create(
-        taskCreateCommand.title(),
-        taskCreateCommand.description(),
-        userFound);
+      taskCreateCommand.title(),
+      taskCreateCommand.description(),
+      userFound.getId()
+    );
 
-    TaskModel taskCreated = taskRepository.save(taskModel);
-    log.info("Task created successfully. id={}", taskCreated.getId());
+    TaskModel taskCreated = taskRepositoryPort.save(taskModel);
+    log.info("Task created response successfully. id={}", taskCreated.getId());
 
-    return taskCreated;
+    return new TaskWithUser(taskCreated, userFound);
   }
 
   /**
@@ -116,22 +123,22 @@ public class TaskService {
    *                                    an existing task.
    */
   @Transactional
-  public TaskModel update(UUID id, TaskUpdateCommand taskUpdateCommand) {
-    TaskModel taskFound = getById(id);
+  public TaskWithUser update(UUID id, TaskUpdateCommand taskUpdateCommand) {
+    TaskWithUser taskFound = getById(id);
     String newTitle = taskUpdateCommand.title();
 
     if (newTitle != null &&
-        !taskFound.getTitle().equalsIgnoreCase(newTitle) &&
-        taskRepository.existsByTitleIgnoreCase(
-            StringUtils.normalize(newTitle))) {
+      !taskFound.task().getTitle().equalsIgnoreCase(newTitle) &&
+      taskRepositoryPort.existsByTitleIgnoreCase(
+        StringUtils.normalize(newTitle))) {
       throw new TaskAlreadyExistsException();
     }
 
-    taskFound.updateInformation(taskUpdateCommand.title(), taskUpdateCommand.description());
-    TaskModel taskUpdated = taskRepository.save(taskFound);
+    taskFound.task().updateInformation(taskUpdateCommand.title(), taskUpdateCommand.description());
+    TaskModel taskUpdated = taskRepositoryPort.save(taskFound.task());
     log.info("Task updated successfully. id={}", taskUpdated.getId());
 
-    return taskUpdated;
+    return taskFound;
   }
 
   /**
@@ -142,10 +149,10 @@ public class TaskService {
    */
   @Transactional
   public void delete(UUID id) {
-    TaskModel taskFound = getById(id);
+    TaskWithUser taskFound = getById(id);
 
-    taskRepository.delete(taskFound.getId());
-    log.info("Task deleted successfully. id={}", taskFound.getId());
+    taskRepositoryPort.delete(taskFound.task().getId());
+    log.info("Task deleted successfully. id={}", taskFound.task().getId());
   }
 
   /**
@@ -158,15 +165,13 @@ public class TaskService {
    *                                   its current status.
    */
   @Transactional
-  public TaskModel start(UUID id) {
-    TaskModel taskFound = getById(id);
+  public void start(UUID id) {
+    TaskWithUser taskFound = getById(id);
 
-    taskFound.start();
+    taskFound.task().start();
 
-    TaskModel taskStarted = taskRepository.save(taskFound);
+    TaskModel taskStarted = taskRepositoryPort.save(taskFound.task());
     log.info("Task started successfully. id={}", taskStarted.getId());
-
-    return taskStarted;
   }
 
   /**
@@ -179,14 +184,17 @@ public class TaskService {
    *                                   its current status.
    */
   @Transactional
-  public TaskModel complete(UUID id) {
-    TaskModel taskFound = getById(id);
+  public void complete(UUID id) {
+    TaskWithUser taskFound = getById(id);
 
-    taskFound.complete();
+    taskFound.task().complete();
 
-    TaskModel taskCompleted = taskRepository.save(taskFound);
+    TaskModel taskCompleted = taskRepositoryPort.save(taskFound.task());
     log.info("Task completed successfully. id={}", taskCompleted.getId());
+  }
 
-    return taskCompleted;
+  private UserModel getUserById(UUID id) {
+    return userRepository.getById(id)
+      .orElseThrow(() -> new ResourceNotFoundException("User not found."));
   }
 }

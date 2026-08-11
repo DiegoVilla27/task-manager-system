@@ -1,25 +1,22 @@
 package com.diegovilla.task_manager.features.task.infrastructure.mappers;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.diegovilla.task_manager.features.task.domain.model.TaskModel;
 import com.diegovilla.task_manager.features.task.infrastructure.entity.TaskEntity;
 import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserEntityMapper;
 
-@Mapper(componentModel = "spring", uses = { UserEntityMapper.class })
-public abstract class TaskEntityMapper {
-
-  @Autowired
-  protected UserEntityMapper userEntityMapper;
-
+@Mapper(componentModel = "spring")
+public interface TaskEntityMapper {
   /**
    * Converts a JPA entity into a domain model.
    *
    * @param taskEntity the JPA entity to convert.
    * @return the corresponding domain model.
    */
-  public TaskModel entityToModel(TaskEntity taskEntity) {
+  default TaskModel entityToModel(TaskEntity taskEntity) {
     if (taskEntity == null) {
       return null;
     }
@@ -28,7 +25,7 @@ public abstract class TaskEntityMapper {
         taskEntity.getTitle(),
         taskEntity.getDescription(),
         taskEntity.getStatus(),
-        userEntityMapper.entityToModel(taskEntity.getUser()),
+        taskEntity.getUser().getId(),
         taskEntity.getCreatedAt(),
         taskEntity.getUpdatedAt());
   }
@@ -39,5 +36,6 @@ public abstract class TaskEntityMapper {
    * @param taskModel the domain model to convert.
    * @return the corresponding JPA entity ready for persistence.
    */
-  public abstract TaskEntity modelToEntity(TaskModel taskModel);
+  @Mapping(target = "user.id", source = "userId")
+  TaskEntity modelToEntity(TaskModel taskModel);
 }

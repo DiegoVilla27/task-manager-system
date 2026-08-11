@@ -1,4 +1,4 @@
-package com.diegovilla.task_manager.user.application;
+package com.diegovilla.task_manager.features.user.application;
 
 import com.diegovilla.task_manager.core.errors.exceptions.ResourceNotFoundException;
 import com.diegovilla.task_manager.features.user.application.commands.UserCreateCommand;

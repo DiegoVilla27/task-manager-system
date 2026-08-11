@@ -18,7 +18,7 @@ public class TaskModel {
   private String title;
   private String description;
   private TaskStatus status;
-  private final UserModel user;
+  private final UUID userId;
   private final Instant createdAt;
   private Instant updatedAt;
 
@@ -26,18 +26,18 @@ public class TaskModel {
    * Internal constructor — use the factory methods instead.
    */
   private TaskModel(
-      UUID id,
-      String title,
-      String description,
-      TaskStatus status,
-      UserModel user,
-      Instant createdAt,
-      Instant updatedAt) {
+    UUID id,
+    String title,
+    String description,
+    TaskStatus status,
+    UUID userId,
+    Instant createdAt,
+    Instant updatedAt) {
     this.id = Objects.requireNonNull(id, "Task ID cannot be null");
     this.title = Objects.requireNonNull(title, "Task title cannot be null").trim();
     this.description = Objects.requireNonNull(description, "Task description cannot be null").trim();
     this.status = Objects.requireNonNull(status, "Task status cannot be null");
-    this.user = Objects.requireNonNull(user, "Task user cannot be null");
+    this.userId = Objects.requireNonNull(userId, "Task userId cannot be null");
     this.createdAt = Objects.requireNonNull(createdAt, "Task createdAt cannot be null");
     this.updatedAt = Objects.requireNonNull(updatedAt, "Task updatedAt cannot be null");
   }
@@ -52,22 +52,22 @@ public class TaskModel {
    *
    * @param title       task title (3–100 characters).
    * @param description task description (3–400 characters).
-   * @param user        the user who owns the task.
+   * @param userId      the userId who owns the task.
    * @return a new {@link TaskModel} with a generated UUID and current timestamps.
    * @throws DomainException if title or description is invalid.
    */
-  public static TaskModel create(String title, String description, UserModel user) {
+  public static TaskModel create(String title, String description, UUID userId) {
     title = ValidateDataUtils.required(title, 3, 100, "Title");
     description = ValidateDataUtils.required(description, 3, 400, "Description");
 
     return new TaskModel(
-        UUID.randomUUID(),
-        title,
-        description,
-        TaskStatus.PENDING,
-        user,
-        Instant.now(),
-        Instant.now());
+      UUID.randomUUID(),
+      title,
+      description,
+      TaskStatus.PENDING,
+      userId,
+      Instant.now(),
+      Instant.now());
   }
 
   /**
@@ -78,28 +78,28 @@ public class TaskModel {
    * @param title       task title.
    * @param description task description.
    * @param status      current lifecycle status.
-   * @param user        the user who owns the task.
+   * @param userId      the userId who owns the task.
    * @param createdAt   creation timestamp.
    * @param updatedAt   last-update timestamp.
    * @return a fully hydrated domain model.
    * @throws NullPointerException if any argument is {@code null}.
    */
   public static TaskModel reconstruct(
-      UUID id,
-      String title,
-      String description,
-      TaskStatus status,
-      UserModel user,
-      Instant createdAt,
-      Instant updatedAt) {
+    UUID id,
+    String title,
+    String description,
+    TaskStatus status,
+    UUID userId,
+    Instant createdAt,
+    Instant updatedAt) {
     return new TaskModel(
-        Objects.requireNonNull(id, "Task ID cannot be null"),
-        Objects.requireNonNull(title, "Task title cannot be null"),
-        Objects.requireNonNull(description, "Task description cannot be null"),
-        Objects.requireNonNull(status, "Task status cannot be null"),
-        Objects.requireNonNull(user, "Task user cannot be null"),
-        Objects.requireNonNull(createdAt, "Task createdAt cannot be null"),
-        Objects.requireNonNull(updatedAt, "Task updatedAt cannot be null"));
+      Objects.requireNonNull(id, "Task ID cannot be null"),
+      Objects.requireNonNull(title, "Task title cannot be null"),
+      Objects.requireNonNull(description, "Task description cannot be null"),
+      Objects.requireNonNull(status, "Task status cannot be null"),
+      Objects.requireNonNull(userId, "Task userId cannot be null"),
+      Objects.requireNonNull(createdAt, "Task createdAt cannot be null"),
+      Objects.requireNonNull(updatedAt, "Task updatedAt cannot be null"));
   }
 
   /**

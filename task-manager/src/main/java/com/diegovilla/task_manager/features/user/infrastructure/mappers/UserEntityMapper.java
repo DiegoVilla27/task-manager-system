@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import com.diegovilla.task_manager.features.user.infrastructure.entity.UserEntity;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserEntityMapper {
@@ -23,5 +24,6 @@ public interface UserEntityMapper {
         userEntity.getUpdatedAt());
   }
 
+  @Mapping(target = "tasks", ignore = true)
   UserEntity modelToEntity(UserModel userModel);
 }
