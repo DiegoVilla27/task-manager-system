@@ -9,7 +9,22 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility adapter constructing Spring Data JPA {@link Specification} instances for task queries.
+ *
+ * <p>Translates {@link TaskFiltersDTO} query parameters into JPA Criteria API predicates and
+ * optimizes entity fetching using JOIN FETCH to eliminate N+1 query overhead.</p>
+ *
+ * @since 1.0.0
+ */
 public class TaskSpecificationsAdapter {
+
+  /**
+   * Constructs a JPA specification matching the provided task filters.
+   *
+   * @param filters query filter criteria.
+   * @return a {@link Specification} for querying {@link TaskEntity}.
+   */
   public static Specification<TaskEntity> withFilters(TaskFiltersDTO filters) {
     return (root, query, criteriaBuilder) -> {
       List<Predicate> predicates = new ArrayList<>();
