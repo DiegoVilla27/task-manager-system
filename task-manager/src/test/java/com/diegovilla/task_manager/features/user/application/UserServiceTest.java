@@ -2,19 +2,27 @@ package com.diegovilla.task_manager.features.user.application;
 
 import com.diegovilla.task_manager.core.errors.exceptions.ResourceNotFoundException;
 import com.diegovilla.task_manager.features.user.application.commands.UserCreateCommand;
+import com.diegovilla.task_manager.features.user.application.commands.UserPaginationCommand;
 import com.diegovilla.task_manager.features.user.application.commands.UserUpdateCommand;
-import com.diegovilla.task_manager.features.user.application.ports.PasswordHasher;
-import com.diegovilla.task_manager.features.user.application.ports.UserRepository;
+import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
+import com.diegovilla.task_manager.features.user.application.ports.PasswordHasherPort;
+import com.diegovilla.task_manager.features.user.application.ports.UserRepositoryPort;
 import com.diegovilla.task_manager.features.user.application.services.UserService;
 import com.diegovilla.task_manager.features.user.domain.exceptions.UserAlreadyExistsException;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
+import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserFiltersDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,10 +36,10 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
   @Mock
-  private UserRepository userRepository;
+  private UserRepositoryPort userRepository;
 
   @Mock
-  private PasswordHasher passwordHasher;
+  private PasswordHasherPort passwordHasher;
 
   @InjectMocks
   private UserService userService;
@@ -39,31 +47,50 @@ public class UserServiceTest {
   @Test
   @DisplayName("Should retrieve all users successfully")
   void shouldGetAllUsers() {
-    List<UserModel> users = List.of(
-      UserModel.create("John", "Doe", "john.doe@example.com", "12345"),
-      UserModel.create("John 1", "Doe 1", "john.doe1@example.com", "12345"),
-      UserModel.create("John 2", "Doe 2", "john.doe2@example.com", "12345")
+    UserFiltersDTO filters = new UserFiltersDTO(null, null);
+    UserPaginationCommand command = new UserPaginationCommand(1, 10, filters);
+    Pageable pageable = PageRequest.of(command.page(), command.limit());
+
+    List<UserWithTaskCount> users = List.of(
+      new UserWithTaskCount(
+        UserModel.create("John", "Doe", "john.doe@example.com", "12345"),
+        10L
+      ),
+      new UserWithTaskCount(
+        UserModel.create("John 1", "Doe", "john.doe1@example.com", "12345"),
+        10L
+      ),
+      new UserWithTaskCount(
+        UserModel.create("John 2", "Doe", "john.doe2@example.com", "12345"),
+        10L
+      )
     );
 
-    when(userRepository.getAll()).thenReturn(users);
+    Page<UserWithTaskCount> userPage = new PageImpl<>(users, pageable, users.size());
 
-    List<UserModel> usersResponse = userService.getAll();
+    when(userRepository.getAll(pageable, filters)).thenReturn(userPage);
 
-    assertThat(usersResponse).isSameAs(users);
-    verify(userRepository).getAll();
+    Page<UserWithTaskCount> usersResponse = userService.getAll(command);
+
+    assertThat(usersResponse).isSameAs(userPage);
+    verify(userRepository).getAll(pageable, filters);
   }
 
   @Test
   @DisplayName("Should retrieve a user by its ID successfully")
   void shouldGetUserById() {
-    UserModel user = UserModel.create("John", "Doe", "john.doe@example.com", "12345");
+    UUID userId = UUID.randomUUID();
+    UserWithTaskCount user = new UserWithTaskCount(
+      UserModel.create("John", "Doe", "john.doe@example.com", "12345"),
+      10L
+    );
 
-    when(userRepository.getById(user.getId())).thenReturn(Optional.of(user));
+    when(userRepository.getById(userId)).thenReturn(Optional.of(user));
 
-    UserModel userFound = userService.getById(user.getId());
+    UserWithTaskCount userFound = userService.getById(userId);
 
     assertThat(userFound).isSameAs(user);
-    verify(userRepository).getById(user.getId());
+    verify(userRepository).getById(userId);
   }
 
   @Test
@@ -99,10 +126,10 @@ public class UserServiceTest {
 
     when(userRepository.save(any(UserModel.class))).thenReturn(user);
 
-    UserModel userCreated = userService.create(command);
+    UserWithTaskCount userCreated = userService.create(command);
 
-    assertThat(userCreated.getName()).isEqualTo(command.name());
-    assertThat(userCreated.getPassword()).isEqualTo(hashPassword);
+    assertThat(userCreated.user().getName()).isEqualTo(command.name());
+    assertThat(userCreated.user().getPassword()).isEqualTo(hashPassword);
 
     verify(userRepository).existsByEmailIgnoreCase(command.email());
     verify(passwordHasher).hash(command.password());
@@ -137,21 +164,32 @@ public class UserServiceTest {
       "Doe Updated",
       "john.updated@example.com"
     );
-    UserModel user = UserModel.create("John", "Doe", "john.doe@example.com", "hash_12345");
+    UserWithTaskCount userFound = new UserWithTaskCount(
+      UserModel.reconstruct(
+        userId,
+        "John",
+        "Doe",
+        "john.doe@example.com",
+        "hash_12345",
+        Instant.now(),
+        Instant.now()
+      ),
+      10L
+    );
 
-    when(userRepository.getById(userId)).thenReturn(Optional.of(user));
+    when(userRepository.getById(userId)).thenReturn(Optional.of(userFound));
 
     when(userRepository.existsByEmailIgnoreCase(command.email())).thenReturn(false);
 
-    when(userRepository.save(user)).thenReturn(user);
+    when(userRepository.save(userFound.user())).thenReturn(userFound.user());
 
-    UserModel userUpdated = userService.update(userId, command);
+    UserWithTaskCount userUpdated = userService.update(userId, command);
 
-    assertThat(userUpdated.getName()).isEqualTo(command.name());
+    assertThat(userUpdated.user().getName()).isEqualTo(command.name());
 
     verify(userRepository).getById(userId);
     verify(userRepository).existsByEmailIgnoreCase(command.email());
-    verify(userRepository).save(user);
+    verify(userRepository).save(userFound.user());
   }
 
   @Test
@@ -163,9 +201,20 @@ public class UserServiceTest {
       "Doe Updated",
       "john.updated@example.com"
     );
-    UserModel user = UserModel.create("John", "Doe", "john.doe@example.com", "hash_12345");
+    UserWithTaskCount userFound = new UserWithTaskCount(
+      UserModel.reconstruct(
+        userId,
+        "John",
+        "Doe",
+        "john.doe@example.com",
+        "hash_12345",
+        Instant.now(),
+        Instant.now()
+      ),
+      10L
+    );
 
-    when(userRepository.getById(userId)).thenReturn(Optional.of(user));
+    when(userRepository.getById(userId)).thenReturn(Optional.of(userFound));
 
     when(userRepository.existsByEmailIgnoreCase(command.email())).thenReturn(true);
 
@@ -180,15 +229,27 @@ public class UserServiceTest {
   @Test
   @DisplayName("Should delete a user successfully")
   void shouldDeleteUser() {
-    UserModel user = UserModel.create("John", "Doe", "john.doe@example.com", "hash_12345");
+    UUID userId = UUID.randomUUID();
+    UserWithTaskCount userFound = new UserWithTaskCount(
+      UserModel.reconstruct(
+        userId,
+        "John",
+        "Doe",
+        "john.doe@example.com",
+        "hash_12345",
+        Instant.now(),
+        Instant.now()
+      ),
+      10L
+    );
 
-    when(userRepository.getById(user.getId())).thenReturn(Optional.of(user));
+    when(userRepository.getById(userId)).thenReturn(Optional.of(userFound));
 
-    doNothing().when(userRepository).delete(user.getId());
+    doNothing().when(userRepository).delete(userId);
 
-    userService.delete(user.getId());
+    userService.delete(userId);
 
-    verify(userRepository).getById(user.getId());
-    verify(userRepository).delete(user.getId());
+    verify(userRepository).getById(userId);
+    verify(userRepository).delete(userId);
   }
 }

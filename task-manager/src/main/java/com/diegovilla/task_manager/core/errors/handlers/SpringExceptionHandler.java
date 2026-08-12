@@ -20,6 +20,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.exc.InvalidFormatException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -284,6 +286,46 @@ public class SpringExceptionHandler {
     return errorResponseFactory.build(
       HttpStatus.BAD_REQUEST,
       ex.getMessage(),
+      List.of()
+    );
+  }
+
+  /**
+   * Handles authentication failures occurring during request execution.
+   *
+   * <p>This exception is thrown when an unauthenticated user attempts to access
+   * a protected resource or provides an invalid or expired authentication token.</p>
+   *
+   * @param e exception thrown during the authentication process.
+   * @return HTTP 401 response indicating authentication is required or invalid.
+   */
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(AuthenticationException e) {
+    log.warn("Authentication failed: {}", e.getMessage());
+
+    return errorResponseFactory.build(
+      HttpStatus.UNAUTHORIZED,
+      "Full authentication is required or token is invalid.",
+      List.of()
+    );
+  }
+
+  /**
+   * Handles authorization failures occurring during request execution.
+   *
+   * <p>This exception is thrown when an authenticated user attempts to access
+   * a resource or perform an action for which they lack the required permissions or roles.</p>
+   *
+   * @param e exception thrown when access to a resource is denied.
+   * @return HTTP 403 response indicating insufficient permissions.
+   */
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorResponseDTO> handleAccessDeniedException(AccessDeniedException e) {
+    log.warn("Access denied: {}", e.getMessage());
+
+    return errorResponseFactory.build(
+      HttpStatus.FORBIDDEN,
+      "You do not have permission to access this resource.",
       List.of()
     );
   }

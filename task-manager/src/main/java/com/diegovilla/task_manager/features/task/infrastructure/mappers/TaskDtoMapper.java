@@ -6,10 +6,8 @@ import org.mapstruct.Mapper;
 
 import com.diegovilla.task_manager.features.task.application.commands.TaskCreateCommand;
 import com.diegovilla.task_manager.features.task.application.commands.TaskUpdateCommand;
-import com.diegovilla.task_manager.features.task.domain.model.TaskModel;
 import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskCreateRequestDTO;
 import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskUpdateRequestDTO;
-import com.diegovilla.task_manager.features.task.infrastructure.dto.response.TaskResponseDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserDtoMapper;
 import org.mapstruct.Mapping;
 
@@ -31,14 +29,6 @@ public interface TaskDtoMapper {
    * @return a {@link TaskUpdateCommand} carrying the update data.
    */
   TaskUpdateCommand updateRequestDTOToCommand(TaskUpdateRequestDTO taskUpdateRequestDTO);
-
-  /**
-   * Converts a domain model into a response DTO for the client.
-   *
-   * @param taskModel the domain model to convert.
-   * @return the corresponding {@link TaskResponseDTO}.
-   */
-  TaskResponseDTO modelToResponseDTO(TaskModel taskModel);
 
   @Mapping(target = "id", source = "task.id")
   @Mapping(target = "title", source = "task.title")

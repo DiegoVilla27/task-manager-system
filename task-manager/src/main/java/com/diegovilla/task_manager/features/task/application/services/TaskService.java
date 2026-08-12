@@ -9,7 +9,7 @@ import com.diegovilla.task_manager.features.task.application.dto.response.TaskWi
 import com.diegovilla.task_manager.features.task.application.ports.TaskRepositoryPort;
 import com.diegovilla.task_manager.features.task.domain.exceptions.TaskAlreadyExistsException;
 import com.diegovilla.task_manager.features.task.domain.model.TaskModel;
-import com.diegovilla.task_manager.features.user.application.ports.UserRepository;
+import com.diegovilla.task_manager.features.user.application.ports.UserRepositoryPort;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import com.diegovilla.task_manager.utils.data.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -47,7 +46,7 @@ import java.util.UUID;
 public class TaskService {
 
   private final TaskRepositoryPort taskRepositoryPort;
-  private final UserRepository userRepository;
+  private final UserRepositoryPort userRepository;
 
   /**
    * Retrieves every task in the system.
@@ -195,6 +194,6 @@ public class TaskService {
 
   private UserModel getUserById(UUID id) {
     return userRepository.getById(id)
-      .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+      .orElseThrow(() -> new ResourceNotFoundException("User not found.")).user();
   }
 }

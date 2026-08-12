@@ -1,13 +1,13 @@
 package com.diegovilla.task_manager.features.user.infrastructure.adapters;
 
-import com.diegovilla.task_manager.features.user.application.ports.PasswordHasher;
+import com.diegovilla.task_manager.features.user.application.ports.PasswordHasherPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Component
 @RequiredArgsConstructor
-public class BCryptPasswordHasher implements PasswordHasher {
+public class BCryptPasswordHasherAdapter implements PasswordHasherPort {
 
   private final PasswordEncoder passwordEncoder;
 

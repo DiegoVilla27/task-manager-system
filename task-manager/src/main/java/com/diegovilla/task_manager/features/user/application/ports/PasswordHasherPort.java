@@ -1,6 +1,6 @@
 package com.diegovilla.task_manager.features.user.application.ports;
 
-public interface PasswordHasher {
+public interface PasswordHasherPort {
 
   String hash(String rawPassword);
 

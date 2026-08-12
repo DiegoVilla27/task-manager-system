@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
 import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskFiltersDTO;
+import com.diegovilla.task_manager.features.task.infrastructure.specifications.TaskSpecifications;
 import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserEntityMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -43,7 +44,7 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
    */
   @Override
   public Page<TaskWithUser> getAll(Pageable pageable, TaskFiltersDTO filters) {
-    Specification<TaskEntity> spec = TaskSpecificationsAdapter.withFilters(filters);
+    Specification<TaskEntity> spec = TaskSpecifications.withFilters(filters);
 
     return taskJpaRepository.findAll(spec, pageable).map((taskEntity) ->
       new TaskWithUser(

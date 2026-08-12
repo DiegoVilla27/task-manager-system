@@ -1,4 +1,4 @@
-package com.diegovilla.task_manager.features.task.infrastructure.adapters;
+package com.diegovilla.task_manager.features.task.infrastructure.specifications;
 
 import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskFiltersDTO;
 import com.diegovilla.task_manager.features.task.infrastructure.entity.TaskEntity;
@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class TaskSpecificationsAdapter {
+public class TaskSpecifications {
 
   /**
    * Constructs a JPA specification matching the provided task filters.

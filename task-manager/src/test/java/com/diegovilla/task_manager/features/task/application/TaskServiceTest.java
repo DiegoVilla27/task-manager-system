@@ -10,7 +10,8 @@ import com.diegovilla.task_manager.features.task.application.services.TaskServic
 import com.diegovilla.task_manager.features.task.domain.exceptions.TaskAlreadyExistsException;
 import com.diegovilla.task_manager.features.task.domain.model.TaskModel;
 import com.diegovilla.task_manager.features.task.domain.valueobjects.TaskStatus;
-import com.diegovilla.task_manager.features.user.application.ports.UserRepository;
+import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
+import com.diegovilla.task_manager.features.user.application.ports.UserRepositoryPort;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import com.diegovilla.task_manager.utils.data.StringUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +39,7 @@ public class TaskServiceTest {
   private TaskRepositoryPort taskRepositoryPort;
 
   @Mock
-  private UserRepository userRepository;
+  private UserRepositoryPort userRepository;
 
   @InjectMocks
   private TaskService taskService;
@@ -99,17 +100,30 @@ public class TaskServiceTest {
   @Test
   @DisplayName("Should create a task successfully when it does not already exist")
   void shouldCreateTaskSuccessfully() {
+    UUID userId = UUID.randomUUID();
     TaskCreateCommand command = new TaskCreateCommand(
       "Test Task",
       "This is a test task",
-      user.getId()
+      userId
+    );
+    UserWithTaskCount userFound = new UserWithTaskCount(
+      UserModel.reconstruct(
+        userId,
+        "John",
+        "Doe",
+        "john.doe@example.com",
+        "hash_12345",
+        Instant.now(),
+        Instant.now()
+      ),
+      10L
     );
 
     when(taskRepositoryPort.existsByTitleIgnoreCase(StringUtils.normalize(command.title())))
       .thenReturn(false);
 
     when(userRepository.getById(command.userId()))
-      .thenReturn(Optional.of(user));
+      .thenReturn(Optional.of(userFound));
 
     when(taskRepositoryPort.save(any(TaskModel.class)))
       .thenAnswer(invocation -> invocation.getArgument(0));

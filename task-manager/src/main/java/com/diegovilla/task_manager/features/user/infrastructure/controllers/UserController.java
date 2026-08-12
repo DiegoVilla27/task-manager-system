@@ -1,23 +1,26 @@
 package com.diegovilla.task_manager.features.user.infrastructure.controllers;
 
 import com.diegovilla.task_manager.features.user.application.commands.UserCreateCommand;
+import com.diegovilla.task_manager.features.user.application.commands.UserPaginationCommand;
 import com.diegovilla.task_manager.features.user.application.commands.UserUpdateCommand;
+import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
 import com.diegovilla.task_manager.features.user.application.services.UserService;
-import com.diegovilla.task_manager.features.user.domain.model.UserModel;
+import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserFiltersDTO;
+import com.diegovilla.task_manager.features.user.infrastructure.dto.response.UserWithTaskCountResponseDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserDtoMapper;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserCreateRequestDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserUpdateRequestDTO;
-import com.diegovilla.task_manager.features.user.infrastructure.dto.response.UserResponseDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.docs.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Validated
@@ -32,44 +35,50 @@ public class UserController {
 
   @GetMapping
   @GetUsersDocumentation
-  public ResponseEntity<List<UserResponseDTO>> getAll() {
-    List<UserModel> users = userService.getAll();
+  public ResponseEntity<Page<UserWithTaskCountResponseDTO>> getAll(
+    @RequestParam(defaultValue = "1")
+    @Min(value = 1, message = "Page must be greater than or equal to 0")
+    int page,
+    @RequestParam(defaultValue = "10")
+    @Min(value = 1, message = "Limit must be greater than 0")
+    int limit,
+    UserFiltersDTO filters
+  ) {
+    UserPaginationCommand userPaginationCommand = new UserPaginationCommand(page - 1, limit, filters);
+    Page<UserWithTaskCount> users = userService.getAll(userPaginationCommand);
 
-    return ResponseEntity.ok(users
-        .stream()
-        .map(userDtoMapper::modelToResponseDTO)
-        .toList());
+    return ResponseEntity.ok(users.map(userDtoMapper::modelToWithTasksResponseDTO));
   }
 
   @GetMapping("/{id}")
   @GetUserDocumentation
-  public ResponseEntity<UserResponseDTO> getById(@PathVariable UUID id) {
-    UserModel user = userService.getById(id);
+  public ResponseEntity<UserWithTaskCountResponseDTO> getById(@PathVariable UUID id) {
+    UserWithTaskCount user = userService.getById(id);
 
-    return ResponseEntity.ok(userDtoMapper.modelToResponseDTO(user));
+    return ResponseEntity.ok(userDtoMapper.modelToWithTasksResponseDTO(user));
   }
 
   @PostMapping
   @CreateUserDocumentation
-  public ResponseEntity<UserResponseDTO> create(
-      @Valid @RequestBody UserCreateRequestDTO dto) {
+  public ResponseEntity<UserWithTaskCountResponseDTO> create(
+    @Valid @RequestBody UserCreateRequestDTO dto) {
     UserCreateCommand userCreateCommand = userDtoMapper.createRequestDTOToCommand(dto);
-    UserModel userCreated = userService.create(userCreateCommand);
+    UserWithTaskCount userCreated = userService.create(userCreateCommand);
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(userDtoMapper.modelToResponseDTO(userCreated));
+      .body(userDtoMapper.modelToWithTasksResponseDTO(userCreated));
   }
 
   @PatchMapping("/{id}")
   @UpdateUserDocumentation
-  public ResponseEntity<UserResponseDTO> update(
-      @PathVariable UUID id,
-      @Valid @RequestBody UserUpdateRequestDTO dto) {
+  public ResponseEntity<UserWithTaskCountResponseDTO> update(
+    @PathVariable UUID id,
+    @Valid @RequestBody UserUpdateRequestDTO dto) {
     UserUpdateCommand userUpdateCommand = userDtoMapper.updateRequestDTOToCommand(dto);
-    UserModel userUpdated = userService.update(id, userUpdateCommand);
+    UserWithTaskCount userUpdated = userService.update(id, userUpdateCommand);
 
     return ResponseEntity.ok()
-        .body(userDtoMapper.modelToResponseDTO(userUpdated));
+      .body(userDtoMapper.modelToWithTasksResponseDTO(userUpdated));
   }
 
   @DeleteMapping("/{id}")

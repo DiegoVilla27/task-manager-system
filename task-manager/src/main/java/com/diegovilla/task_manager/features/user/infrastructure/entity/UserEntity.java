@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.diegovilla.task_manager.features.task.infrastructure.entity.TaskEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "users", uniqueConstraints = {
-    @UniqueConstraint(name = "uk_users_email", columnNames = "email")
+  @UniqueConstraint(name = "uk_users_email", columnNames = "email")
 })
 public class UserEntity {
 
@@ -44,9 +45,17 @@ public class UserEntity {
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   private List<TaskEntity> tasks = new ArrayList<>();
 
+  // Ejecuta esta subconsulta automáticamente al traer al usuario
+  @Formula("(SELECT COUNT(t.id) FROM tasks t WHERE t.user_id = id)")
+  private Long taskCount;
+
   @Column(nullable = false, updatable = false)
   private Instant createdAt;
 
   @Column(nullable = false)
   private Instant updatedAt;
+
+  public Long getTaskCount() {
+    return taskCount == null ? 0L : taskCount;
+  }
 }
