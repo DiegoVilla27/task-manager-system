@@ -1,5 +1,6 @@
 package com.diegovilla.task_manager.core.security;
 
+import com.diegovilla.task_manager.core.security.cors.CorsConfigurationFilter;
 import com.diegovilla.task_manager.core.security.jwt.JwtAuthenticationFilter;
 import com.diegovilla.task_manager.core.security.jwt.JwtProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,9 +24,11 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(
     HttpSecurity http,
     JwtAuthenticationFilter jwtAuthenticationFilter,
+    CorsConfigurationFilter corsConfigurationFilter,
     @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver
   ) throws Exception {
     http
+      .cors(cors -> cors.configurationSource(corsConfigurationFilter.corsConfigurationSource()))
       .csrf(AbstractHttpConfigurer::disable)
       .sessionManagement(session ->
         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.diegovilla.task_manager.features.task.infrastructure.entity.TaskEntity;
+import com.diegovilla.task_manager.features.user.domain.valueobjects.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Formula;
@@ -35,6 +36,10 @@ public class UserEntity {
 
   @Column(nullable = false)
   private String password;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private UserRole role;
 
   // OneToMany: Relacion uno a muchos (Un User -> Muchas Task)
   // mappedBy: "user" la relacion ya está mapea y gestionada con user de

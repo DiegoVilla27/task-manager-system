@@ -20,6 +20,7 @@ public interface UserEntityMapper {
         userEntity.getLastname(),
         userEntity.getEmail(),
         userEntity.getPassword(),
+        userEntity.getRole(),
         userEntity.getCreatedAt(),
         userEntity.getUpdatedAt());
   }

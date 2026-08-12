@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -22,31 +24,33 @@ public class JwtSecurityTest {
 
   @BeforeEach
   void setUp() {
-    when(jwtProperties.secret()).thenReturn("489a8fc6474b786c6792377cbe4a30e8a719c8fbc4c3e7f4c4aef523a1005b63");
-    when(jwtProperties.expiration()).thenReturn(3600L);
+    when(jwtProperties.secret()).thenReturn("4zx8BmgguZyFKmspfzMvL084GB7550AE");
+    when(jwtProperties.expSecret()).thenReturn(3600L);
+    when(jwtProperties.refresh()).thenReturn("yZWg3ahaIHPLHvqFwbdLbZP58vxTcmfb");
+    when(jwtProperties.expRefresh()).thenReturn(604800L);
   }
 
   @Test
   @DisplayName("Should generate token successfully")
   void shouldGenerateTokenSuccessfully() {
-    String email = "id_1234";
+    UUID userId = UUID.randomUUID();
 
-    String token = jwtService.generateToken(email);
+    JwtModel tokens = jwtService.generateToken(userId.toString());
 
-    assertThat(token).isNotNull();
-    assertThat(jwtService.isValid(token)).isTrue();
+    assertThat(tokens).isNotNull();
+    assertThat(jwtService.isValid(tokens.access_token(), true)).isTrue();
+    assertThat(jwtService.isValid(tokens.refresh_token(), false)).isTrue();
   }
 
   @Test
   @DisplayName("Should get subject to token")
   void shouldGetSubjectToToken() {
-    String email = "id_1234";
+    UUID userId = UUID.randomUUID();
 
-    String token = jwtService.generateToken(email);
+    JwtModel tokens = jwtService.generateToken(userId.toString());
 
-    String subject = jwtService.extractSubject(token);
+    String subject = jwtService.extractSubject(tokens.access_token(), true);
 
-    assertThat(subject).isEqualTo(email);
-    assertThat(jwtService.isValid(token)).isTrue();
+    assertThat(UUID.fromString(subject)).isEqualTo(userId);
   }
 }
