@@ -1,0 +1,30 @@
+# 1. Carpeta de salida de compilación de Maven (Crítico ignorarla)
+target/
+
+# 2. Wrapper de Maven (Si estás usando la imagen de Maven oficial en el Dockerfile)
+.mvn/
+mvnw
+mvnw.cmd
+
+# 3. Carpetas y archivos de Entorno de Desarrollo / IDEs
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# 4. Archivos de entorno y logs
+.env
+.env.*
+*.log
+
+# 5. Archivos del sistema operativo y Git
+.DS_Store
+Thumbs.db
+.git/
+.gitignore
+.dockerignore
+
+# 6. Documentación extra que no requiere el build
+README.md

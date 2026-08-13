@@ -1,0 +1,21 @@
+name: task-manager
+
+networks:
+  shared-network:
+    external: true
+
+services:
+  spring-api:
+    build:
+      context: ./task-manager
+      dockerfile: Dockerfile
+    container_name: spring_api
+    restart: always
+    env_file:
+      - ./task-manager/.env
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://global_postgres:5432/task_manager_db
+    ports:
+      - "8080:8080"
+    networks:
+      - shared-network
