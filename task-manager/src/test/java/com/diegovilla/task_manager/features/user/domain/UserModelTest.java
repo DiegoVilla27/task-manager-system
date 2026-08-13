@@ -92,6 +92,7 @@ public class UserModelTest {
       user.getLastname(),
       user.getEmail(),
       user.getPassword(),
+      user.getRole(),
       user.getCreatedAt(),
       user.getUpdatedAt()
     );

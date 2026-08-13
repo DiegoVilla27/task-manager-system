@@ -1,5 +1,6 @@
 package com.diegovilla.task_manager.core.security.jwt;
 
+import com.diegovilla.task_manager.features.user.domain.valueobjects.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,8 +35,9 @@ public class JwtSecurityTest {
   @DisplayName("Should generate token successfully")
   void shouldGenerateTokenSuccessfully() {
     UUID userId = UUID.randomUUID();
+    UserRole userRole = UserRole.USER;
 
-    JwtModel tokens = jwtService.generateToken(userId.toString());
+    JwtModel tokens = jwtService.generateToken(userId.toString(), userRole);
 
     assertThat(tokens).isNotNull();
     assertThat(jwtService.isValid(tokens.access_token(), true)).isTrue();
@@ -46,8 +48,9 @@ public class JwtSecurityTest {
   @DisplayName("Should get subject to token")
   void shouldGetSubjectToToken() {
     UUID userId = UUID.randomUUID();
+    UserRole userRole = UserRole.USER;
 
-    JwtModel tokens = jwtService.generateToken(userId.toString());
+    JwtModel tokens = jwtService.generateToken(userId.toString(), userRole);
 
     String subject = jwtService.extractSubject(tokens.access_token(), true);
 

@@ -1,19 +1,16 @@
 package com.diegovilla.task_manager.features.task.infrastructure.controllers;
 
-import java.util.List;
 import java.util.UUID;
 
+import com.diegovilla.task_manager.features.task.application.commands.TaskFiltersCommand;
 import com.diegovilla.task_manager.features.task.application.commands.TaskPaginationCommand;
 import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
-import com.diegovilla.task_manager.features.task.domain.valueobjects.TaskStatus;
 import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskFiltersDTO;
 import com.diegovilla.task_manager.features.task.infrastructure.dto.response.TaskWithUserResponseDTO;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.config.Task;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,16 +63,12 @@ public class TaskController {
   @GetMapping
   @GetTasksDocumentation
   public ResponseEntity<Page<TaskWithUserResponseDTO>> getAll(
-    @RequestParam(defaultValue = "1")
-    @Min(value = 1, message = "Page must be greater than or equal to 0")
-    int page,
-    @RequestParam(defaultValue = "10")
-    @Min(value = 1, message = "Limit must be greater than 0")
-    int limit,
-    TaskFiltersDTO filters
-  ) {
-    TaskPaginationCommand taskPaginationCommand = new TaskPaginationCommand(page - 1, limit, filters);
-    Page<TaskWithUser> tasks = taskService.getAll(taskPaginationCommand);
+      @RequestParam(defaultValue = "1") @Min(value = 1, message = "Page must be greater than or equal to 0") int page,
+      @RequestParam(defaultValue = "10") @Min(value = 1, message = "Limit must be greater than 0") int limit,
+      TaskFiltersDTO filters) {
+    TaskFiltersCommand taskFiltersCommand = taskDtoMapper.taskFilterDTOToCommand(filters);
+    TaskPaginationCommand taskPaginationCommand = new TaskPaginationCommand(page - 1, limit);
+    Page<TaskWithUser> tasks = taskService.getAll(taskPaginationCommand, taskFiltersCommand);
 
     return ResponseEntity.ok(tasks.map(taskDtoMapper::modelToWithUserResponseDTO));
   }
@@ -103,12 +96,12 @@ public class TaskController {
   @PostMapping
   @CreateTaskDocumentation
   public ResponseEntity<TaskWithUserResponseDTO> create(
-    @Valid @RequestBody TaskCreateRequestDTO dto) {
+      @Valid @RequestBody TaskCreateRequestDTO dto) {
     TaskCreateCommand command = taskDtoMapper.createRequestDTOToCommand(dto);
     TaskWithUser response = taskService.create(command);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(
-      taskDtoMapper.modelToWithUserResponseDTO(response));
+        taskDtoMapper.modelToWithUserResponseDTO(response));
   }
 
   /**
@@ -121,13 +114,13 @@ public class TaskController {
   @PatchMapping("/{id}")
   @UpdateTaskDocumentation
   public ResponseEntity<TaskWithUserResponseDTO> update(
-    @PathVariable UUID id,
-    @Valid @RequestBody TaskUpdateRequestDTO dto) {
+      @PathVariable UUID id,
+      @Valid @RequestBody TaskUpdateRequestDTO dto) {
     TaskUpdateCommand taskUpdateCommand = taskDtoMapper.updateRequestDTOToCommand(dto);
     TaskWithUser response = taskService.update(id, taskUpdateCommand);
 
     return ResponseEntity.ok().body(
-      taskDtoMapper.modelToWithUserResponseDTO(response));
+        taskDtoMapper.modelToWithUserResponseDTO(response));
   }
 
   /**

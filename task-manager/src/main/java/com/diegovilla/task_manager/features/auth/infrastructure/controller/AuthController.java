@@ -5,11 +5,15 @@ import com.diegovilla.task_manager.features.auth.application.commands.AuthLoginC
 import com.diegovilla.task_manager.features.auth.application.commands.AuthRefreshCommand;
 import com.diegovilla.task_manager.features.auth.application.commands.AuthRegisterCommand;
 import com.diegovilla.task_manager.features.auth.application.service.AuthService;
+import com.diegovilla.task_manager.features.auth.infrastructure.docs.AuthLoginDocumentation;
+import com.diegovilla.task_manager.features.auth.infrastructure.docs.AuthRefreshDocumentation;
+import com.diegovilla.task_manager.features.auth.infrastructure.docs.AuthRegisterDocumentation;
 import com.diegovilla.task_manager.features.auth.infrastructure.dto.request.AuthLoginRequestDTO;
 import com.diegovilla.task_manager.features.auth.infrastructure.dto.request.AuthRefreshRequestDTO;
 import com.diegovilla.task_manager.features.auth.infrastructure.dto.request.AuthRegisterRequestDTO;
 import com.diegovilla.task_manager.features.auth.infrastructure.dto.response.AuthResponseDTO;
 import com.diegovilla.task_manager.features.auth.infrastructure.mappers.AuthDtoMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Exposes operations for user registration, authentication, and token management.")
 public class AuthController {
 
   private final AuthService authService;
   private final AuthDtoMapper authDtoMapper;
 
   @PostMapping("/login")
+  @AuthLoginDocumentation
   public ResponseEntity<AuthResponseDTO> login(
     @Valid @RequestBody AuthLoginRequestDTO loginRequestDTO
   ) {
@@ -39,6 +45,7 @@ public class AuthController {
   }
 
   @PostMapping("/register")
+  @AuthRegisterDocumentation
   public ResponseEntity<AuthResponseDTO> register(
     @Valid @RequestBody AuthRegisterRequestDTO authRegisterRequestDTO
   ) {
@@ -49,6 +56,7 @@ public class AuthController {
   }
 
   @PostMapping("/refresh")
+  @AuthRefreshDocumentation
   public ResponseEntity<AuthResponseDTO> refresh(
     @Valid @RequestBody AuthRefreshRequestDTO authRefreshRequestDTO
   ) {

@@ -1,5 +1,6 @@
 package com.diegovilla.task_manager.core.security.jwt;
 
+import com.diegovilla.task_manager.features.user.domain.valueobjects.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -25,7 +26,7 @@ public class JwtService {
    * @param subject Identificador del usuario (UUID o email).
    * @return Objeto JwtModel listo para enviarse en la respuesta.
    */
-  public JwtModel generateToken(String subject) {
+  public JwtModel generateToken(String subject, UserRole role) {
     Instant now = Instant.now();
 
     long expSecretSeconds = jwtProperties.expSecret(); // Ej. 3600 sg (1 hora)
@@ -37,6 +38,7 @@ public class JwtService {
     // 1. Generar Access Token (JWT)
     String accessToken = Jwts.builder()
       .subject(subject)
+      .claim("role", role.toString())
       .issuedAt(Date.from(now))
       .expiration(Date.from(accessExpiration))
       .signWith(getSigningKey(true))
@@ -45,6 +47,7 @@ public class JwtService {
     // 2. Generar Refresh Token
     String refreshToken = Jwts.builder()
       .subject(subject)
+      .claim("role", role.toString())
       .issuedAt(Date.from(now))
       .expiration(Date.from(refreshExpiration))
       .signWith(getSigningKey(false))
@@ -61,6 +64,12 @@ public class JwtService {
     return parseToken(token, isAccessToken)
       .getPayload()
       .getSubject();
+  }
+
+  public String extractRole(String token) {
+    return parseToken(token, true)
+      .getPayload()
+      .get("role", String.class);
   }
 
   public boolean isValid(String token, boolean isAccessToken) {

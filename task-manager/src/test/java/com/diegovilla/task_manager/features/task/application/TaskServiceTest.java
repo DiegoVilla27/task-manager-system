@@ -2,6 +2,7 @@ package com.diegovilla.task_manager.features.task.application;
 
 import com.diegovilla.task_manager.core.errors.exceptions.ResourceNotFoundException;
 import com.diegovilla.task_manager.features.task.application.commands.TaskCreateCommand;
+import com.diegovilla.task_manager.features.task.application.commands.TaskFiltersCommand;
 import com.diegovilla.task_manager.features.task.application.commands.TaskPaginationCommand;
 import com.diegovilla.task_manager.features.task.application.commands.TaskUpdateCommand;
 import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
@@ -13,6 +14,7 @@ import com.diegovilla.task_manager.features.task.domain.valueobjects.TaskStatus;
 import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
 import com.diegovilla.task_manager.features.user.application.ports.UserRepositoryPort;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
+import com.diegovilla.task_manager.features.user.domain.valueobjects.UserRole;
 import com.diegovilla.task_manager.utils.data.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,9 @@ public class TaskServiceTest {
   @Mock
   private UserRepositoryPort userRepository;
 
+  @Mock
+  private com.diegovilla.task_manager.core.security.jwt.ports.AuthenticatedUserProvider authenticatedUserProvider;
+
   @InjectMocks
   private TaskService taskService;
 
@@ -51,22 +56,29 @@ public class TaskServiceTest {
     "hash_1234"
   );
 
+  @org.junit.jupiter.api.BeforeEach
+  void setUp() {
+    lenient().when(authenticatedUserProvider.getCurrentUserId()).thenReturn(user.getId());
+    lenient().when(authenticatedUserProvider.getCurrentUserRole()).thenReturn("ROLE_ADMIN");
+  }
+
   @Test
   @DisplayName("Should retrieve all tasks successfully")
   void shouldGetAllTasks() {
-    TaskPaginationCommand paginationCommand = new TaskPaginationCommand(0, 10, null);
+    TaskFiltersCommand taskFiltersCommand = new TaskFiltersCommand(null, null, null);
+    TaskPaginationCommand paginationCommand = new TaskPaginationCommand(0, 10);
     List<TaskWithUser> taskList = List.of(
       new TaskWithUser(TaskModel.create("Task 1", "Description 1", user.getId()), user),
       new TaskWithUser(TaskModel.create("Task 2", "Description 2", user.getId()), user)
     );
     Page<TaskWithUser> page = new PageImpl<>(taskList);
 
-    when(taskRepositoryPort.getAll(any(PageRequest.class), eq(null))).thenReturn(page);
+    when(taskRepositoryPort.getAll(any(PageRequest.class), any())).thenReturn(page);
 
-    Page<TaskWithUser> tasksResponse = taskService.getAll(paginationCommand);
+    Page<TaskWithUser> tasksResponse = taskService.getAll(paginationCommand, taskFiltersCommand);
 
     assertThat(tasksResponse).isSameAs(page);
-    verify(taskRepositoryPort).getAll(any(PageRequest.class), eq(null));
+    verify(taskRepositoryPort).getAll(any(PageRequest.class), any());
   }
 
   @Test
@@ -113,6 +125,7 @@ public class TaskServiceTest {
         "Doe",
         "john.doe@example.com",
         "hash_12345",
+        UserRole.USER,
         Instant.now(),
         Instant.now()
       ),

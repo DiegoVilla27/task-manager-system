@@ -22,6 +22,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * JPA entity representing the {@code tasks} database table.
+ *
+ * <p>Maps database columns to Java data types and maintains foreign key relationship
+ * to {@link UserEntity}. Features a unique constraint on the task title.</p>
+ *
+ * @since 1.0.0
+ */
 @Getter
 @Setter
 @Builder
@@ -32,33 +40,33 @@ import lombok.Setter;
     @UniqueConstraint(name = "uk_tasks_title", columnNames = "title")
 })
 public class TaskEntity {
+  /** Unique primary key identifier. */
   @Id
   private UUID id;
 
+  /** Task title string (unique, mandatory, up to 100 characters). */
   @Column(nullable = false, length = 100)
   private String title;
 
+  /** Detailed task description (mandatory, up to 400 characters). */
   @Column(nullable = false, length = 400)
   private String description;
 
+  /** Task lifecycle status enum value. */
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private TaskStatus status;
 
-  // ManyToOne: Relacion Muchos a uno (Muchas Task -> Uno User)
-  // fetch: lazy es para que no traiga los datos de user si no se le piden
-  // explicitemente
-  // optional: false es para que no se pueda crear una task con user null (APP)
+  /** Many-to-One relationship to the owning user entity. */
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  // JoinColumn: Indica que esta entidad es la dueña y contendrá la foreign key
-  // name: nombre de la columna que contendrá la foreign key
-  // nullable: indica que esta columna no puede ser null (DB)
   @JoinColumn(name = "user_id", nullable = false)
   private UserEntity user;
 
+  /** Timestamp when the task record was created. */
   @Column(nullable = false, updatable = false)
   private Instant createdAt;
 
+  /** Timestamp when the task record was last updated. */
   @Column(nullable = false)
   private Instant updatedAt;
 }

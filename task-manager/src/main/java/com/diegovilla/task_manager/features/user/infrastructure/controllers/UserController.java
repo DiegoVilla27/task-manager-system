@@ -1,6 +1,7 @@
 package com.diegovilla.task_manager.features.user.infrastructure.controllers;
 
 import com.diegovilla.task_manager.features.user.application.commands.UserCreateCommand;
+import com.diegovilla.task_manager.features.user.application.commands.UserFiltersCommand;
 import com.diegovilla.task_manager.features.user.application.commands.UserPaginationCommand;
 import com.diegovilla.task_manager.features.user.application.commands.UserUpdateCommand;
 import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +37,7 @@ public class UserController {
 
   @GetMapping
   @GetUsersDocumentation
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Page<UserWithTaskCountResponseDTO>> getAll(
     @RequestParam(defaultValue = "1")
     @Min(value = 1, message = "Page must be greater than or equal to 0")
@@ -44,8 +47,9 @@ public class UserController {
     int limit,
     UserFiltersDTO filters
   ) {
-    UserPaginationCommand userPaginationCommand = new UserPaginationCommand(page - 1, limit, filters);
-    Page<UserWithTaskCount> users = userService.getAll(userPaginationCommand);
+    UserPaginationCommand userPaginationCommand = new UserPaginationCommand(page - 1, limit);
+    UserFiltersCommand userFiltersCommand = userDtoMapper.filtersRequestDTOToCommand(filters);
+    Page<UserWithTaskCount> users = userService.getAll(userPaginationCommand, userFiltersCommand);
 
     return ResponseEntity.ok(users.map(userDtoMapper::modelToWithTasksResponseDTO));
   }
@@ -83,8 +87,11 @@ public class UserController {
 
   @DeleteMapping("/{id}")
   @DeleteUserDocumentation
-  public ResponseEntity<Void> delete(@PathVariable UUID id) {
-    userService.delete(id);
+  public ResponseEntity<Void> delete(
+    @PathVariable UUID id,
+    @RequestParam(defaultValue = "false") boolean force
+  ) {
+    userService.delete(id, force);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

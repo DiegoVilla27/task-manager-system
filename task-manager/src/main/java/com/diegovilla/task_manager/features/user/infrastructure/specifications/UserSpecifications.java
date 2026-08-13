@@ -1,5 +1,6 @@
 package com.diegovilla.task_manager.features.user.infrastructure.specifications;
 
+import com.diegovilla.task_manager.features.user.application.commands.UserFiltersCommand;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserFiltersDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.entity.UserEntity;
 import jakarta.persistence.criteria.Predicate;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class UserSpecifications {
 
-  public static Specification<UserEntity> withFilters(UserFiltersDTO filters) {
+  public static Specification<UserEntity> withFilters(UserFiltersCommand filters) {
     return (root, query, criteriaBuilder) -> {
       List<Predicate> predicates = new ArrayList<>();
 

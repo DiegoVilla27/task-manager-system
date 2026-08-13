@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -42,12 +44,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     String userId = jwtService.extractSubject(token, true);
+    String role = jwtService.extractRole(token); // ej: "ADMIN"
+
+    List<SimpleGrantedAuthority> authorities = List.of(
+      new SimpleGrantedAuthority("ROLE_" + role) // Resulta en: "ROLE_ADMIN" o "ROLE_USER"
+    );
 
     UsernamePasswordAuthenticationToken authentication =
       new UsernamePasswordAuthenticationToken(
         userId,
         null,
-        Collections.emptyList()
+        authorities
       );
 
     SecurityContextHolder

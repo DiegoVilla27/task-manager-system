@@ -3,12 +3,20 @@ package com.diegovilla.task_manager.features.task.application.ports;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.diegovilla.task_manager.features.task.application.commands.TaskFiltersCommand;
 import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
 import com.diegovilla.task_manager.features.task.domain.model.TaskModel;
-import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskFiltersDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+/**
+ * Outbound persistence port interface for managing {@link TaskModel} entity storage and retrieval.
+ *
+ * <p>Defines abstraction contracts for persistence adapters, decoupling application logic
+ * from concrete database technologies.</p>
+ *
+ * @since 1.0.0
+ */
 public interface TaskRepositoryPort {
 
   /**
@@ -21,21 +29,28 @@ public interface TaskRepositoryPort {
   boolean existsByTitleIgnoreCase(String title);
 
   /**
-   * Retrieves all tasks along with their associated user information.
+   * Retrieves a paginated list of tasks along with their associated user information.
    *
-   * @return a list of {@link TaskModel} instances, each containing user details.
+   * @param pageable pagination configuration containing page number and page size.
+   * @param filters  query filter criteria.
+   * @return a {@link Page} of {@link TaskWithUser} composite records.
    */
-  Page<TaskWithUser> getAll(Pageable pageable, TaskFiltersDTO filters);
+  Page<TaskWithUser> getAll(Pageable pageable, TaskFiltersCommand filters);
 
   /**
-   * Retrieves a single task identified by its unique identifier with their
-   * associated user information.
+   * Retrieves a single task identified by its unique identifier.
    *
    * @param id unique identifier of the task.
    * @return an {@link Optional} containing the task if found, or empty otherwise.
    */
   Optional<TaskModel> getById(UUID id);
 
+  /**
+   * Retrieves a single task by its unique identifier along with associated owner user details.
+   *
+   * @param id unique identifier of the task.
+   * @return an {@link Optional} containing {@link TaskWithUser} if found, or empty otherwise.
+   */
   Optional<TaskWithUser> getByIdWithUser(UUID id);
 
   /**
@@ -52,4 +67,6 @@ public interface TaskRepositoryPort {
    * @param id unique identifier of the task to delete.
    */
   void delete(UUID id);
+
+  void deleteAllByUserId(UUID userId);
 }

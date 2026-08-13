@@ -11,6 +11,7 @@ import com.diegovilla.task_manager.features.user.application.ports.PasswordHashe
 import com.diegovilla.task_manager.features.user.application.ports.UserRepositoryPort;
 import com.diegovilla.task_manager.features.user.application.services.UserService;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
+import com.diegovilla.task_manager.features.user.domain.valueobjects.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class AuthService {
       throw new BadCredentialsException("Invalid email or password");
     }
 
-    return jwtService.generateToken(userFound.getId().toString());
+    return jwtService.generateToken(userFound.getId().toString(), userFound.getRole());
   }
 
   public JwtModel register(AuthRegisterCommand command) {
@@ -45,7 +46,7 @@ public class AuthService {
     );
     UserWithTaskCount userCreated = userService.create(userCreateCommand);
 
-    return jwtService.generateToken(userCreated.user().getId().toString());
+    return jwtService.generateToken(userCreated.user().getId().toString(), userCreated.user().getRole());
   }
 
   public JwtModel refresh(AuthRefreshCommand command) {
@@ -54,7 +55,8 @@ public class AuthService {
     }
 
     String userId = jwtService.extractSubject(command.refresh_token(), false);
+    UserRole userRole = UserRole.valueOf(jwtService.extractRole(command.refresh_token()));
 
-    return jwtService.generateToken(userId);
+    return jwtService.generateToken(userId, userRole);
   }
 }

@@ -3,8 +3,8 @@ package com.diegovilla.task_manager.features.task.infrastructure.adapters;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.diegovilla.task_manager.features.task.application.commands.TaskFiltersCommand;
 import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
-import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskFiltersDTO;
 import com.diegovilla.task_manager.features.task.infrastructure.specifications.TaskSpecifications;
 import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserEntityMapper;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,6 +22,14 @@ import com.diegovilla.task_manager.features.task.infrastructure.repository.TaskJ
 
 import lombok.AllArgsConstructor;
 
+/**
+ * Persistence infrastructure adapter implementing {@link TaskRepositoryPort}.
+ *
+ * <p>Adapts domain persistence operations to Spring Data JPA, executing query specifications,
+ * entity-to-model mapping, and database exception translations.</p>
+ *
+ * @since 1.0.0
+ */
 @Component
 @AllArgsConstructor
 public class TaskRepositoryAdapter implements TaskRepositoryPort {
@@ -43,7 +51,7 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
    * {@inheritDoc}
    */
   @Override
-  public Page<TaskWithUser> getAll(Pageable pageable, TaskFiltersDTO filters) {
+  public Page<TaskWithUser> getAll(Pageable pageable, TaskFiltersCommand filters) {
     Specification<TaskEntity> spec = TaskSpecifications.withFilters(filters);
 
     return taskJpaRepository.findAll(spec, pageable).map((taskEntity) ->
@@ -61,6 +69,9 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
     return taskJpaRepository.findById(id).map(taskEntityMapper::entityToModel);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Optional<TaskWithUser> getByIdWithUser(UUID id) {
     return taskJpaRepository.findByIdWithUser(id).map((taskEntity) ->
@@ -92,6 +103,20 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
   public void delete(UUID id) {
     try {
       taskJpaRepository.deleteById(id);
+      taskJpaRepository.flush();
+    } catch (DataIntegrityViolationException ex) {
+      throw databaseExceptionTranslator.translate(ex);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void deleteAllByUserId(UUID userId) {
+    try {
+      taskJpaRepository.deleteAllByUserId(userId);
+      taskJpaRepository.flush();
     } catch (DataIntegrityViolationException ex) {
       throw databaseExceptionTranslator.translate(ex);
     }

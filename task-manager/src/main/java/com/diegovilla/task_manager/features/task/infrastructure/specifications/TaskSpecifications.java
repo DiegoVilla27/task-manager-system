@@ -1,5 +1,6 @@
 package com.diegovilla.task_manager.features.task.infrastructure.specifications;
 
+import com.diegovilla.task_manager.features.task.application.commands.TaskFiltersCommand;
 import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskFiltersDTO;
 import com.diegovilla.task_manager.features.task.infrastructure.entity.TaskEntity;
 import jakarta.persistence.criteria.Predicate;
@@ -25,7 +26,7 @@ public class TaskSpecifications {
    * @param filters query filter criteria.
    * @return a {@link Specification} for querying {@link TaskEntity}.
    */
-  public static Specification<TaskEntity> withFilters(TaskFiltersDTO filters) {
+  public static Specification<TaskEntity> withFilters(TaskFiltersCommand filters) {
     return (root, query, criteriaBuilder) -> {
       List<Predicate> predicates = new ArrayList<>();
 

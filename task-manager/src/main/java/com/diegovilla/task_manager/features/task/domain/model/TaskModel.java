@@ -6,12 +6,23 @@ import java.util.UUID;
 
 import com.diegovilla.task_manager.core.errors.exceptions.DomainException;
 import com.diegovilla.task_manager.features.task.domain.valueobjects.TaskStatus;
-import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import com.diegovilla.task_manager.utils.data.StringUtils;
 import com.diegovilla.task_manager.utils.data.ValidateDataUtils;
 
 import lombok.Getter;
 
+/**
+ * Domain aggregate root representing a Task within the Task Manager platform.
+ *
+ * <p>
+ * Encapsulates core task attributes including title, description, lifecycle
+ * status, owner user identifier,
+ * and audit timestamps. Enforces domain invariants and valid status state
+ * transitions.
+ * </p>
+ *
+ * @since 1.0.0
+ */
 @Getter
 public class TaskModel {
   private final UUID id;
@@ -26,13 +37,13 @@ public class TaskModel {
    * Internal constructor — use the factory methods instead.
    */
   private TaskModel(
-    UUID id,
-    String title,
-    String description,
-    TaskStatus status,
-    UUID userId,
-    Instant createdAt,
-    Instant updatedAt) {
+      UUID id,
+      String title,
+      String description,
+      TaskStatus status,
+      UUID userId,
+      Instant createdAt,
+      Instant updatedAt) {
     this.id = Objects.requireNonNull(id, "Task ID cannot be null");
     this.title = Objects.requireNonNull(title, "Task title cannot be null").trim();
     this.description = Objects.requireNonNull(description, "Task description cannot be null").trim();
@@ -61,13 +72,13 @@ public class TaskModel {
     description = ValidateDataUtils.required(description, 3, 400, "Description");
 
     return new TaskModel(
-      UUID.randomUUID(),
-      title,
-      description,
-      TaskStatus.PENDING,
-      userId,
-      Instant.now(),
-      Instant.now());
+        UUID.randomUUID(),
+        title,
+        description,
+        TaskStatus.PENDING,
+        userId,
+        Instant.now(),
+        Instant.now());
   }
 
   /**
@@ -85,21 +96,21 @@ public class TaskModel {
    * @throws NullPointerException if any argument is {@code null}.
    */
   public static TaskModel reconstruct(
-    UUID id,
-    String title,
-    String description,
-    TaskStatus status,
-    UUID userId,
-    Instant createdAt,
-    Instant updatedAt) {
+      UUID id,
+      String title,
+      String description,
+      TaskStatus status,
+      UUID userId,
+      Instant createdAt,
+      Instant updatedAt) {
     return new TaskModel(
-      Objects.requireNonNull(id, "Task ID cannot be null"),
-      Objects.requireNonNull(title, "Task title cannot be null"),
-      Objects.requireNonNull(description, "Task description cannot be null"),
-      Objects.requireNonNull(status, "Task status cannot be null"),
-      Objects.requireNonNull(userId, "Task userId cannot be null"),
-      Objects.requireNonNull(createdAt, "Task createdAt cannot be null"),
-      Objects.requireNonNull(updatedAt, "Task updatedAt cannot be null"));
+        Objects.requireNonNull(id, "Task ID cannot be null"),
+        Objects.requireNonNull(title, "Task title cannot be null"),
+        Objects.requireNonNull(description, "Task description cannot be null"),
+        Objects.requireNonNull(status, "Task status cannot be null"),
+        Objects.requireNonNull(userId, "Task userId cannot be null"),
+        Objects.requireNonNull(createdAt, "Task createdAt cannot be null"),
+        Objects.requireNonNull(updatedAt, "Task updatedAt cannot be null"));
   }
 
   /**

@@ -1,6 +1,8 @@
 package com.diegovilla.task_manager.features.task.infrastructure.mappers;
 
+import com.diegovilla.task_manager.features.task.application.commands.TaskFiltersCommand;
 import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
+import com.diegovilla.task_manager.features.task.infrastructure.dto.request.TaskFiltersDTO;
 import com.diegovilla.task_manager.features.task.infrastructure.dto.response.TaskWithUserResponseDTO;
 import org.mapstruct.Mapper;
 
@@ -11,6 +13,11 @@ import com.diegovilla.task_manager.features.task.infrastructure.dto.request.Task
 import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserDtoMapper;
 import org.mapstruct.Mapping;
 
+/**
+ * MapStruct mapper converting between HTTP DTOs, application commands, and read model projections.
+ *
+ * @since 1.0.0
+ */
 @Mapper(componentModel = "spring", uses = {UserDtoMapper.class})
 public interface TaskDtoMapper {
 
@@ -30,6 +37,20 @@ public interface TaskDtoMapper {
    */
   TaskUpdateCommand updateRequestDTOToCommand(TaskUpdateRequestDTO taskUpdateRequestDTO);
 
+  /**
+   * Converts a query filters DTO into an application filtering command.
+   *
+   * @param taskFiltersDTO incoming query filters from request.
+   * @return a {@link TaskFiltersCommand} carrying filter parameters.
+   */
+  TaskFiltersCommand taskFilterDTOToCommand(TaskFiltersDTO taskFiltersDTO);
+
+  /**
+   * Converts a composite read projection into an HTTP response DTO.
+   *
+   * @param taskWithUser composite domain projection containing task and user details.
+   * @return a {@link TaskWithUserResponseDTO} formatted for JSON serialization.
+   */
   @Mapping(target = "id", source = "task.id")
   @Mapping(target = "title", source = "task.title")
   @Mapping(target = "description", source = "task.description")

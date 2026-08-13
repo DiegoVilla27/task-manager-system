@@ -1,5 +1,6 @@
 package com.diegovilla.task_manager.features.user.application.ports;
 
+import com.diegovilla.task_manager.features.user.application.commands.UserFiltersCommand;
 import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserFiltersDTO;
@@ -14,7 +15,7 @@ public interface UserRepositoryPort {
 
   boolean existsByEmailIgnoreCase(String email);
 
-  Page<UserWithTaskCount> getAll(Pageable pageable, UserFiltersDTO filters);
+  Page<UserWithTaskCount> getAll(Pageable pageable, UserFiltersCommand filters);
 
   Optional<UserWithTaskCount> getById(UUID id);
 

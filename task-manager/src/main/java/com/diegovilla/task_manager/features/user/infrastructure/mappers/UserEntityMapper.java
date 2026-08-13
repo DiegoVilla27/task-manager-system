@@ -26,5 +26,6 @@ public interface UserEntityMapper {
   }
 
   @Mapping(target = "tasks", ignore = true)
+  @Mapping(target = "taskCount", ignore = true)
   UserEntity modelToEntity(UserModel userModel);
 }

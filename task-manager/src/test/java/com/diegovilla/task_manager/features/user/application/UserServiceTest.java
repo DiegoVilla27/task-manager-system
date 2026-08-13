@@ -2,6 +2,7 @@ package com.diegovilla.task_manager.features.user.application;
 
 import com.diegovilla.task_manager.core.errors.exceptions.ResourceNotFoundException;
 import com.diegovilla.task_manager.features.user.application.commands.UserCreateCommand;
+import com.diegovilla.task_manager.features.user.application.commands.UserFiltersCommand;
 import com.diegovilla.task_manager.features.user.application.commands.UserPaginationCommand;
 import com.diegovilla.task_manager.features.user.application.commands.UserUpdateCommand;
 import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
@@ -10,6 +11,7 @@ import com.diegovilla.task_manager.features.user.application.ports.UserRepositor
 import com.diegovilla.task_manager.features.user.application.services.UserService;
 import com.diegovilla.task_manager.features.user.domain.exceptions.UserAlreadyExistsException;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
+import com.diegovilla.task_manager.features.user.domain.valueobjects.UserRole;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserFiltersDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,8 +49,8 @@ public class UserServiceTest {
   @Test
   @DisplayName("Should retrieve all users successfully")
   void shouldGetAllUsers() {
-    UserFiltersDTO filters = new UserFiltersDTO(null, null);
-    UserPaginationCommand command = new UserPaginationCommand(1, 10, filters);
+    UserFiltersCommand filters = new UserFiltersCommand(null, null);
+    UserPaginationCommand command = new UserPaginationCommand(1, 10);
     Pageable pageable = PageRequest.of(command.page(), command.limit());
 
     List<UserWithTaskCount> users = List.of(
@@ -70,7 +72,7 @@ public class UserServiceTest {
 
     when(userRepository.getAll(pageable, filters)).thenReturn(userPage);
 
-    Page<UserWithTaskCount> usersResponse = userService.getAll(command);
+    Page<UserWithTaskCount> usersResponse = userService.getAll(command, filters);
 
     assertThat(usersResponse).isSameAs(userPage);
     verify(userRepository).getAll(pageable, filters);
@@ -171,6 +173,7 @@ public class UserServiceTest {
         "Doe",
         "john.doe@example.com",
         "hash_12345",
+        UserRole.USER,
         Instant.now(),
         Instant.now()
       ),
@@ -208,6 +211,7 @@ public class UserServiceTest {
         "Doe",
         "john.doe@example.com",
         "hash_12345",
+        UserRole.USER,
         Instant.now(),
         Instant.now()
       ),
@@ -237,6 +241,7 @@ public class UserServiceTest {
         "Doe",
         "john.doe@example.com",
         "hash_12345",
+        UserRole.USER,
         Instant.now(),
         Instant.now()
       ),
@@ -247,7 +252,7 @@ public class UserServiceTest {
 
     doNothing().when(userRepository).delete(userId);
 
-    userService.delete(userId);
+    userService.delete(userId, true);
 
     verify(userRepository).getById(userId);
     verify(userRepository).delete(userId);

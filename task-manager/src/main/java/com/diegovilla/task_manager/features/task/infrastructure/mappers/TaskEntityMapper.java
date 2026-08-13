@@ -2,12 +2,15 @@ package com.diegovilla.task_manager.features.task.infrastructure.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.diegovilla.task_manager.features.task.domain.model.TaskModel;
 import com.diegovilla.task_manager.features.task.infrastructure.entity.TaskEntity;
-import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserEntityMapper;
 
+/**
+ * MapStruct mapper converting between {@link TaskEntity} persistence entities and {@link TaskModel} domain models.
+ *
+ * @since 1.0.0
+ */
 @Mapper(componentModel = "spring")
 public interface TaskEntityMapper {
   /**

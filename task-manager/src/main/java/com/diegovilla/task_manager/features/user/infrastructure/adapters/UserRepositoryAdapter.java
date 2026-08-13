@@ -1,6 +1,7 @@
 package com.diegovilla.task_manager.features.user.infrastructure.adapters;
 
 import com.diegovilla.task_manager.core.errors.translators.DatabaseExceptionTranslator;
+import com.diegovilla.task_manager.features.user.application.commands.UserFiltersCommand;
 import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
 import com.diegovilla.task_manager.features.user.application.ports.UserRepositoryPort;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
@@ -36,7 +37,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
   }
 
   @Override
-  public Page<UserWithTaskCount> getAll(Pageable pageable, UserFiltersDTO filters) {
+  public Page<UserWithTaskCount> getAll(Pageable pageable, UserFiltersCommand filters) {
     Specification<UserEntity> spec = UserSpecifications.withFilters(filters);
 
     return userJpaRepository.findAll(spec, pageable)
@@ -80,6 +81,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
   public void delete(UUID id) {
     try {
       userJpaRepository.deleteById(id);
+      userJpaRepository.flush();
     } catch (DataIntegrityViolationException ex) {
       throw databaseExceptionTranslator.translate(ex);
     }

@@ -1,7 +1,10 @@
 package com.diegovilla.task_manager.features.user.application.services;
 
 import com.diegovilla.task_manager.core.errors.exceptions.ResourceNotFoundException;
+import com.diegovilla.task_manager.core.security.jwt.utils.PermissionValidator;
+import com.diegovilla.task_manager.features.task.application.ports.TaskRepositoryPort;
 import com.diegovilla.task_manager.features.user.application.commands.UserCreateCommand;
+import com.diegovilla.task_manager.features.user.application.commands.UserFiltersCommand;
 import com.diegovilla.task_manager.features.user.application.commands.UserPaginationCommand;
 import com.diegovilla.task_manager.features.user.application.commands.UserUpdateCommand;
 import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
@@ -18,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,21 +29,37 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class UserService {
 
-  private final UserRepositoryPort userRepository;
-  private final PasswordHasherPort passwordHasher;
+  private final UserRepositoryPort userRepositoryPort;
+  private final PasswordHasherPort passwordHasherPort;
+  private final PermissionValidator permissionValidator;
+  private final TaskRepositoryPort taskRepositoryPort;
 
-  public Page<UserWithTaskCount> getAll(UserPaginationCommand userPaginationCommand) {
+  public Page<UserWithTaskCount> getAll(
+    UserPaginationCommand userPaginationCommand,
+    UserFiltersCommand filters
+  ) {
     Pageable pageable = PageRequest.of(userPaginationCommand.page(), userPaginationCommand.limit());
 
-    Page<UserWithTaskCount> users = userRepository.getAll(pageable, userPaginationCommand.filters());
+    // Obtener usuario autenticado y su rol usando tu puerto
+    UUID targetUserId = permissionValidator.getTargetUserId(filters.userId());
+    // Crear el objeto de filtros efectivo que viajará al repositorio
+    UserFiltersCommand effectiveFilters = new UserFiltersCommand(
+      filters.search(),
+      targetUserId
+    );
+
+    Page<UserWithTaskCount> users = userRepositoryPort.getAll(pageable, effectiveFilters);
     log.info("Users retrieved successfully. size={}", users.getContent().size());
 
     return users;
   }
 
   public UserWithTaskCount getById(UUID id) {
-    UserWithTaskCount userFound = userRepository.getById(id)
+    UserWithTaskCount userFound = userRepositoryPort.getById(id)
       .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    permissionValidator.validateHasPermissions(userFound.user().getId());
+
     log.info("User retrieved successfully. id={}", userFound.user().getId());
 
     return userFound;
@@ -49,12 +67,12 @@ public class UserService {
 
   @Transactional
   public UserWithTaskCount create(UserCreateCommand userCreateCommand) {
-    if (userRepository
+    if (userRepositoryPort
       .existsByEmailIgnoreCase(StringUtils.normalize(userCreateCommand.email()))) {
       throw new UserAlreadyExistsException();
     }
 
-    String passwordHash = passwordHasher.hash(userCreateCommand.password());
+    String passwordHash = passwordHasherPort.hash(userCreateCommand.password());
 
     UserModel user = UserModel.create(
       userCreateCommand.name(),
@@ -62,7 +80,7 @@ public class UserService {
       userCreateCommand.email(),
       passwordHash);
 
-    UserModel userCreated = userRepository.save(user);
+    UserModel userCreated = userRepositoryPort.save(user);
     log.info("User created successfully. id={}", userCreated.getId());
 
     return new UserWithTaskCount(userCreated, 0L);
@@ -74,7 +92,7 @@ public class UserService {
 
     String emailNormalized = StringUtils.normalize(userUpdateCommand.email());
     if (!userFound.user().getEmail().equals(emailNormalized)
-      && userRepository.existsByEmailIgnoreCase(emailNormalized)) {
+      && userRepositoryPort.existsByEmailIgnoreCase(emailNormalized)) {
       throw new UserAlreadyExistsException();
     }
 
@@ -83,17 +101,32 @@ public class UserService {
       userUpdateCommand.lastname(),
       userUpdateCommand.email());
 
-    UserModel userUpdated = userRepository.save(userFound.user());
+    UserModel userUpdated = userRepositoryPort.save(userFound.user());
     log.info("User updated successfully. id={}", userUpdated.getId());
 
     return new UserWithTaskCount(userUpdated, userFound.countTasks());
   }
 
   @Transactional
-  public void delete(UUID id) {
+  public void delete(UUID id, boolean force) {
     UserWithTaskCount userFound = getById(id);
 
-    userRepository.delete(userFound.user().getId());
+    if (force) {
+      // 1. Si tiene tareas y force=true, eliminamos sus tareas primero
+      if (userFound.countTasks() > 0) {
+        taskRepositoryPort.deleteAllByUserId(id);
+      }
+      // 2. Eliminamos el usuario
+      userRepositoryPort.delete(id);
+    } else {
+      // Si force=false y tiene tareas, al intentar borrar el repositorio
+      // saltará la DataIntegrityViolationException y la traducirá al 409 Conflict
+      userRepositoryPort.delete(id);
+    }
+
+    userRepositoryPort.delete(userFound.user().getId());
     log.info("User deleted successfully. id={}", userFound.user().getId());
   }
+
+
 }

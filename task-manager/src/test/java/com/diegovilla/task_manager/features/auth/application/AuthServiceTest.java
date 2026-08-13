@@ -12,6 +12,7 @@ import com.diegovilla.task_manager.features.user.application.ports.PasswordHashe
 import com.diegovilla.task_manager.features.user.application.ports.UserRepositoryPort;
 import com.diegovilla.task_manager.features.user.application.services.UserService;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
+import com.diegovilla.task_manager.features.user.domain.valueobjects.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,6 +56,7 @@ public class AuthServiceTest {
       "Villa",
       "dv@gmail.com",
       "hash_12345678",
+      UserRole.USER,
       Instant.now(),
       Instant.now()
     );
@@ -68,7 +70,7 @@ public class AuthServiceTest {
 
     when(passwordHasherPort.matches(command.password(), userFound.getPassword())).thenReturn(true);
 
-    when(jwtService.generateToken(userFound.getId().toString())).thenReturn(tokens);
+    when(jwtService.generateToken(userFound.getId().toString(), UserRole.USER)).thenReturn(tokens);
 
     JwtModel res = authService.login(command);
 
@@ -76,7 +78,7 @@ public class AuthServiceTest {
 
     verify(userRepositoryPort).getByEmail(command.email());
     verify(passwordHasherPort).matches(command.password(), userFound.getPassword());
-    verify(jwtService).generateToken(userFound.getId().toString());
+    verify(jwtService).generateToken(userFound.getId().toString(), UserRole.USER);
   }
 
   @Test
@@ -91,7 +93,7 @@ public class AuthServiceTest {
       .hasMessage("Invalid email or password");
 
     verify(userRepositoryPort).getByEmail(command.email());
-    verify(jwtService, never()).generateToken(any());
+    verify(jwtService, never()).generateToken(any(), any());
   }
 
   @Test
@@ -104,6 +106,7 @@ public class AuthServiceTest {
       "Villa",
       "dv@gmail.com",
       "hash_12345678",
+      UserRole.USER,
       Instant.now(),
       Instant.now()
     );
@@ -116,7 +119,7 @@ public class AuthServiceTest {
       .hasMessage("Invalid email or password");
 
     verify(userRepositoryPort).getByEmail(command.email());
-    verify(jwtService, never()).generateToken(any());
+    verify(jwtService, never()).generateToken(any(), any());
   }
 
   @Test
@@ -140,6 +143,7 @@ public class AuthServiceTest {
         userCreateCommand.lastname(),
         userCreateCommand.email(),
         userCreateCommand.password(),
+        UserRole.USER,
         Instant.now(),
         Instant.now()
       ),
@@ -149,14 +153,14 @@ public class AuthServiceTest {
     JwtModel tokens = new JwtModel("access_token", "refresh_token", 3600L);
 
     when(userService.create(userCreateCommand)).thenReturn(userWithTaskCount);
-    when(jwtService.generateToken(userWithTaskCount.user().getId().toString())).thenReturn(tokens);
+    when(jwtService.generateToken(userWithTaskCount.user().getId().toString(), UserRole.USER)).thenReturn(tokens);
 
     JwtModel res = authService.register(command);
 
     assertThat(res).isSameAs(tokens);
 
     verify(userService).create(userCreateCommand);
-    verify(jwtService).generateToken(userWithTaskCount.user().getId().toString());
+    verify(jwtService).generateToken(userWithTaskCount.user().getId().toString(), UserRole.USER);
   }
 
   @Test
@@ -168,14 +172,15 @@ public class AuthServiceTest {
 
     when(jwtService.isValid(command.refresh_token(), false)).thenReturn(true);
     when(jwtService.extractSubject(command.refresh_token(), false)).thenReturn(userId.toString());
-    when(jwtService.generateToken(userId.toString())).thenReturn(tokens);
+    when(jwtService.extractRole(command.refresh_token())).thenReturn("USER");
+    when(jwtService.generateToken(userId.toString(), UserRole.USER)).thenReturn(tokens);
 
     JwtModel res = authService.refresh(command);
 
     assertThat(res).isNotNull();
     assertThat(res.refresh_token()).isNotEqualTo(command.refresh_token());
 
-    verify(jwtService).generateToken(userId.toString());
+    verify(jwtService).generateToken(userId.toString(), UserRole.USER);
   }
 
   @Test
@@ -190,6 +195,6 @@ public class AuthServiceTest {
       .isInstanceOf(BadCredentialsException.class)
       .hasMessage("Invalid or expired refresh token");
 
-    verify(jwtService, never()).generateToken(any());
+    verify(jwtService, never()).generateToken(any(), any());
   }
 }

@@ -2,7 +2,9 @@ package com.diegovilla.task_manager.features.task.application.services;
 
 import com.diegovilla.task_manager.core.errors.exceptions.DomainException;
 import com.diegovilla.task_manager.core.errors.exceptions.ResourceNotFoundException;
+import com.diegovilla.task_manager.core.security.jwt.utils.PermissionValidator;
 import com.diegovilla.task_manager.features.task.application.commands.TaskCreateCommand;
+import com.diegovilla.task_manager.features.task.application.commands.TaskFiltersCommand;
 import com.diegovilla.task_manager.features.task.application.commands.TaskPaginationCommand;
 import com.diegovilla.task_manager.features.task.application.commands.TaskUpdateCommand;
 import com.diegovilla.task_manager.features.task.application.dto.response.TaskWithUser;
@@ -47,16 +49,29 @@ public class TaskService {
 
   private final TaskRepositoryPort taskRepositoryPort;
   private final UserRepositoryPort userRepository;
+  private final PermissionValidator permissionValidator;
 
   /**
    * Retrieves every task in the system.
    *
    * @return a list containing all {@link TaskModel} instances.
    */
-  public Page<TaskWithUser> getAll(TaskPaginationCommand taskPaginationCommand) {
+  public Page<TaskWithUser> getAll(
+    TaskPaginationCommand taskPaginationCommand,
+    TaskFiltersCommand taskFiltersCommand
+  ) {
     Pageable pageable = PageRequest.of(taskPaginationCommand.page(), taskPaginationCommand.limit());
 
-    Page<TaskWithUser> tasks = taskRepositoryPort.getAll(pageable, taskPaginationCommand.filters());
+    // Obtener usuario autenticado y su rol usando tu puerto
+    UUID targetUserId = permissionValidator.getTargetUserId(taskFiltersCommand.userId());
+    // Crear el objeto de filtros efectivo que viajará al repositorio
+    TaskFiltersCommand effectiveFilters = new TaskFiltersCommand(
+      targetUserId,
+      taskFiltersCommand.search(),
+      taskFiltersCommand.status()
+    );
+
+    Page<TaskWithUser> tasks = taskRepositoryPort.getAll(pageable, effectiveFilters);
     log.info("Tasks retrieved successfully. size={}", tasks.getContent().size());
 
     return tasks;
@@ -73,6 +88,9 @@ public class TaskService {
     TaskWithUser taskFound = taskRepositoryPort
       .getByIdWithUser(id)
       .orElseThrow(() -> new ResourceNotFoundException("Task not found."));
+
+    permissionValidator.validateHasPermissions(taskFound.task().getUserId());
+
     log.info("Task retrieved successfully. id={}", taskFound.task().getId());
 
     return taskFound;
@@ -81,13 +99,15 @@ public class TaskService {
   /**
    * Creates a new task after verifying title uniqueness.
    *
-   * @param taskModel domain model representing the new task.
-   * @return the persisted {@link TaskModel} with generated fields.
+   * @param taskCreateCommand domain model representing the new task.
+   * @return the persisted {@link TaskWithUser} with generated fields.
    * @throws TaskAlreadyExistsException if a task with the same title
    *                                    already exists (case-insensitive).
    */
   @Transactional
   public TaskWithUser create(TaskCreateCommand taskCreateCommand) {
+    permissionValidator.validateHasPermissions(taskCreateCommand.userId());
+
     if (taskRepositoryPort.existsByTitleIgnoreCase(StringUtils.normalize(taskCreateCommand.title()))) {
       throw new TaskAlreadyExistsException();
     }
@@ -192,6 +212,13 @@ public class TaskService {
     log.info("Task completed successfully. id={}", taskCompleted.getId());
   }
 
+  /**
+   * Helper method to retrieve a user model by unique identifier.
+   *
+   * @param id unique identifier of the user.
+   * @return the resolved {@link UserModel}.
+   * @throws ResourceNotFoundException if no user exists with the given id.
+   */
   private UserModel getUserById(UUID id) {
     return userRepository.getById(id)
       .orElseThrow(() -> new ResourceNotFoundException("User not found.")).user();
