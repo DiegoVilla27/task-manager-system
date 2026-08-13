@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Utility adapter constructing Spring Data JPA {@link Specification} instances for task queries.
@@ -39,12 +40,33 @@ public class TaskSpecifications {
         return criteriaBuilder.conjunction();
       }
 
-      // 2. Filtro de búsqueda por texto en Título o Descripción (LIKE %search%)
+      // 2. Filtro de búsqueda global (ID, Título o Descripción)
       if (StringUtils.hasText(filters.search())) {
-        String searchPattern = "%" + filters.search().toLowerCase() + "%";
-        Predicate titleMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), searchPattern);
-        Predicate descMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), searchPattern);
-        predicates.add(criteriaBuilder.or(titleMatch, descMatch));
+        String searchTerm = filters.search().trim();
+        String searchPattern = "%" + searchTerm.toLowerCase() + "%";
+
+        List<Predicate> searchPredicates = new ArrayList<>();
+
+        // Búsqueda parcial por Título
+        searchPredicates.add(
+          criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), searchPattern)
+        );
+
+        // Búsqueda parcial por Descripción
+        searchPredicates.add(
+          criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), searchPattern)
+        );
+
+        // Búsqueda exacta por ID (solo si el string ingresado tiene formato válido de UUID)
+        try {
+          UUID uuidSearch = UUID.fromString(searchTerm);
+          searchPredicates.add(criteriaBuilder.equal(root.get("id"), uuidSearch));
+        } catch (IllegalArgumentException ignored) {
+          // Si el texto de búsqueda no es un UUID válido (ej. "comprar"), simplemente se omite este predicado
+        }
+
+        // Combinamos los criterios de búsqueda con un OR (Título OR Descripción OR ID)
+        predicates.add(criteriaBuilder.or(searchPredicates.toArray(new Predicate[0])));
       }
 
       // 3. Filtro por Estado (Enum)
@@ -56,14 +78,6 @@ public class TaskSpecifications {
       if (filters.userId() != null) {
         predicates.add(criteriaBuilder.equal(root.get("user").get("id"), filters.userId()));
       }
-
-      // 5. Filtro por Rango de Fechas
-//      if (filters.createdFrom() != null) {
-//        predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), filters.createdFrom()));
-//      }
-//      if (filters.createdTo() != null) {
-//        predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), filters.createdTo()));
-//      }
 
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     };

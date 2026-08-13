@@ -1,6 +1,7 @@
 package com.diegovilla.task_manager.features.user.application.services;
 
 import com.diegovilla.task_manager.core.errors.exceptions.ResourceNotFoundException;
+import com.diegovilla.task_manager.core.security.jwt.ports.AuthenticatedUserProvider;
 import com.diegovilla.task_manager.core.security.jwt.utils.PermissionValidator;
 import com.diegovilla.task_manager.features.task.application.ports.TaskRepositoryPort;
 import com.diegovilla.task_manager.features.user.application.commands.UserCreateCommand;
@@ -32,6 +33,7 @@ public class UserService {
   private final UserRepositoryPort userRepositoryPort;
   private final PasswordHasherPort passwordHasherPort;
   private final PermissionValidator permissionValidator;
+  private final AuthenticatedUserProvider authenticatedUserProvider;
   private final TaskRepositoryPort taskRepositoryPort;
 
   public Page<UserWithTaskCount> getAll(
@@ -52,6 +54,11 @@ public class UserService {
     log.info("Users retrieved successfully. size={}", users.getContent().size());
 
     return users;
+  }
+
+  public UserWithTaskCount getMe() {
+    UUID userId = authenticatedUserProvider.getCurrentUserId();
+    return getById(userId);
   }
 
   public UserWithTaskCount getById(UUID id) {

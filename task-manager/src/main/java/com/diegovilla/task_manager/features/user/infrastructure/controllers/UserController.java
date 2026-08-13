@@ -7,6 +7,7 @@ import com.diegovilla.task_manager.features.user.application.commands.UserUpdate
 import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
 import com.diegovilla.task_manager.features.user.application.services.UserService;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserFiltersDTO;
+import com.diegovilla.task_manager.features.user.infrastructure.dto.response.UserMeResponseDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.response.UserWithTaskCountResponseDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserDtoMapper;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserCreateRequestDTO;
@@ -34,6 +35,18 @@ public class UserController {
 
   private final UserService userService;
   private final UserDtoMapper userDtoMapper;
+
+  @GetMapping("/me")
+  public ResponseEntity<UserMeResponseDTO> getMe() {
+    UserWithTaskCount user = userService.getMe();
+
+    return ResponseEntity.ok(new UserMeResponseDTO(
+      user.user().getId(),
+      user.user().getName(),
+      user.user().getLastname(),
+      user.user().getEmail()
+    ));
+  }
 
   @GetMapping
   @GetUsersDocumentation

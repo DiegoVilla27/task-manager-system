@@ -9,6 +9,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    port: 3000
+  },
   resolve: {
     alias: {
       '@core': path.resolve(import.meta.dirname, './src/core'),
