@@ -52,9 +52,11 @@ public class TaskService {
   private final PermissionValidator permissionValidator;
 
   /**
-   * Retrieves every task in the system.
+   * Retrieves a paginated and filtered list of tasks.
    *
-   * @return a list containing all {@link TaskModel} instances.
+   * @param taskPaginationCommand pagination parameters (page index and limit).
+   * @param taskFiltersCommand   query filtering parameters (user ID, search keyword, status).
+   * @return a {@link Page} of {@link TaskWithUser} composite projections.
    */
   public Page<TaskWithUser> getAll(
     TaskPaginationCommand taskPaginationCommand,
@@ -178,7 +180,6 @@ public class TaskService {
    * Transitions a task to the {@code IN_PROGRESS} status.
    *
    * @param id unique identifier of the task to start.
-   * @return the updated {@link TaskModel} with status {@code IN_PROGRESS}.
    * @throws ResourceNotFoundException if no task exists with the given id.
    * @throws DomainException           if the task cannot be started from
    *                                   its current status.
@@ -197,7 +198,6 @@ public class TaskService {
    * Transitions a task to the {@code COMPLETED} status.
    *
    * @param id unique identifier of the task to complete.
-   * @return the updated {@link TaskModel} with status {@code COMPLETED}.
    * @throws ResourceNotFoundException if no task exists with the given id.
    * @throws DomainException           if the task cannot be completed from
    *                                   its current status.

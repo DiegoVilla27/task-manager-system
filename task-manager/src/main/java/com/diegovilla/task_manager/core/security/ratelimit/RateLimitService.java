@@ -10,6 +10,14 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Service managing client token buckets for rate limiting using Bucket4j.
+ *
+ * <p>Maintains an in-memory concurrent map of client buckets configured according to
+ * {@link RateLimitProperties} and tracks probe consumption state.</p>
+ *
+ * @since 1.0.0
+ */
 @Service
 @RequiredArgsConstructor
 @EnableConfigurationProperties(RateLimitProperties.class)
@@ -19,7 +27,10 @@ public class RateLimitService {
   private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
 
   /**
-   * Intenta consumir 1 token y devuelve el ConsumptionProbe con el resultado y el tiempo de recarga.
+   * Attempts to consume 1 token for the specified client key and returns consumption probe metrics.
+   *
+   * @param key unique identifier representing the client (e.g. user ID or remote IP).
+   * @return a {@link ConsumptionProbe} containing token consumption status and nanos until refill.
    */
   public ConsumptionProbe tryConsumeAndReturnProbe(String key) {
     Bucket bucket = cache.computeIfAbsent(key, k -> createNewBucket());
@@ -27,7 +38,9 @@ public class RateLimitService {
   }
 
   /**
-   * Crea un nuevo cubo configurado con el builder fluido moderno de Bucket4j.
+   * Creates a new Bucket configured with bandwidth capacity and refill interval.
+   *
+   * @return a newly initialized {@link Bucket} instance.
    */
   private Bucket createNewBucket() {
     return Bucket.builder()
@@ -38,3 +51,4 @@ public class RateLimitService {
       .build();
   }
 }
+

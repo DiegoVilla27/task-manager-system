@@ -45,6 +45,11 @@ public interface TaskJpaRepository extends JpaRepository<TaskEntity, UUID>, JpaS
     """)
   Optional<TaskEntity> findByIdWithUser(@Param("id") UUID id);
 
+  /**
+   * Bulk-deletes all tasks associated with a given user ID.
+   *
+   * @param userId unique identifier (UUID) of the owning user.
+   */
   @Modifying
   @Query(
     """
@@ -54,3 +59,4 @@ public interface TaskJpaRepository extends JpaRepository<TaskEntity, UUID>, JpaS
   )
   void deleteAllByUserId(@Param("userId") UUID userId);
 }
+

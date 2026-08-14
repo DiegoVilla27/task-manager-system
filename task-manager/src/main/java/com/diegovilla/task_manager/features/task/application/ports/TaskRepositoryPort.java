@@ -68,5 +68,11 @@ public interface TaskRepositoryPort {
    */
   void delete(UUID id);
 
+  /**
+   * Permanently removes all tasks belonging to a specific user.
+   *
+   * @param userId unique identifier (UUID) of the user whose tasks should be deleted.
+   */
   void deleteAllByUserId(UUID userId);
 }
+

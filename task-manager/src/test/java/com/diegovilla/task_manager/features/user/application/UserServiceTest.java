@@ -12,7 +12,6 @@ import com.diegovilla.task_manager.features.user.application.services.UserServic
 import com.diegovilla.task_manager.features.user.domain.exceptions.UserAlreadyExistsException;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
 import com.diegovilla.task_manager.features.user.domain.valueobjects.UserRole;
-import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserFiltersDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +42,15 @@ public class UserServiceTest {
   @Mock
   private PasswordHasherPort passwordHasher;
 
+  @Mock
+  private com.diegovilla.task_manager.core.security.jwt.utils.PermissionValidator permissionValidator;
+
+  @Mock
+  private com.diegovilla.task_manager.core.security.jwt.ports.AuthenticatedUserProvider authenticatedUserProvider;
+
+  @Mock
+  private com.diegovilla.task_manager.features.task.application.ports.TaskRepositoryPort taskRepositoryPort;
+
   @InjectMocks
   private UserService userService;
 
@@ -54,19 +62,15 @@ public class UserServiceTest {
     Pageable pageable = PageRequest.of(command.page(), command.limit());
 
     List<UserWithTaskCount> users = List.of(
-      new UserWithTaskCount(
-        UserModel.create("John", "Doe", "john.doe@example.com", "12345"),
-        10L
-      ),
-      new UserWithTaskCount(
-        UserModel.create("John 1", "Doe", "john.doe1@example.com", "12345"),
-        10L
-      ),
-      new UserWithTaskCount(
-        UserModel.create("John 2", "Doe", "john.doe2@example.com", "12345"),
-        10L
-      )
-    );
+        new UserWithTaskCount(
+            UserModel.create("John", "Doe", "john.doe@example.com", "12345"),
+            10L),
+        new UserWithTaskCount(
+            UserModel.create("John 1", "Doe", "john.doe1@example.com", "12345"),
+            10L),
+        new UserWithTaskCount(
+            UserModel.create("John 2", "Doe", "john.doe2@example.com", "12345"),
+            10L));
 
     Page<UserWithTaskCount> userPage = new PageImpl<>(users, pageable, users.size());
 
@@ -83,9 +87,8 @@ public class UserServiceTest {
   void shouldGetUserById() {
     UUID userId = UUID.randomUUID();
     UserWithTaskCount user = new UserWithTaskCount(
-      UserModel.create("John", "Doe", "john.doe@example.com", "12345"),
-      10L
-    );
+        UserModel.create("John", "Doe", "john.doe@example.com", "12345"),
+        10L);
 
     when(userRepository.getById(userId)).thenReturn(Optional.of(user));
 
@@ -103,8 +106,8 @@ public class UserServiceTest {
     when(userRepository.getById(userId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> userService.getById(userId))
-      .isInstanceOf(ResourceNotFoundException.class)
-      .hasMessage("User not found");
+        .isInstanceOf(ResourceNotFoundException.class)
+        .hasMessage("User not found");
 
     verify(userRepository).getById(userId);
   }
@@ -115,11 +118,10 @@ public class UserServiceTest {
     String plainPassword = "12345";
     String hashPassword = "hash_12345";
     UserCreateCommand command = new UserCreateCommand(
-      "John",
-      "Doe",
-      "john.doe@example.com",
-      plainPassword
-    );
+        "John",
+        "Doe",
+        "john.doe@example.com",
+        plainPassword);
 
     when(userRepository.existsByEmailIgnoreCase(command.email())).thenReturn(false);
 
@@ -142,17 +144,16 @@ public class UserServiceTest {
   @DisplayName("Should reject creating a user when it already exists")
   void shouldRejectCreateUserAlreadyExists() {
     UserCreateCommand command = new UserCreateCommand(
-      "John",
-      "Doe",
-      "john.doe@example.com",
-      "12345"
-    );
+        "John",
+        "Doe",
+        "john.doe@example.com",
+        "12345");
 
     when(userRepository.existsByEmailIgnoreCase(command.email())).thenReturn(true);
 
     assertThatThrownBy(() -> userService.create(command))
-      .isInstanceOf(UserAlreadyExistsException.class)
-      .hasMessage("A user with this email already exists.");
+        .isInstanceOf(UserAlreadyExistsException.class)
+        .hasMessage("A user with this email already exists.");
 
     verify(userRepository).existsByEmailIgnoreCase(command.email());
   }
@@ -162,23 +163,20 @@ public class UserServiceTest {
   void shouldUpdateUser() {
     UUID userId = UUID.randomUUID();
     UserUpdateCommand command = new UserUpdateCommand(
-      "John Updated",
-      "Doe Updated",
-      "john.updated@example.com"
-    );
+        "John Updated",
+        "Doe Updated",
+        "john.updated@example.com");
     UserWithTaskCount userFound = new UserWithTaskCount(
-      UserModel.reconstruct(
-        userId,
-        "John",
-        "Doe",
-        "john.doe@example.com",
-        "hash_12345",
-        UserRole.USER,
-        Instant.now(),
-        Instant.now()
-      ),
-      10L
-    );
+        UserModel.reconstruct(
+            userId,
+            "John",
+            "Doe",
+            "john.doe@example.com",
+            "hash_12345",
+            UserRole.USER,
+            Instant.now(),
+            Instant.now()),
+        10L);
 
     when(userRepository.getById(userId)).thenReturn(Optional.of(userFound));
 
@@ -200,31 +198,28 @@ public class UserServiceTest {
   void shouldRejectUpdateUserAlreadyExists() {
     UUID userId = UUID.randomUUID();
     UserUpdateCommand command = new UserUpdateCommand(
-      "John Updated",
-      "Doe Updated",
-      "john.updated@example.com"
-    );
+        "John Updated",
+        "Doe Updated",
+        "john.updated@example.com");
     UserWithTaskCount userFound = new UserWithTaskCount(
-      UserModel.reconstruct(
-        userId,
-        "John",
-        "Doe",
-        "john.doe@example.com",
-        "hash_12345",
-        UserRole.USER,
-        Instant.now(),
-        Instant.now()
-      ),
-      10L
-    );
+        UserModel.reconstruct(
+            userId,
+            "John",
+            "Doe",
+            "john.doe@example.com",
+            "hash_12345",
+            UserRole.USER,
+            Instant.now(),
+            Instant.now()),
+        10L);
 
     when(userRepository.getById(userId)).thenReturn(Optional.of(userFound));
 
     when(userRepository.existsByEmailIgnoreCase(command.email())).thenReturn(true);
 
     assertThatThrownBy(() -> userService.update(userId, command))
-      .isInstanceOf(UserAlreadyExistsException.class)
-      .hasMessage("A user with this email already exists.");
+        .isInstanceOf(UserAlreadyExistsException.class)
+        .hasMessage("A user with this email already exists.");
 
     verify(userRepository).getById(userId);
     verify(userRepository).existsByEmailIgnoreCase(command.email());
@@ -235,18 +230,16 @@ public class UserServiceTest {
   void shouldDeleteUser() {
     UUID userId = UUID.randomUUID();
     UserWithTaskCount userFound = new UserWithTaskCount(
-      UserModel.reconstruct(
-        userId,
-        "John",
-        "Doe",
-        "john.doe@example.com",
-        "hash_12345",
-        UserRole.USER,
-        Instant.now(),
-        Instant.now()
-      ),
-      10L
-    );
+        UserModel.reconstruct(
+            userId,
+            "John",
+            "Doe",
+            "john.doe@example.com",
+            "hash_12345",
+            UserRole.USER,
+            Instant.now(),
+            Instant.now()),
+        10L);
 
     when(userRepository.getById(userId)).thenReturn(Optional.of(userFound));
 

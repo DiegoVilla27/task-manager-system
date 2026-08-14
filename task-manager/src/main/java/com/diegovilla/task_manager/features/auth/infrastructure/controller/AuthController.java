@@ -23,6 +23,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller exposing authentication and identity management operations.
+ *
+ * <p>Provides public endpoints for user login, new account registration, and JWT token refresh.</p>
+ *
+ * @since 1.0.0
+ */
 @Validated
 @RestController
 @RequestMapping("/auth")
@@ -33,6 +40,12 @@ public class AuthController {
   private final AuthService authService;
   private final AuthDtoMapper authDtoMapper;
 
+  /**
+   * Authenticates user credentials and returns JWT access and refresh tokens.
+   *
+   * @param loginRequestDTO validated login credentials payload.
+   * @return HTTP 200 with {@link AuthResponseDTO} containing issued tokens.
+   */
   @PostMapping("/login")
   @AuthLoginDocumentation
   public ResponseEntity<AuthResponseDTO> login(
@@ -44,6 +57,12 @@ public class AuthController {
     return ResponseEntity.ok(authDtoMapper.jwtModelToResponseDTO(res));
   }
 
+  /**
+   * Registers a new user account and returns initial JWT tokens.
+   *
+   * @param authRegisterRequestDTO validated registration data payload.
+   * @return HTTP 200 with {@link AuthResponseDTO} containing issued tokens.
+   */
   @PostMapping("/register")
   @AuthRegisterDocumentation
   public ResponseEntity<AuthResponseDTO> register(
@@ -55,6 +74,12 @@ public class AuthController {
     return ResponseEntity.ok(authDtoMapper.jwtModelToResponseDTO(res));
   }
 
+  /**
+   * Generates a new access token using a valid refresh token.
+   *
+   * @param authRefreshRequestDTO validated refresh token request payload.
+   * @return HTTP 200 with {@link AuthResponseDTO} containing renewed tokens.
+   */
   @PostMapping("/refresh")
   @AuthRefreshDocumentation
   public ResponseEntity<AuthResponseDTO> refresh(
@@ -66,3 +91,4 @@ public class AuthController {
     return ResponseEntity.ok(authDtoMapper.jwtModelToResponseDTO(res));
   }
 }
+

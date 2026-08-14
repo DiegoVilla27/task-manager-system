@@ -1,19 +1,23 @@
 package com.diegovilla.task_manager.core.errors.exceptions;
 
+import com.diegovilla.task_manager.core.errors.dtos.ErrorResponseDTO;
+import com.diegovilla.task_manager.core.errors.handlers.ApiExceptionHandler;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 /**
- * Base class for all business exceptions exposed by the application.
+ * Base abstract class for all application-specific domain and business
+ * exceptions.
  *
- * <p>Every custom exception intended to be returned to the client must
- * extend this class. Each exception defines the HTTP status code and the
- * message that will be included in the API response.</p>
+ * <p>
+ * Encapsulates an HTTP status code and a descriptive error message. Subclasses
+ * are
+ * automatically captured by {@link ApiExceptionHandler}, which converts them
+ * into a standardized
+ * {@link ErrorResponseDTO}.
+ * </p>
  *
- * <p>Instances of this class are handled centrally by
- * {@link ApiExceptionHandler}, which converts them into a standardized
- * {@link ErrorResponseDTO}.</p>
- *
+ * @author Diego Villa
  * @since 1.0.0
  */
 @Getter
@@ -26,8 +30,8 @@ public abstract class ApiException extends RuntimeException {
   /**
    * Creates a new business exception.
    *
-   * @param httpStatus  HTTP status that should be returned to the client.
-   * @param message human-readable description of the error.
+   * @param httpStatus HTTP status that should be returned to the client.
+   * @param message    human-readable description of the error.
    */
   protected ApiException(HttpStatus httpStatus, String message) {
     super(message);

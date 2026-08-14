@@ -8,6 +8,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * Utility component enforcing role-based and ownership-based permission rules.
+ *
+ * <p>Determines query filtering constraints based on whether the authenticated principal
+ * is an administrator or standard user, and validates ownership before mutation operations.</p>
+ *
+ * @since 1.0.0
+ */
 @Component
 @RequiredArgsConstructor
 public class PermissionValidator {

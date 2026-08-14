@@ -9,12 +9,22 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Cross-Origin Resource Sharing (CORS) configuration.
+ *
+ * <p>Defines allowed origins, HTTP methods, authorization headers,
+ * exposed headers, credentials policy, and preflight max-age caching duration.</p>
+ *
+ * @since 1.0.0
+ */
 @Configuration
 @RequiredArgsConstructor
 public class CorsConfigurationFilter {
 
   /**
-   * Define las reglas de acceso cruzado (CORS) de la API.
+   * Defines and registers the cross-origin access rules applied across all API endpoints.
+   *
+   * @return a configured {@link CorsConfigurationSource} mapped to all paths ({@code /**}).
    */
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
@@ -48,3 +58,4 @@ public class CorsConfigurationFilter {
     return source;
   }
 }
+

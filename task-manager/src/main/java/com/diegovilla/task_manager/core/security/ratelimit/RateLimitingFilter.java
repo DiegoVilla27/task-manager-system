@@ -20,6 +20,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Filter that applies token-bucket rate limiting to incoming HTTP requests.
+ *
+ * <p>Identifies clients by their authenticated user identifier or origin IP address.
+ * Emits informational {@code X-RateLimit-Remaining} headers on successful requests,
+ * or returns HTTP 429 Too Many Requests with retry headers when limits are exceeded.</p>
+ *
+ * @since 1.0.0
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,6 +39,15 @@ public class RateLimitingFilter extends OncePerRequestFilter {
   private final ObjectMapper objectMapper;
   private final ErrorResponseFactory errorResponseFactory;
 
+  /**
+   * Evaluates client token consumption and continues filter chain or halts with HTTP 429.
+   *
+   * @param request     current HTTP request.
+   * @param response    current HTTP response.
+   * @param filterChain servlet filter chain.
+   * @throws ServletException in case of servlet execution errors.
+   * @throws IOException      in case of I/O read or write errors.
+   */
   @Override
   protected void doFilterInternal(
     HttpServletRequest request,
@@ -75,8 +93,10 @@ public class RateLimitingFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Determina la identidad del cliente. Si ya pasó por el JwtAuthenticationFilter,
-   * usará el userId; si no, usará la dirección IP del cliente.
+   * Resolves the unique identifier representing the client (authenticated user ID or client IP).
+   *
+   * @param request current HTTP servlet request.
+   * @return a formatted key string such as {@code user:<uuid>} or {@code ip:<address>}.
    */
   private String resolveClientKey(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -93,3 +113,4 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     return "ip:" + request.getRemoteAddr();
   }
 }
+

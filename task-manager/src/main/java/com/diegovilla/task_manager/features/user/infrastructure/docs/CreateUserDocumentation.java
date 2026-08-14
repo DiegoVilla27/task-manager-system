@@ -13,6 +13,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import java.lang.annotation.*;
 
+/**
+ * OpenAPI documentation annotation for the user creation endpoint ({@code POST /users}).
+ *
+ * <p>Documents HTTP 201 Created and standard error response schemas.</p>
+ *
+ * @since 1.0.0
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -25,3 +32,4 @@ import java.lang.annotation.*;
 @InternalServerErrorApiResponse
 public @interface CreateUserDocumentation {
 }
+

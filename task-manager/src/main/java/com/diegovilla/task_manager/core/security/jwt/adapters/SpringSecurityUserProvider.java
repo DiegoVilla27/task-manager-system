@@ -8,9 +8,22 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * Spring Security adapter implementing {@link AuthenticatedUserProvider}.
+ *
+ * <p>Reads the current authentication state from {@link SecurityContextHolder} to
+ * extract the authenticated user UUID principal and granted authorities.</p>
+ *
+ * @since 1.0.0
+ */
 @Component
 public class SpringSecurityUserProvider implements AuthenticatedUserProvider {
 
+  /**
+   * {@inheritDoc}
+   *
+   * @throws AccessDeniedException if no authentication exists or user ID is malformed.
+   */
   @Override
   public UUID getCurrentUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -27,6 +40,11 @@ public class SpringSecurityUserProvider implements AuthenticatedUserProvider {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @throws AccessDeniedException if no authentication or authorities are found.
+   */
   @Override
   public String getCurrentUserRole() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -38,3 +56,4 @@ public class SpringSecurityUserProvider implements AuthenticatedUserProvider {
     return authentication.getAuthorities().iterator().next().getAuthority();
   }
 }
+

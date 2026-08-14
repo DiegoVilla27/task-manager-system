@@ -56,9 +56,12 @@ public class TaskController {
   private final TaskDtoMapper taskDtoMapper;
 
   /**
-   * Retrieves all tasks in the system.
+   * Retrieves a paginated and filtered list of tasks.
    *
-   * @return HTTP 200 with a list of {@link TaskResponseDTO} instances.
+   * @param page    one-based page number (default 1).
+   * @param limit   number of items per page (default 10).
+   * @param filters query filter criteria.
+   * @return HTTP 200 with a {@link Page} of {@link TaskWithUserResponseDTO} instances.
    */
   @GetMapping
   @GetTasksDocumentation

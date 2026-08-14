@@ -18,11 +18,31 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+/**
+ * Spring Security configuration establishing application security filters,
+ * stateless session policies, endpoint authorization rules, and CORS/rate limiting integration.
+ *
+ * <p>Enables method security annotations (e.g. {@code @PreAuthorize}) and registers
+ * custom filters for JWT authentication and token-bucket rate limiting.</p>
+ *
+ * @since 1.0.0
+ */
 @Configuration
 @EnableConfigurationProperties(JwtProperties.class)
 @EnableMethodSecurity
 public class SecurityConfig {
 
+  /**
+   * Configures the main Spring Security filter chain.
+   *
+   * @param http                     the {@link HttpSecurity} builder to configure.
+   * @param jwtAuthenticationFilter  filter validating JWT bearer tokens on incoming requests.
+   * @param rateLimitingFilter       filter enforcing token-bucket rate limits per client.
+   * @param corsConfigurationFilter  CORS source provider for cross-origin web requests.
+   * @param resolver                 Spring MVC exception resolver for delegating 401/403 errors.
+   * @return the configured {@link SecurityFilterChain}.
+   * @throws Exception if a security configuration error occurs during building.
+   */
   @Bean
   public SecurityFilterChain securityFilterChain(
     HttpSecurity http,
@@ -64,8 +84,14 @@ public class SecurityConfig {
     return http.build();
   }
 
+  /**
+   * Provides the password encoder bean used for hashing and verifying passwords.
+   *
+   * @return a {@link BCryptPasswordEncoder} instance.
+   */
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 }
+

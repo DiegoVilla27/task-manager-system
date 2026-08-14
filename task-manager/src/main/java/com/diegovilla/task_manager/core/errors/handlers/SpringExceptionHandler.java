@@ -111,23 +111,24 @@ public class SpringExceptionHandler {
    * request.
    *
    * <p>
-   * This exception is thrown when a {@code @PathVariable},
-   * {@code @RequestParam}, {@code @RequestHeader} or any other parameter
-   * validated via Bean Validation violates a constraint.
+   * Handles individual method parameter validation constraint violations.
+   *
+   * <p>
+   * Requires the controller to be annotated with {@code @Validated}.
    * </p>
    *
-   * @param ex exception containing all violated constraints.
-   * @return HTTP 400 response with details for each invalid parameter.
-   * @implNote Requires the controller to be annotated with {@code @Validated}.
+   * @param e exception carrying constraint violation details.
+   * @return HTTP 400 response containing field validation violation details.
    */
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<ErrorResponseDTO> handleConstraintViolation(ConstraintViolationException ex) {
-    log.warn("Constraint validation failed: {}", ex.getMessage());
+  public ResponseEntity<ErrorResponseDTO> handleConstraintViolationException(
+      ConstraintViolationException e) {
+    log.warn("Constraint validation failed: {}", e.getMessage());
 
     return errorResponseFactory.build(
         HttpStatus.BAD_REQUEST,
         "The request contains invalid parameters.",
-        ex.getConstraintViolations()
+        e.getConstraintViolations()
             .stream()
             .map(error -> {
               String field = error.getPropertyPath().toString();
@@ -291,6 +292,14 @@ public class SpringExceptionHandler {
         List.of());
   }
 
+  /**
+   * Handles authentication failures caused by invalid username or password
+   * credentials.
+   *
+   * @param e exception thrown during credential validation.
+   * @return HTTP 401 response indicating authentication failed due to bad
+   *         credentials.
+   */
   @ExceptionHandler(BadCredentialsException.class)
   public ResponseEntity<ErrorResponseDTO> handleBadCredentialsException(BadCredentialsException e) {
     log.warn("Bad credentials: {}", e.getMessage());

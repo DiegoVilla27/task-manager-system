@@ -5,6 +5,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Request payload carrying parameters for user creation.
+ *
+ * @param name     first name of the user (3–100 characters).
+ * @param lastname optional last name of the user (3–100 characters).
+ * @param email    unique email address (max 150 characters).
+ * @param password account password (8–20 characters).
+ * @since 1.0.0
+ */
 @Schema(description = "Request body required to register a new user in the system")
 public record UserCreateRequestDTO(
 

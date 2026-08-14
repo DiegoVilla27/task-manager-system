@@ -30,11 +30,10 @@ public class ApiExceptionHandler {
   private final ErrorResponseFactory errorResponseFactory;
 
   /**
-   * Converts a custom {@link ApiException} into a standardized API response.
+   * Handles domain and application-specific exceptions derived from {@link ApiException}.
    *
-   * @param ex custom business exception thrown by the application.
-   * @return HTTP response containing the status code and message defined
-   *         by the exception.
+   * @param e custom business exception thrown by the application.
+   * @return a structured {@link ErrorResponseDTO} wrapped in a {@link ResponseEntity}.
    */
   @ExceptionHandler(ApiException.class)
   public ResponseEntity<ErrorResponseDTO> handle(ApiException e) {

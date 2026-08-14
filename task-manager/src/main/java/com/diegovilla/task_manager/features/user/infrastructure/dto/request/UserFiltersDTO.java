@@ -4,6 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
+/**
+ * Request query parameters for filtering user query results.
+ *
+ * @param search optional text pattern matching first name, last name, or email.
+ * @param userId optional unique user ID constraint.
+ * @since 1.0.0
+ */
 @Schema(description = "Query parameter filters for searching and paginating users")
 public record UserFiltersDTO(
   @Schema(description = "Search keyword matching first name or last name", example = "John")

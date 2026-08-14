@@ -5,6 +5,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Public response representation of a user including total assigned task count.
+ *
+ * @param id         unique identifier (UUID) of the user.
+ * @param name       first name of the user.
+ * @param lastname   last name of the user.
+ * @param email      registered email address.
+ * @param countTasks total number of tasks assigned to this user.
+ * @param createdAt  account registration timestamp.
+ * @since 1.0.0
+ */
 @Schema(description = "User response DTO including the calculated number of assigned tasks")
 public record UserWithTaskCountResponseDTO(
   @Schema(description = "Unique identifier of the user", example = "123e4567-e89b-12d3-a456-426655440000")

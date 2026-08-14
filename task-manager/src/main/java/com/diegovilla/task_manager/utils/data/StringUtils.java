@@ -1,5 +1,10 @@
 package com.diegovilla.task_manager.utils.data;
 
+/**
+ * Utility class providing string manipulation and normalization helper methods.
+ *
+ * @since 1.0.0
+ */
 public final class StringUtils {
 
   private StringUtils() {

@@ -10,6 +10,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import java.lang.annotation.*;
 
+/**
+ * OpenAPI documentation annotation for the user deletion endpoint ({@code DELETE /users/{id}}).
+ *
+ * <p>Documents HTTP 204 No Content and standard error response schemas.</p>
+ *
+ * @since 1.0.0
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -22,3 +29,4 @@ import java.lang.annotation.*;
 @InternalServerErrorApiResponse
 public @interface DeleteUserDocumentation {
 }
+

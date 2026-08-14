@@ -5,11 +5,9 @@ import com.diegovilla.task_manager.features.user.application.commands.UserFilter
 import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
 import com.diegovilla.task_manager.features.user.application.ports.UserRepositoryPort;
 import com.diegovilla.task_manager.features.user.domain.model.UserModel;
-import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserFiltersDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.entity.UserEntity;
 import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserEntityMapper;
 import com.diegovilla.task_manager.features.user.infrastructure.repository.UserJpaRepository;
-
 import com.diegovilla.task_manager.features.user.infrastructure.specifications.UserSpecifications;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,20 +20,34 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Persistence infrastructure adapter implementing {@link UserRepositoryPort}.
+ *
+ * <p>Bridges user domain persistence operations to Spring Data JPA, executing query
+ * specifications, mapping entities to domain models, and translating database exceptions.</p>
+ *
+ * @since 1.0.0
+ */
 @Slf4j
 @Component
 @AllArgsConstructor
 public class UserRepositoryAdapter implements UserRepositoryPort {
 
-  private UserJpaRepository userJpaRepository;
-  private DatabaseExceptionTranslator databaseExceptionTranslator;
-  private UserEntityMapper userEntityMapper;
+  private final UserJpaRepository userJpaRepository;
+  private final DatabaseExceptionTranslator databaseExceptionTranslator;
+  private final UserEntityMapper userEntityMapper;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean existsByEmailIgnoreCase(String email) {
     return userJpaRepository.existsByEmailIgnoreCase(email);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Page<UserWithTaskCount> getAll(Pageable pageable, UserFiltersCommand filters) {
     Specification<UserEntity> spec = UserSpecifications.withFilters(filters);
@@ -49,6 +61,9 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
       );
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Optional<UserWithTaskCount> getById(UUID id) {
     return userJpaRepository.findById(id)
@@ -59,12 +74,18 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         ));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Optional<UserModel> getByEmail(String email) {
     return userJpaRepository.findByEmail(email)
       .map(userEntityMapper::entityToModel);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public UserModel save(UserModel user) {
     try {
@@ -77,6 +98,9 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void delete(UUID id) {
     try {
@@ -87,3 +111,4 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
   }
 }
+

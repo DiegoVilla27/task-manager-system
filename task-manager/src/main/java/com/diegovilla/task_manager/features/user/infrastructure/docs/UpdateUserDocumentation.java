@@ -14,6 +14,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import java.lang.annotation.*;
 
+/**
+ * OpenAPI documentation annotation for the user update endpoint ({@code PATCH /users/{id}}).
+ *
+ * <p>Documents HTTP 200 OK with {@link UserWithTaskCountResponseDTO} payload and standard error schemas.</p>
+ *
+ * @since 1.0.0
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -27,3 +34,4 @@ import java.lang.annotation.*;
 @InternalServerErrorApiResponse
 public @interface UpdateUserDocumentation {
 }
+

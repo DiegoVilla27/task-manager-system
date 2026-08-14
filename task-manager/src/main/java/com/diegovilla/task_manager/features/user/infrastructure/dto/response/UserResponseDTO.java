@@ -5,6 +5,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Public response representation of a user account.
+ *
+ * @param id        unique identifier (UUID) of the user.
+ * @param name      first name of the user.
+ * @param lastname  last name of the user.
+ * @param email     registered email address.
+ * @param createdAt registration timestamp.
+ * @since 1.0.0
+ */
 @Schema(description = "Public user information response")
 public record UserResponseDTO(
     @Schema(description = "Unique identifier of the user", example = "123e4567-e89b-12d3-a456-426655440000") UUID id,

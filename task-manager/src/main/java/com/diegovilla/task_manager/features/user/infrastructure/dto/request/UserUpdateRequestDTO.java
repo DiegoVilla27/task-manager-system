@@ -4,6 +4,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Request payload carrying optional profile fields for partial user updates.
+ *
+ * @param name     updated first name of the user (3–100 characters), or {@code null}.
+ * @param lastname updated last name of the user (3–100 characters), or {@code null}.
+ * @param email    updated email address (max 150 characters), or {@code null}.
+ * @since 1.0.0
+ */
 @Schema(description = "Request body for updating user profile information. All fields are optional.")
 public record UserUpdateRequestDTO(
 

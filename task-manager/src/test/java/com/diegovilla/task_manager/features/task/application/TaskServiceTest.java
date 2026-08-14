@@ -44,7 +44,7 @@ public class TaskServiceTest {
   private UserRepositoryPort userRepository;
 
   @Mock
-  private com.diegovilla.task_manager.core.security.jwt.ports.AuthenticatedUserProvider authenticatedUserProvider;
+  private com.diegovilla.task_manager.core.security.jwt.utils.PermissionValidator permissionValidator;
 
   @InjectMocks
   private TaskService taskService;
@@ -56,11 +56,6 @@ public class TaskServiceTest {
     "hash_1234"
   );
 
-  @org.junit.jupiter.api.BeforeEach
-  void setUp() {
-    lenient().when(authenticatedUserProvider.getCurrentUserId()).thenReturn(user.getId());
-    lenient().when(authenticatedUserProvider.getCurrentUserRole()).thenReturn("ROLE_ADMIN");
-  }
 
   @Test
   @DisplayName("Should retrieve all tasks successfully")

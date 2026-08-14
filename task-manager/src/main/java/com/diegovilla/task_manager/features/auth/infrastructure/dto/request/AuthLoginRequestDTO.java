@@ -5,9 +5,17 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Request payload carrying credentials for user authentication.
+ *
+ * @param email    registered email address.
+ * @param password raw plain-text password.
+ * @since 1.0.0
+ */
 @Schema(description = "Request body required for user login authentication")
 public record AuthLoginRequestDTO(
   @Schema(description = "Registered email address of the user", example = "john.doe@example.com", requiredMode = Schema.RequiredMode.REQUIRED, maxLength = 150)
+  @NotBlank(message = "Email is required")
   @Email(message = "Email has to be valid")
   @Size(max = 150, message = "Email must be at most 150 characters")
   String email,
@@ -18,3 +26,4 @@ public record AuthLoginRequestDTO(
   String password
 ) {
 }
+

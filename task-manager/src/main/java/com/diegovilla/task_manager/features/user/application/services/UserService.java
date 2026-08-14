@@ -24,6 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+/**
+ * Application service orchestrating user management use cases.
+ *
+ * <p>Handles user queries with pagination and security scoping, self-profile lookups,
+ * secure user registration with password hashing, profile updates, and cascade or restricted user deletion.</p>
+ *
+ * @since 1.0.0
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -36,6 +44,13 @@ public class UserService {
   private final AuthenticatedUserProvider authenticatedUserProvider;
   private final TaskRepositoryPort taskRepositoryPort;
 
+  /**
+   * Retrieves a paginated and filtered list of users along with their task counts.
+   *
+   * @param userPaginationCommand pagination parameters (page index and limit).
+   * @param filters               search and filtering criteria.
+   * @return a {@link Page} of {@link UserWithTaskCount} composite projections.
+   */
   public Page<UserWithTaskCount> getAll(
     UserPaginationCommand userPaginationCommand,
     UserFiltersCommand filters
@@ -56,11 +71,24 @@ public class UserService {
     return users;
   }
 
+  /**
+   * Retrieves profile and task count information for the currently authenticated user.
+   *
+   * @return the resolved {@link UserWithTaskCount} of the authenticated principal.
+   * @throws ResourceNotFoundException if user record cannot be found.
+   */
   public UserWithTaskCount getMe() {
     UUID userId = authenticatedUserProvider.getCurrentUserId();
     return getById(userId);
   }
 
+  /**
+   * Retrieves a single user and their task count by unique identifier, validating authorization permissions.
+   *
+   * @param id unique identifier (UUID) of the user.
+   * @return the {@link UserWithTaskCount} if found and authorized.
+   * @throws ResourceNotFoundException if no user exists with the given ID.
+   */
   public UserWithTaskCount getById(UUID id) {
     UserWithTaskCount userFound = userRepositoryPort.getById(id)
       .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -72,6 +100,13 @@ public class UserService {
     return userFound;
   }
 
+  /**
+   * Creates and persists a new user account with hashed credentials.
+   *
+   * @param userCreateCommand command containing user details and plain-text password.
+   * @return a {@link UserWithTaskCount} representing the created user with 0 tasks.
+   * @throws UserAlreadyExistsException if a user with the normalized email already exists.
+   */
   @Transactional
   public UserWithTaskCount create(UserCreateCommand userCreateCommand) {
     if (userRepositoryPort
@@ -93,6 +128,15 @@ public class UserService {
     return new UserWithTaskCount(userCreated, 0L);
   }
 
+  /**
+   * Partially updates an existing user profile.
+   *
+   * @param id                unique identifier of the user to update.
+   * @param userUpdateCommand command carrying updated profile attributes.
+   * @return the updated {@link UserWithTaskCount}.
+   * @throws ResourceNotFoundException  if the user does not exist.
+   * @throws UserAlreadyExistsException if the new email belongs to another existing user.
+   */
   @Transactional
   public UserWithTaskCount update(UUID id, UserUpdateCommand userUpdateCommand) {
     UserWithTaskCount userFound = getById(id);
@@ -114,6 +158,13 @@ public class UserService {
     return new UserWithTaskCount(userUpdated, userFound.countTasks());
   }
 
+  /**
+   * Deletes a user account permanently, with optional cascade deletion of assigned tasks.
+   *
+   * @param id    unique identifier of the user to delete.
+   * @param force if {@code true}, removes all associated tasks prior to deleting user.
+   * @throws ResourceNotFoundException if user does not exist.
+   */
   @Transactional
   public void delete(UUID id, boolean force) {
     UserWithTaskCount userFound = getById(id);
@@ -123,17 +174,10 @@ public class UserService {
       if (userFound.countTasks() > 0) {
         taskRepositoryPort.deleteAllByUserId(id);
       }
-      // 2. Eliminamos el usuario
-      userRepositoryPort.delete(id);
-    } else {
-      // Si force=false y tiene tareas, al intentar borrar el repositorio
-      // saltará la DataIntegrityViolationException y la traducirá al 409 Conflict
-      userRepositoryPort.delete(id);
     }
 
     userRepositoryPort.delete(userFound.user().getId());
     log.info("User deleted successfully. id={}", userFound.user().getId());
   }
-
-
 }
+

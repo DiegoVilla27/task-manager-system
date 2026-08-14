@@ -9,6 +9,14 @@ import com.diegovilla.task_manager.features.user.domain.valueobjects.UserRole;
 import com.diegovilla.task_manager.utils.data.ValidateDataUtils;
 import lombok.Getter;
 
+/**
+ * Domain aggregate root representing a User account within the platform.
+ *
+ * <p>Encapsulates user identity, profile names, email validation, password credentials,
+ * authorization role, and audit timestamps.</p>
+ *
+ * @since 1.0.0
+ */
 @Getter
 public class UserModel {
   private final UUID id;
@@ -23,6 +31,9 @@ public class UserModel {
   private static final Pattern EMAIL_PATTERN = Pattern
     .compile("^(?=.{1,150}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
+  /**
+   * Internal constructor creating a hydrated {@link UserModel}.
+   */
   private UserModel(
     UUID id,
     String name,
@@ -42,6 +53,15 @@ public class UserModel {
     this.updatedAt = Objects.requireNonNull(updatedAt, "User UpdatedAt cannot be null");
   }
 
+  /**
+   * Factory method creating a new user with standard {@link UserRole#USER} role.
+   *
+   * @param name     first name (3–100 characters).
+   * @param lastname last name (3–100 characters).
+   * @param email    valid email address format.
+   * @param password hashed or raw password.
+   * @return a new {@link UserModel} with generated UUID and current timestamps.
+   */
   public static UserModel create(
     String name,
     String lastname,
@@ -63,6 +83,19 @@ public class UserModel {
       Instant.now());
   }
 
+  /**
+   * Reconstructs an existing {@link UserModel} from persistence without re-validating domain constraints.
+   *
+   * @param id        user unique identifier.
+   * @param name      user first name.
+   * @param lastname  user last name.
+   * @param email     user email address.
+   * @param password  user password hash.
+   * @param role      user role enum value.
+   * @param createdAt creation timestamp.
+   * @param updatedAt last update timestamp.
+   * @return a hydrated {@link UserModel} instance.
+   */
   public static UserModel reconstruct(
     UUID id,
     String name,
@@ -83,6 +116,13 @@ public class UserModel {
       Objects.requireNonNull(updatedAt, "User UpdatedAt cannot be null"));
   }
 
+  /**
+   * Updates mutable profile attributes if non-null values are provided.
+   *
+   * @param name     updated first name (3–100 chars), or {@code null} to preserve current.
+   * @param lastname updated last name (3–100 chars), or {@code null} to preserve current.
+   * @param email    updated valid email address, or {@code null} to preserve current.
+   */
   public void updateInformation(
     String name,
     String lastname,
@@ -93,3 +133,4 @@ public class UserModel {
     this.updatedAt = Instant.now();
   }
 }
+
