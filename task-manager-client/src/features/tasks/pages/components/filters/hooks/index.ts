@@ -18,9 +18,7 @@ const useFiltersTasks = ({ search, setSearch }: Props) => {
 
   // Sincronizar únicamente si search cambia desde el padre y no es igual a inputValue
   useEffect(() => {
-    if (search !== inputValue) {
-      setInputValue(search);
-    }
+    setInputValue(search);
   }, [search]);
 
   const handleClearSearch = (e: React.MouseEvent<HTMLButtonElement>) => {

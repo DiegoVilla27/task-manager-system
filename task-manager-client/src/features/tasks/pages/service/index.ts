@@ -13,7 +13,7 @@ const getAllTasksSvc = async (payload: TasksRequest): Promise<TasksResponse | nu
       ...(payload.filters?.status ? { status: payload.filters.status } : {})
     });
     return response;
-  } catch (_) {
+  } catch {
     return null;
   }
 };
@@ -22,7 +22,7 @@ const createTaskSvc = async (payload: TaskCreateRequest): Promise<Task | null> =
   try {
     const response = await httpService.post<Task>(API_TASKS, payload);
     return response;
-  } catch (_) {
+  } catch {
     return null;
   }
 };
@@ -31,7 +31,7 @@ const updateTaskSvc = async (taskId: string, payload: TaskUpdateRequest): Promis
   try {
     const response = await httpService.patch<Task>(`${API_TASKS}/${taskId}`, payload);
     return response;
-  } catch (_) {
+  } catch {
     return null;
   }
 };
@@ -40,7 +40,7 @@ const deleteTaskSvc = async (taskId: string): Promise<boolean> => {
   try {
     await httpService.delete(`${API_TASKS}/${taskId}`);
     return true;
-  } catch (_) {
+  } catch {
     return false;
   }
 };
@@ -49,7 +49,7 @@ const startTaskSvc = async (taskId: string): Promise<boolean> => {
   try {
     await httpService.patch(`${API_TASKS}/${taskId}/start`);
     return true;
-  } catch (_) {
+  } catch {
     return false;
   }
 };
@@ -58,7 +58,7 @@ const completeTaskSvc = async (taskId: string): Promise<boolean> => {
   try {
     await httpService.patch(`${API_TASKS}/${taskId}/complete`);
     return true;
-  } catch (_) {
+  } catch {
     return false;
   }
 };

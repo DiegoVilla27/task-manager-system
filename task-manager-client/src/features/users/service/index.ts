@@ -13,7 +13,7 @@ const getMeSvc = async (): Promise<UserMeResponse | null> => {
     }
 
     return res;
-  } catch (_) {
+  } catch {
     return null;
   }
 }

@@ -20,7 +20,7 @@ class StorageService {
       } catch {
         return value as unknown as T;
       }
-    } catch (error) {
+    } catch {
       toast.error(`Error al leer del almacenamiento local [${key}]`);
       return null;
     }
@@ -30,7 +30,7 @@ class StorageService {
     try {
       const serializedValue = typeof value === 'string' ? value : JSON.stringify(value);
       localStorage.setItem(key, serializedValue);
-    } catch (error) {
+    } catch {
       toast.error(`Error al guardar en almacenamiento local [${key}]`);
     }
   }

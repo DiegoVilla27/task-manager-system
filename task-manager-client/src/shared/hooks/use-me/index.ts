@@ -3,16 +3,11 @@ import StorageService from '@shared/utils/storage';
 import { useEffect } from 'react';
 
 const useMe = () => {
-  const token = StorageService.get('TOKEN');
-
-  const getMe = async () => {
-    if (token) {
-      await getMeSvc();
-    }
-  }
-
   useEffect(() => {
-    getMe();
+    const token = StorageService.get('TOKEN');
+    if (token) {
+      getMeSvc();
+    }
   }, []);
 }
 

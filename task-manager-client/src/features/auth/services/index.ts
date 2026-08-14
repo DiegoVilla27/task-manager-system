@@ -12,7 +12,7 @@ const loginSvc = async (payload: AuthLoginRequest): Promise<AuthResponse | null>
     await saveTokensSvc(res);
 
     return res;
-  } catch (_) {
+  } catch {
     return null;
   }
 };
@@ -23,7 +23,7 @@ const registerSvc = async (payload: AuthRegisterRequest): Promise<AuthResponse |
     await saveTokensSvc(res);
 
     return res;
-  } catch (_) {
+  } catch {
     return null;
   }
 };
