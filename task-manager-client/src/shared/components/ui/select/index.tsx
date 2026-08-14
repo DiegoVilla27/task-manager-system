@@ -1,10 +1,15 @@
 import React from 'react';
 import { cn } from '@shared/utils/cn';
 
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
-  options: Array<{ value: string; label: string }>;
+  options: SelectOption[];
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(

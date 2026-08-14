@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
@@ -9,6 +9,23 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  test: {
+    globals: true,           // Permite usar describe, it, expect sin importarlos en cada archivo
+    environment: 'jsdom',    // Simula el DOM de un navegador
+    setupFiles: './src/setupTests.ts', // Archivo de configuración global opcional pero recomendado
+    coverage: {
+      provider: 'v8', // Motor de cobertura
+      reporter: ['text', 'json', 'html'], // Formatos de reporte
+      include: ['src/**/*.{ts,tsx}'], // Qué archivos medir
+      exclude: [
+        'src/main.tsx',
+        'src/vite-env.d.ts',
+        'src/setupTests.ts',
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.d.ts',
+      ],
+    },
+  },
   server: {
     port: 3000
   },
@@ -18,6 +35,6 @@ export default defineConfig({
       '@features': path.resolve(import.meta.dirname, './src/features'),
       '@shared': path.resolve(import.meta.dirname, './src/shared'),
     },
-  },
+  }
 });
 

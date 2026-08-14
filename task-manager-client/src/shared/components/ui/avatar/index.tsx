@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@shared/utils/cn';
 
-export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
+interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   name: string;
   src?: string;
   size?: 'sm' | 'md' | 'lg';

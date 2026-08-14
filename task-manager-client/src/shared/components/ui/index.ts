@@ -1,9 +1,15 @@
-export * from './Button';
-export * from './Input';
-export * from './Badge';
-export * from './Select';
-export * from './Link';
-export * from './Avatar';
-export * from './Modal';
-export * from './Table';
-export * from './Pagination';
+export * from './button';
+export * from './input';
+export * from './badge';
+export * from './select';
+export * from './link';
+export * from './avatar';
+export * from './modal';
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableCell,
+  TableRow,
+  TablePagination
+} from './table';

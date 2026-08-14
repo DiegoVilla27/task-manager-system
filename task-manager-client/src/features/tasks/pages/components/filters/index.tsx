@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
 import { Button, Input } from "@shared/components/ui";
 import { Filter, Search, X } from "lucide-react";
-import { useDebounce } from "@shared/hooks/useDebounce";
 import { TaskStatus } from "../../interfaces/response";
+import useFiltersTasks from "./hooks";
 
 interface Props {
   search: string;
@@ -12,26 +11,12 @@ interface Props {
 }
 
 const FiltersTasks = ({ search, setSearch, status, setStatus }: Props) => {
-  const [inputValue, setInputValue] = useState(search);
-  const debouncedSearch = useDebounce(inputValue, 400);
 
-  // Sincronizar el valor debounced con la función setSearch del padre
-  useEffect(() => {
-    setSearch(debouncedSearch);
-  }, [debouncedSearch, setSearch]);
-
-  // Sincronizar únicamente si search cambia desde el padre y no es igual a inputValue
-  useEffect(() => {
-    if (search !== inputValue) {
-      setInputValue(search);
-    }
-  }, [search]);
-
-  const handleClearSearch = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setInputValue('');
-  };
+  const {
+    inputValue,
+    setInputValue,
+    handleClearSearch
+  } = useFiltersTasks({ search, setSearch });
 
   return (
     <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/80 shadow-xs flex flex-col md:flex-row gap-4 justify-between items-center">

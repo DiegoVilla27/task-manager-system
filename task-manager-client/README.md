@@ -34,7 +34,7 @@ graph TD
     Page --> Store[Custom State Store / Hooks]
     Store --> Services[Feature API Services]
     Services --> AxiosClient[Axios HTTP Client]
-    
+
     subgraph "Interceptors & Security"
         AxiosClient --> ReqInt[Request Interceptor: Inject Bearer JWT]
         ReqInt --> Backend[(Spring Boot API)]
@@ -93,30 +93,32 @@ task-manager-client/
 
 ## 🛠️ Technical Stack & Dependencies
 
-| Category | Library / Dependency | Version | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Framework** | `react` & `react-dom` | `^19.2.8` | Core UI rendering engine |
-| **Language** | `typescript` | `~6.0.2` | Static type system |
-| **Build Tool**| `vite` | `^8.2.0` | Next-generation frontend tooling |
-| **Styling** | `tailwindcss` | `^4.3.3` | Utility-first CSS engine |
-| **Routing** | `react-router-dom` | `^7.18.2` | Declarative client routing |
-| **Drag & Drop**| `@hello-pangea/dnd`| `^18.0.1` | Smooth accessible Kanban drag-and-drop |
-| **HTTP Client**| `axios` | `^1.19.0` | Promise-based HTTP client with interceptors |
-| **Validation**| `zod` | `^4.4.3` | TypeScript-first schema declaration & validation |
-| **Forms** | `react-hook-form` | `^7.85.0` | High-performance form state management |
-| **Icons** | `lucide-react` | `^1.31.0` | Modern customizable SVG icons |
-| **Toasts** | `sonner` | `^2.0.8` | Opinionated, accessible toast notifications |
-| **Utilities**| `clsx` & `tailwind-merge` | `^2.1.1` / `^3.6.0` | Dynamic CSS class merging |
+| Category        | Library / Dependency      | Version             | Purpose                                          |
+| :-------------- | :------------------------ | :------------------ | :----------------------------------------------- |
+| **Framework**   | `react` & `react-dom`     | `^19.2.8`           | Core UI rendering engine                         |
+| **Language**    | `typescript`              | `~6.0.2`            | Static type system                               |
+| **Build Tool**  | `vite`                    | `^8.2.0`            | Next-generation frontend tooling                 |
+| **Styling**     | `tailwindcss`             | `^4.3.3`            | Utility-first CSS engine                         |
+| **Routing**     | `react-router-dom`        | `^7.18.2`           | Declarative client routing                       |
+| **Drag & Drop** | `@hello-pangea/dnd`       | `^18.0.1`           | Smooth accessible Kanban drag-and-drop           |
+| **HTTP Client** | `axios`                   | `^1.19.0`           | Promise-based HTTP client with interceptors      |
+| **Validation**  | `zod`                     | `^4.4.3`            | TypeScript-first schema declaration & validation |
+| **Forms**       | `react-hook-form`         | `^7.85.0`           | High-performance form state management           |
+| **Icons**       | `lucide-react`            | `^1.31.0`           | Modern customizable SVG icons                    |
+| **Toasts**      | `sonner`                  | `^2.0.8`            | Opinionated, accessible toast notifications      |
+| **Utilities**   | `clsx` & `tailwind-merge` | `^2.1.1` / `^3.6.0` | Dynamic CSS class merging                        |
 
 ---
 
 ## ⚙️ Provisioning & Setup Guide
 
 ### 1. Prerequisites
+
 - **Node.js**: v18.x or higher
 - **npm** or **pnpm** installed
 
 ### 2. Environment Configuration
+
 Create a `.env` file in `task-manager-client/`:
 
 ```env
@@ -148,3 +150,44 @@ The application will be accessible at:
 ---
 
 > This digital ecosystem has been designed, structured, and developed to high-performance standards by **[Cabuweb](https://cabuweb.com)**.
+
+---
+
+## 🧪 Testing Scripts
+
+### 🌐 Global Tests (Todos los tests del proyecto)
+
+```bash
+# Ejecutar todos los tests en modo watch (escucha cambios en vivo)
+pnpm test
+
+# Ejecutar todos los tests una sola vez (modo CI/CD)
+pnpm test:run
+
+# Ejecutar todos los tests y generar reporte de coverage
+pnpm test:coverage
+
+# Ejecutar todos los tests con interfaz gráfica interactiva (Vitest UI)
+pnpm test:ui
+
+# Modo watch para un solo archivo
+pnpm test tasks.test.ts
+
+# Ejecución única (single run) para un archivo
+pnpm test:run tasks.test.ts
+
+# Coverage ejecutando solo el archivo indicado
+pnpm test:coverage -- tasks.test.ts
+
+# Coverage filtrando para ver únicamente el archivo fuente en la tabla
+pnpm test:coverage -- tasks.test.ts --coverage.include="src/**/tasks.ts"
+
+# Abre la interfaz gráfica enfocando solo ese archivo
+pnpm test:ui tasks.test.ts
+
+# Ruta exacta
+pnpm test src/components/TaskItem/index.test.tsx
+
+# Con coverage
+pnpm test:coverage -- src/components/TaskItem/index.test.tsx
+```

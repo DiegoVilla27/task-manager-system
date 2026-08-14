@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, Pagination, Table, TableBody, TableCell, TableHeader, TableRow } from "@shared/components/ui";
+import { Avatar, Badge, Button, Table, TableBody, TableCell, TableHeader, TablePagination, TableRow } from "@shared/components/ui";
 import { AlertCircle, Calendar, Check, CheckCircle2, Copy, Pencil, Timer, Trash2 } from "lucide-react";
 import type { Task, TaskStatusType } from "../../interfaces/response";
 import useTableTasks from "./hooks";
@@ -74,22 +74,22 @@ const TableTasks: React.FC<Props> = ({
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 shadow-xs overflow-hidden flex-1 flex flex-col">
       <Table>
         <TableHeader>
-          <TableCell className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
             ID
           </TableCell>
-          <TableCell className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
             Tarea
           </TableCell>
-          <TableCell className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
             Estado
           </TableCell>
-          <TableCell className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
             Asignado
           </TableCell>
-          <TableCell className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
             Fecha Creación
           </TableCell>
-          <TableCell align="right" className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell align="right" isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
             Acciones
           </TableCell>
         </TableHeader>
@@ -192,7 +192,7 @@ const TableTasks: React.FC<Props> = ({
         </TableBody>
       </Table>
 
-      <Pagination
+      <TablePagination
         currentPage={page}
         totalPages={totalPages}
         totalItems={totalElements}
