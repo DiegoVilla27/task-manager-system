@@ -1,11 +1,20 @@
+/**
+ * @fileoverview Unit tests for the root `Table` container component.
+ * Verifies table element creation, semantic child integration (`thead`, `tbody`, `tr`, `th`, `td`),
+ * and table role accessibility mappings.
+ *
+ * @module shared/components/ui/table/table.test
+ */
+
 import { render, screen } from "@testing-library/react";
 import { Table } from ".";
 
 describe('UI: table', () => {
-
+  /**
+   * Verifies complete table tree mounting with associated table, columnheader, and cell accessibility roles.
+   */
   it('should render table', () => {
-    // Arrange
-    // Act
+    // Arrange & Act
     render(
       <Table>
         <thead>
@@ -24,6 +33,7 @@ describe('UI: table', () => {
         </tbody>
       </Table>
     );
+
     // Assert
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Nombre' })).toBeInTheDocument();
