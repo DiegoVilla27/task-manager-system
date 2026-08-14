@@ -19,3 +19,14 @@ services:
       - "8080:8080"
     networks:
       - shared-network
+
+  react-client:
+    build:
+      context: ./task-manager-client
+      dockerfile: Dockerfile
+    container_name: react_client
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - shared-network
