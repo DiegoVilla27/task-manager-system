@@ -38,6 +38,7 @@ export default {
     return [
       `pnpm --dir task-manager-client exec prettier --write ${filesList}`,
       `pnpm --dir task-manager-client exec oxlint ${filesList}`,
+      `pnpm --dir task-manager-client exec tsc -b`,
       testCmd,
     ];
   },
