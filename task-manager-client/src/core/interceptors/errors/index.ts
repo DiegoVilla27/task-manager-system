@@ -1,7 +1,7 @@
-import axiosInstance from "@core/axios";
-import type { AxiosError } from "axios";
-import { toast } from "sonner";
-import type { HttpResponseError } from "./interfaces";
+import axiosInstance from '@core/axios';
+import type { AxiosError } from 'axios';
+import { toast } from 'sonner';
+import type { HttpResponseError } from './interfaces';
 
 const interceptorErrors = (): void => {
   axiosInstance.interceptors.response.use(
@@ -28,6 +28,6 @@ const interceptorErrors = (): void => {
       return Promise.reject(error);
     },
   );
-}
+};
 
 export default interceptorErrors;

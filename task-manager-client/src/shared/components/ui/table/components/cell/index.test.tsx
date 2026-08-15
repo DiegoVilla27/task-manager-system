@@ -6,8 +6,8 @@
  * @module shared/components/ui/table/cell.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { TableCell } from ".";
+import { render, screen } from '@testing-library/react';
+import { TableCell } from '.';
 
 describe('UI: table cell', () => {
   /**
@@ -19,12 +19,10 @@ describe('UI: table cell', () => {
       <table>
         <tbody>
           <tr>
-            <TableCell>
-              Diego
-            </TableCell>
+            <TableCell>Diego</TableCell>
           </tr>
         </tbody>
-      </table>
+      </table>,
     );
 
     // Assert
@@ -40,12 +38,10 @@ describe('UI: table cell', () => {
       <table>
         <tbody>
           <tr>
-            <TableCell align="left">
-              Diego
-            </TableCell>
+            <TableCell align="left">Diego</TableCell>
           </tr>
         </tbody>
-      </table>
+      </table>,
     );
 
     // Assert
@@ -61,12 +57,10 @@ describe('UI: table cell', () => {
       <table>
         <tbody>
           <tr>
-            <TableCell align="right">
-              Diego
-            </TableCell>
+            <TableCell align="right">Diego</TableCell>
           </tr>
         </tbody>
-      </table>
+      </table>,
     );
 
     // Assert
@@ -82,13 +76,10 @@ describe('UI: table cell', () => {
       <table>
         <tbody>
           <tr>
-            <TableCell align="center">
-              Diego
-            </TableCell>
+            <TableCell align="center">Diego</TableCell>
           </tr>
         </tbody>
-      </table>
-
+      </table>,
     );
 
     // Assert
@@ -104,12 +95,10 @@ describe('UI: table cell', () => {
       <table>
         <thead>
           <tr>
-            <TableCell isHeader>
-              Name
-            </TableCell>
+            <TableCell isHeader>Name</TableCell>
           </tr>
         </thead>
-      </table>
+      </table>,
     );
 
     // Assert

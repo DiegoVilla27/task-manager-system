@@ -5,8 +5,8 @@
  * @module shared/components/ui/table/body.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { TableBody } from ".";
+import { render, screen } from '@testing-library/react';
+import { TableBody } from '.';
 
 describe('UI: table body', () => {
   /**
@@ -18,12 +18,10 @@ describe('UI: table body', () => {
       <table>
         <TableBody>
           <tr>
-            <td>
-              Body
-            </td>
+            <td>Body</td>
           </tr>
         </TableBody>
-      </table>
+      </table>,
     );
 
     // Assert

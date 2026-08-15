@@ -5,8 +5,8 @@
  * @module shared/utils/storage.test
  */
 
-import { toast } from "sonner";
-import StorageService from ".";
+import { toast } from 'sonner';
+import StorageService from '.';
 
 // Mock Sonner toast library to assert notification side-effects on exceptions
 vi.mock('sonner', () => ({
@@ -70,7 +70,7 @@ describe('storage service', () => {
 
     // Assert
     expect(toast.error).toHaveBeenCalledTimes(1);
-    expect(toast.error).toHaveBeenCalledWith("Error al leer del almacenamiento local [TOKEN]");
+    expect(toast.error).toHaveBeenCalledWith('Error al leer del almacenamiento local [TOKEN]');
     expect(res).toBeNull();
   });
 

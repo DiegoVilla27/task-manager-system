@@ -1,22 +1,22 @@
-import axiosInstance from "@core/axios";
-import interceptorErrors from ".";
-import type { AxiosError, AxiosResponse } from "axios";
-import { toast } from "sonner";
+import axiosInstance from '@core/axios';
+import interceptorErrors from '.';
+import type { AxiosError, AxiosResponse } from 'axios';
+import { toast } from 'sonner';
 
 vi.mock('@core/axios', () => ({
   default: {
     interceptors: {
       response: {
-        use: vi.fn()
-      }
-    }
-  }
+        use: vi.fn(),
+      },
+    },
+  },
 }));
 
 vi.mock('sonner', () => ({
   toast: {
-    error: vi.fn()
-  }
+    error: vi.fn(),
+  },
 }));
 
 describe('interceptorErrors', () => {
@@ -68,15 +68,16 @@ describe('interceptorErrors', () => {
           errors: [
             {
               field: 'name',
-              message: 'Name is required'
+              message: 'Name is required',
             },
             {
               field: 'email',
-              message: 'Email is required'
-            }
-          ]
-        }, status: 404
-      }
+              message: 'Email is required',
+            },
+          ],
+        },
+        status: 404,
+      },
     } as AxiosError;
     const result = onRejected(error);
     // Assert
@@ -91,6 +92,8 @@ describe('interceptorErrors', () => {
     // Assert
     await expect(result).rejects.toEqual(error);
     expect(toast.error).toHaveBeenCalledTimes(1);
-    expect(toast.error).toHaveBeenCalledWith('Ocurrió un error inesperado. Por favor, reintenta.', { duration: 5000 });
+    expect(toast.error).toHaveBeenCalledWith('Ocurrió un error inesperado. Por favor, reintenta.', {
+      duration: 5000,
+    });
   });
-})
+});

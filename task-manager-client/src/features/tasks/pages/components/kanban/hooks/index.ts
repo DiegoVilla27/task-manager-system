@@ -1,8 +1,8 @@
-import type { DropResult } from "@hello-pangea/dnd";
-import { completeTaskSvc, startTaskSvc } from "@features/tasks/pages/service";
-import type { TaskStatusType } from "../../../interfaces/response";
-import useTableTasks from "../../table/hooks";
-import { toast } from "sonner";
+import type { DropResult } from '@hello-pangea/dnd';
+import { completeTaskSvc, startTaskSvc } from '@features/tasks/pages/service';
+import type { TaskStatusType } from '../../../interfaces/response';
+import useTableTasks from '../../table/hooks';
+import { toast } from 'sonner';
 
 interface Props {
   onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
@@ -28,16 +28,16 @@ const useKanbanTasks = ({ onTaskStatusChange, onTaskDeleted }: Props) => {
     if (currentStatus === 'PENDING' && targetStatus === 'IN_PROGRESS') {
       // 1. Cambio optimista local
       onTaskStatusChange?.(draggableId, 'IN_PROGRESS');
-      
+
       // 2. Intento de persitencia en backend
       const success = await startTaskSvc(draggableId);
-      
+
       if (success) {
-        toast.success("Task started");
+        toast.success('Task started');
       } else {
         // 3. Rollback si falla el servicio
         onTaskStatusChange?.(draggableId, 'PENDING');
-        toast.error("Error al iniciar tarea. Se revirtió el cambio.");
+        toast.error('Error al iniciar tarea. Se revirtió el cambio.');
       }
       return;
     }
@@ -46,22 +46,24 @@ const useKanbanTasks = ({ onTaskStatusChange, onTaskDeleted }: Props) => {
     if (currentStatus === 'IN_PROGRESS' && targetStatus === 'COMPLETED') {
       // 1. Cambio optimista local
       onTaskStatusChange?.(draggableId, 'COMPLETED');
-      
+
       // 2. Intento de persistencia en backend
       const success = await completeTaskSvc(draggableId);
 
       if (success) {
-        toast.success("Task completed");
+        toast.success('Task completed');
       } else {
         // 3. Rollback si falla el servicio
         onTaskStatusChange?.(draggableId, 'IN_PROGRESS');
-        toast.error("Error al completar tarea. Se revirtió el cambio.");
+        toast.error('Error al completar tarea. Se revirtió el cambio.');
       }
       return;
     }
 
     // Reversas o saltos no permitidos
-    toast.error("Movimiento no permitido. La tarea solo puede avanzar de PENDING a IN_PROGRESS y luego a COMPLETED.");
+    toast.error(
+      'Movimiento no permitido. La tarea solo puede avanzar de PENDING a IN_PROGRESS y luego a COMPLETED.',
+    );
   };
 
   return {

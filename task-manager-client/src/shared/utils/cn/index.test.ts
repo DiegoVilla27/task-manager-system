@@ -5,7 +5,7 @@
  * @module shared/utils/cn.test
  */
 
-import { cn } from ".";
+import { cn } from '.';
 
 describe('cn', () => {
   /**

@@ -1,6 +1,6 @@
-import { Button } from "@shared/components/ui";
-import { LayoutGrid, Plus, Table as TableIcon } from "lucide-react";
-import type { ViewMode } from "../../hooks";
+import { Button } from '@shared/components/ui';
+import { LayoutGrid, Plus, Table as TableIcon } from 'lucide-react';
+import type { ViewMode } from '../../hooks';
 
 interface Props {
   setIsModalOpen: (value: boolean) => void;

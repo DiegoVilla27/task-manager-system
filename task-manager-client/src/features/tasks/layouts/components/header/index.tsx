@@ -1,6 +1,6 @@
-import { Avatar, Button } from "@shared/components/ui";
-import { Bell, CheckSquare, LogOut } from "lucide-react";
-import useHeader from "./hooks";
+import { Avatar, Button } from '@shared/components/ui';
+import { Bell, CheckSquare, LogOut } from 'lucide-react';
+import useHeader from './hooks';
 
 const Header = () => {
   const { user, logout } = useHeader();
@@ -38,7 +38,9 @@ const Header = () => {
           <div className="flex items-center gap-2.5">
             <Avatar name={user?.name + ' ' + user?.lastname} size="md" />
             <div className="hidden md:block text-left">
-              <p className="text-sm font-semibold leading-none text-slate-900 dark:text-white">{user?.name + ' ' + user?.lastname}</p>
+              <p className="text-sm font-semibold leading-none text-slate-900 dark:text-white">
+                {user?.name + ' ' + user?.lastname}
+              </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{user?.email}</p>
             </div>
           </div>
@@ -54,7 +56,7 @@ const Header = () => {
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

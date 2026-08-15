@@ -8,9 +8,7 @@ const RegisterPage = lazy(() => import('@features/auth/pages/register'));
 
 const AUTH_ROUTES: RouteObject[] = [
   {
-    element: (
-      <PublicGuard />
-    ),
+    element: <PublicGuard />,
     children: [
       {
         path: '/auth',
@@ -28,8 +26,8 @@ const AUTH_ROUTES: RouteObject[] = [
             path: '',
             element: <Navigate to="/auth/login" replace />,
           },
-        ]
-      }
+        ],
+      },
     ],
   },
 ];

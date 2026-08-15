@@ -1,5 +1,5 @@
-import { environment } from "@core/environments";
-import axios from "axios";
+import { environment } from '@core/environments';
+import axios from 'axios';
 
 describe('Axios Configuration', () => {
   it('should configure axios correctly', async () => {

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
-import type { Task, TasksResponse, TaskStatusType } from "../interfaces/response";
-import { getAllTasksSvc } from "../service";
+import { useCallback, useEffect, useState } from 'react';
+import type { Task, TasksResponse, TaskStatusType } from '../interfaces/response';
+import { getAllTasksSvc } from '../service';
 
 export type ViewMode = 'table' | 'kanban';
 
@@ -48,15 +48,13 @@ const useTasksPage = () => {
       return {
         ...prev,
         content: prev.content.map((task) =>
-          task.id === taskId ? { ...task, status: newStatus as any } : task
+          task.id === taskId ? { ...task, status: newStatus as any } : task,
         ),
       };
     });
 
     setAccumulatedTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus as any } : task
-      )
+      prev.map((task) => (task.id === taskId ? { ...task, status: newStatus as any } : task)),
     );
   };
 
@@ -89,7 +87,7 @@ const useTasksPage = () => {
     setPage(1);
   };
 
-  const handleSetStatus = (newStatus: React.SetStateAction<"" | TaskStatusType>) => {
+  const handleSetStatus = (newStatus: React.SetStateAction<'' | TaskStatusType>) => {
     setStatus(newStatus);
     setPage(1);
   };

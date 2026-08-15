@@ -5,8 +5,8 @@
  * @module shared/components/ui/select.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { Select, type SelectOption } from ".";
+import { render, screen } from '@testing-library/react';
+import { Select, type SelectOption } from '.';
 
 describe('UI: select', () => {
   /**
@@ -14,9 +14,7 @@ describe('UI: select', () => {
    */
   it('should render select', () => {
     // Arrange & Act
-    render(
-      <Select options={[]} />
-    );
+    render(<Select options={[]} />);
 
     // Assert
     expect(screen.getByRole('combobox')).toBeInTheDocument();
@@ -27,9 +25,7 @@ describe('UI: select', () => {
    */
   it('should render select with label', () => {
     // Arrange & Act
-    render(
-      <Select label="test" options={[]} />
-    );
+    render(<Select label="test" options={[]} />);
 
     // Assert
     expect(screen.getByLabelText('test')).toBeInTheDocument();
@@ -40,9 +36,7 @@ describe('UI: select', () => {
    */
   it('should render select with error', () => {
     // Arrange & Act
-    render(
-      <Select error="test error" options={[]} />
-    );
+    render(<Select error="test error" options={[]} />);
 
     // Assert
     expect(screen.getByText('test error')).toBeInTheDocument();
@@ -65,9 +59,7 @@ describe('UI: select', () => {
     ];
 
     // Act
-    render(
-      <Select options={options} />
-    );
+    render(<Select options={options} />);
 
     // Assert
     expect(screen.getAllByRole('option')).toHaveLength(2);

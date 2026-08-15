@@ -5,9 +5,9 @@
  * @module shared/components/ui/link.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import { Link } from ".";
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { Link } from '.';
 
 describe('UI: link', () => {
   /**
@@ -19,10 +19,7 @@ describe('UI: link', () => {
     const text: string = 'Google';
 
     // Act
-    render(
-      <Link to={'https://google.com'}>{text}</Link>,
-      { wrapper: MemoryRouter }
-    );
+    render(<Link to={'https://google.com'}>{text}</Link>, { wrapper: MemoryRouter });
 
     // Assert
     expect(screen.getByText(text)).toBeInTheDocument();

@@ -1,13 +1,16 @@
-import type { TaskCreateRequest, TaskUpdateRequest } from "@features/tasks/pages/interfaces/request";
-import type { Task } from "@features/tasks/pages/interfaces/response";
-import { createTaskSvc, updateTaskSvc } from "@features/tasks/pages/service";
-import type { UserMeResponse } from "@features/users/interfaces/response";
-import { zodResolver } from "@hookform/resolvers/zod";
-import StorageService from "@shared/utils/storage";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import SaveTaskSchema from "../schema";
+import type {
+  TaskCreateRequest,
+  TaskUpdateRequest,
+} from '@features/tasks/pages/interfaces/request';
+import type { Task } from '@features/tasks/pages/interfaces/response';
+import { createTaskSvc, updateTaskSvc } from '@features/tasks/pages/service';
+import type { UserMeResponse } from '@features/users/interfaces/response';
+import { zodResolver } from '@hookform/resolvers/zod';
+import StorageService from '@shared/utils/storage';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import SaveTaskSchema from '../schema';
 
 interface Props {
   taskToEdit: Task | null;
@@ -27,14 +30,14 @@ const useSaveModal = ({ taskToEdit, onSuccess }: Props) => {
     handleSubmit,
     trigger,
     reset,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(SaveTaskSchema),
     defaultValues: {
       title: '',
       description: '',
     },
-    mode: 'all'
+    mode: 'all',
   });
 
   const onSubmit = async (values: FormValues) => {
@@ -43,7 +46,7 @@ const useSaveModal = ({ taskToEdit, onSuccess }: Props) => {
       const payload: TaskUpdateRequest = values;
       const res = await updateTaskSvc(taskToEdit.id, payload);
       if (res) {
-        toast.success("Task updated successfully");
+        toast.success('Task updated successfully');
         reset({ title: '', description: '' });
         onSuccess();
       }
@@ -55,7 +58,7 @@ const useSaveModal = ({ taskToEdit, onSuccess }: Props) => {
       };
       const res = await createTaskSvc(payload);
       if (res) {
-        toast.success("Task created successfully");
+        toast.success('Task created successfully');
         reset({ title: '', description: '' });
         onSuccess();
       }

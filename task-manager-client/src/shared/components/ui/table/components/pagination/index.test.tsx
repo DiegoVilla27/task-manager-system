@@ -5,9 +5,9 @@
  * @module shared/components/ui/table/pagination.test
  */
 
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { TablePagination } from ".";
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { TablePagination } from '.';
 
 describe('UI: pagination', () => {
   /**
@@ -21,8 +21,8 @@ describe('UI: pagination', () => {
         totalPages={1}
         totalItems={0}
         itemsPerPage={10}
-        onPageChange={() => { }}
-      />
+        onPageChange={() => {}}
+      />,
     );
 
     // Assert
@@ -45,7 +45,7 @@ describe('UI: pagination', () => {
         totalItems={20}
         itemsPerPage={10}
         onPageChange={onPageChange}
-      />
+      />,
     );
     await user.click(screen.getByLabelText('Siguiente'));
 
@@ -70,7 +70,7 @@ describe('UI: pagination', () => {
         totalItems={20}
         itemsPerPage={10}
         onPageChange={onPageChange}
-      />
+      />,
     );
     await user.click(screen.getByLabelText('Anterior'));
 
@@ -95,7 +95,7 @@ describe('UI: pagination', () => {
         totalItems={20}
         itemsPerPage={10}
         onPageChange={onPageChange}
-      />
+      />,
     );
     await user.click(screen.getByRole('button', { name: '2' }));
 
@@ -116,8 +116,8 @@ describe('UI: pagination', () => {
         totalPages={12}
         totalItems={120}
         itemsPerPage={10}
-        onPageChange={() => { }}
-      />
+        onPageChange={() => {}}
+      />,
     );
 
     // Assert: Previous + Page 1..5 + Next = 7 total buttons in current window

@@ -5,8 +5,8 @@
  * @module shared/components/ui/button.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { Button } from ".";
+import { render, screen } from '@testing-library/react';
+import { Button } from '.';
 
 describe('UI: button', () => {
   /**

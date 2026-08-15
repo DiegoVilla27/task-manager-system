@@ -6,9 +6,9 @@
  * @module shared/components/ui/modal.test
  */
 
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { Modal } from ".";
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Modal } from '.';
 
 describe('UI: modal', () => {
   /**
@@ -16,7 +16,11 @@ describe('UI: modal', () => {
    */
   it('should render modal', () => {
     // Arrange & Act
-    render(<Modal isOpen={true} onClose={() => { }}><div>Hola!</div></Modal>);
+    render(
+      <Modal isOpen={true} onClose={() => {}}>
+        <div>Hola!</div>
+      </Modal>,
+    );
 
     // Assert
     expect(screen.getByText('Hola!')).toBeInTheDocument();
@@ -27,7 +31,11 @@ describe('UI: modal', () => {
    */
   it('should not render modal', () => {
     // Arrange & Act
-    render(<Modal isOpen={false} onClose={() => { }}><div>Hola!</div></Modal>);
+    render(
+      <Modal isOpen={false} onClose={() => {}}>
+        <div>Hola!</div>
+      </Modal>,
+    );
 
     // Assert
     expect(screen.queryByText('Hola!')).toBeNull();
@@ -38,7 +46,11 @@ describe('UI: modal', () => {
    */
   it('should render modal with title', () => {
     // Arrange & Act
-    render(<Modal isOpen={true} title="Hola" onClose={() => { }}><div>Hola!</div></Modal>);
+    render(
+      <Modal isOpen={true} title="Hola" onClose={() => {}}>
+        <div>Hola!</div>
+      </Modal>,
+    );
 
     // Assert
     expect(screen.getByRole('heading', { name: 'Hola' })).toBeInTheDocument();
@@ -53,7 +65,11 @@ describe('UI: modal', () => {
     const onClose = vi.fn();
 
     // Act
-    render(<Modal isOpen={true} onClose={onClose}><div>Hola!</div></Modal>);
+    render(
+      <Modal isOpen={true} onClose={onClose}>
+        <div>Hola!</div>
+      </Modal>,
+    );
     await user.click(screen.getByRole('presentation'));
 
     // Assert
@@ -70,7 +86,11 @@ describe('UI: modal', () => {
     const onClose = vi.fn();
 
     // Act
-    render(<Modal isOpen={true} onClose={onClose}><div>Hola!</div></Modal>);
+    render(
+      <Modal isOpen={true} onClose={onClose}>
+        <div>Hola!</div>
+      </Modal>,
+    );
     await user.click(screen.getByRole('dialog'));
 
     // Assert
@@ -86,7 +106,11 @@ describe('UI: modal', () => {
     const onClose = vi.fn();
 
     // Act
-    render(<Modal isOpen={true} onClose={onClose}><div>Hola!</div></Modal>);
+    render(
+      <Modal isOpen={true} onClose={onClose}>
+        <div>Hola!</div>
+      </Modal>,
+    );
     await user.keyboard('{Escape}');
 
     // Assert
@@ -102,7 +126,11 @@ describe('UI: modal', () => {
     const onClose = vi.fn();
 
     // Act
-    render(<Modal isOpen={true} onClose={onClose}><div>Hola!</div></Modal>);
+    render(
+      <Modal isOpen={true} onClose={onClose}>
+        <div>Hola!</div>
+      </Modal>,
+    );
     await user.keyboard('{Enter}');
 
     // Assert

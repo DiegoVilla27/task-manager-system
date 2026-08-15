@@ -1,5 +1,5 @@
 interface Props {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export const TableHeader = ({ children }: Props) => {
@@ -9,5 +9,5 @@ export const TableHeader = ({ children }: Props) => {
         {children}
       </tr>
     </thead>
-  )
-}
+  );
+};

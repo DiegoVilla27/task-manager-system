@@ -6,8 +6,8 @@
  * @module shared/components/ui/table/table.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { Table } from ".";
+import { render, screen } from '@testing-library/react';
+import { Table } from '.';
 
 describe('UI: table', () => {
   /**
@@ -19,19 +19,15 @@ describe('UI: table', () => {
       <Table>
         <thead>
           <tr>
-            <th>
-              Nombre
-            </th>
+            <th>Nombre</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>
-              Diego
-            </td>
+            <td>Diego</td>
           </tr>
         </tbody>
-      </Table>
+      </Table>,
     );
 
     // Assert

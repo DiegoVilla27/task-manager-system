@@ -1,15 +1,13 @@
-import PrivateGuard from "@core/guards/private";
-import MainLayout from "@features/tasks/layouts";
-import { lazy } from "react";
-import { Navigate } from "react-router-dom";
+import PrivateGuard from '@core/guards/private';
+import MainLayout from '@features/tasks/layouts';
+import { lazy } from 'react';
+import { Navigate } from 'react-router-dom';
 
 const TasksPage = lazy(() => import('@features/tasks/pages'));
 
 const PRIVATE_ROUTES = [
   {
-    element: (
-      <PrivateGuard />
-    ),
+    element: <PrivateGuard />,
     children: [
       {
         path: '/',
@@ -20,13 +18,13 @@ const PRIVATE_ROUTES = [
             element: <TasksPage />,
           },
           {
-            path: "*",
+            path: '*',
             element: <Navigate to="/" replace />,
           },
-        ]
-      }
+        ],
+      },
     ],
   },
-]
+];
 
-export default PRIVATE_ROUTES
+export default PRIVATE_ROUTES;

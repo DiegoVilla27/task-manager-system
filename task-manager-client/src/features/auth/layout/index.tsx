@@ -19,7 +19,11 @@ export const AuthLayout: React.FC = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-slate-800 py-8 px-4 shadow-xl shadow-purple-500/5 sm:rounded-2xl sm:px-10 border border-slate-100 dark:border-slate-700/60">
-          <Suspense fallback={<div className="p-8 text-center text-purple-600 font-semibold">Cargando...</div>}>
+          <Suspense
+            fallback={
+              <div className="p-8 text-center text-purple-600 font-semibold">Cargando...</div>
+            }
+          >
             <Outlet />
           </Suspense>
         </div>

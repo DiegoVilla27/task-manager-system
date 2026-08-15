@@ -1,4 +1,4 @@
-import { toast } from "sonner";
+import { toast } from 'sonner';
 
 const STORAGE_KEYS = {
   TOKEN: 'TOKEN',
@@ -9,7 +9,6 @@ const STORAGE_KEYS = {
 type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 
 class StorageService {
-
   static get<T>(key: StorageKey): T | null {
     try {
       const value = localStorage.getItem(key);

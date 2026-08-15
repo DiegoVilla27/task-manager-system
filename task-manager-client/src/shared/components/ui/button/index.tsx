@@ -25,7 +25,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       type = 'button',
       ...props
     },
-    ref
+    ref,
   ) => {
     const baseStyles =
       'inline-flex items-center justify-center font-semibold rounded-xl transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active:scale-[0.98]';
@@ -54,13 +54,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         type={type}
         disabled={disabled || isLoading}
-        className={cn(
-          baseStyles,
-          variants[variant],
-          sizes[size],
-          fullWidth && 'w-full',
-          className
-        )}
+        className={cn(baseStyles, variants[variant], sizes[size], fullWidth && 'w-full', className)}
         {...props}
       >
         {isLoading ? (
@@ -92,7 +86,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {!isLoading && rightIcon}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = 'Button';

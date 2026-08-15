@@ -5,8 +5,8 @@
  * @module shared/components/ui/table/row.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { TableRow } from ".";
+import { render, screen } from '@testing-library/react';
+import { TableRow } from '.';
 
 describe('UI: table row', () => {
   /**
@@ -18,12 +18,10 @@ describe('UI: table row', () => {
       <table>
         <tbody>
           <TableRow>
-            <td>
-              Row
-            </td>
+            <td>Row</td>
           </TableRow>
         </tbody>
-      </table>
+      </table>,
     );
 
     // Assert

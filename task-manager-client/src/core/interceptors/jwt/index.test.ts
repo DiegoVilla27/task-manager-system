@@ -1,24 +1,24 @@
-import axiosInstance from "@core/axios";
-import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import interceptorJwtAuth from ".";
+import axiosInstance from '@core/axios';
+import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import interceptorJwtAuth from '.';
 
 vi.mock('@core/axios', () => ({
   default: {
     interceptors: {
       request: {
-        use: vi.fn()
+        use: vi.fn(),
       },
       response: {
-        use: vi.fn()
-      }
-    }
-  }
+        use: vi.fn(),
+      },
+    },
+  },
 }));
 
 vi.mock('sonner', () => ({
   toast: {
-    error: vi.fn()
-  }
+    error: vi.fn(),
+  },
 }));
 
 describe('interceptorJwtAuth', () => {
@@ -43,7 +43,7 @@ describe('interceptorJwtAuth', () => {
   it('should add authorization header when token exists', () => {
     // Arrange
     const token = localStorage.setItem('TOKEN', 'token_123');
-    const options = { headers: { 'Authorization': `Bearer ${token}` } } as InternalAxiosRequestConfig;
+    const options = { headers: { Authorization: `Bearer ${token}` } } as InternalAxiosRequestConfig;
     const result = onFulfilledReq(options);
 
     // Assert
@@ -71,12 +71,11 @@ describe('interceptorJwtAuth', () => {
     // Arrange
     const error: AxiosError = {
       response: {
-        status: 401
-      }
+        status: 401,
+      },
     } as AxiosError;
     const res = onRejectedRes(error);
     // Assert
     await expect(res).rejects.toEqual(error);
   });
-
-})
+});
