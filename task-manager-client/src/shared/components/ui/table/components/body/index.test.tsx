@@ -15,9 +15,15 @@ describe('UI: table body', () => {
   it('should render table body', () => {
     // Arrange & Act
     render(
-      <TableBody>
-        Body
-      </TableBody>
+      <table>
+        <TableBody>
+          <tr>
+            <td>
+              Body
+            </td>
+          </tr>
+        </TableBody>
+      </table>
     );
 
     // Assert

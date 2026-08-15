@@ -15,9 +15,13 @@ describe('UI: table header', () => {
   it('should render table header', () => {
     // Arrange & Act
     render(
-      <TableHeader>
-        Name
-      </TableHeader>
+      <table>
+        <TableHeader>
+          <th>
+            Name
+          </th>
+        </TableHeader>
+      </table>
     );
 
     // Assert

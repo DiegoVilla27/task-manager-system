@@ -16,9 +16,15 @@ describe('UI: table cell', () => {
   it('should render table cell', () => {
     // Arrange & Act
     render(
-      <TableCell>
-        Diego
-      </TableCell>
+      <table>
+        <tbody>
+          <tr>
+            <TableCell>
+              Diego
+            </TableCell>
+          </tr>
+        </tbody>
+      </table>
     );
 
     // Assert
@@ -31,9 +37,15 @@ describe('UI: table cell', () => {
   it('should render table cell with text left', () => {
     // Arrange & Act
     render(
-      <TableCell align="left">
-        Diego
-      </TableCell>
+      <table>
+        <tbody>
+          <tr>
+            <TableCell align="left">
+              Diego
+            </TableCell>
+          </tr>
+        </tbody>
+      </table>
     );
 
     // Assert
@@ -46,9 +58,15 @@ describe('UI: table cell', () => {
   it('should render table cell with text right', () => {
     // Arrange & Act
     render(
-      <TableCell align="right">
-        Diego
-      </TableCell>
+      <table>
+        <tbody>
+          <tr>
+            <TableCell align="right">
+              Diego
+            </TableCell>
+          </tr>
+        </tbody>
+      </table>
     );
 
     // Assert
@@ -61,9 +79,16 @@ describe('UI: table cell', () => {
   it('should render table cell with colSpan', () => {
     // Arrange & Act
     render(
-      <TableCell align="center">
-        Diego
-      </TableCell>
+      <table>
+        <tbody>
+          <tr>
+            <TableCell align="center">
+              Diego
+            </TableCell>
+          </tr>
+        </tbody>
+      </table>
+
     );
 
     // Assert
@@ -76,9 +101,15 @@ describe('UI: table cell', () => {
   it('should render table cell header', () => {
     // Arrange & Act
     render(
-      <TableCell isHeader>
-        Name
-      </TableCell>
+      <table>
+        <thead>
+          <tr>
+            <TableCell isHeader>
+              Name
+            </TableCell>
+          </tr>
+        </thead>
+      </table>
     );
 
     // Assert

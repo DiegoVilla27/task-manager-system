@@ -6,8 +6,8 @@
  */
 
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { Link } from ".";
-import { BrowserRouter } from "react-router-dom";
 
 describe('UI: link', () => {
   /**
@@ -21,7 +21,7 @@ describe('UI: link', () => {
     // Act
     render(
       <Link to={'https://google.com'}>{text}</Link>,
-      { wrapper: BrowserRouter }
+      { wrapper: MemoryRouter }
     );
 
     // Assert
