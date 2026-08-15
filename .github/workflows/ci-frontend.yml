@@ -18,6 +18,13 @@ jobs:
       run:
         working-directory: ./task-manager-client
     steps:
+      - name: 🛑 Verify PR source branch is dev (when targeting main)
+        if: github.base_ref == 'main' && github.head_ref != 'dev'
+        run: |
+          echo "❌ ERROR: No está permitido hacer Pull Request a 'main' desde '${{ github.head_ref }}'."
+          echo "👉 Todo cambio hacia 'main' debe provenir obligatoriamente de la rama 'dev'."
+          exit 1
+
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
