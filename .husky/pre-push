@@ -6,10 +6,10 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "🔨 [pre-push] Reconstruyendo imágenes de Docker (modo estricto)..."
-docker compose build || {
-  echo "❌ [pre-push] Error: Falló la construcción de las imágenes de Docker. Push cancelado."
+echo "🔨 [pre-push] Reconstruyendo y actualizando contenedores de Docker (modo estricto)..."
+docker compose up --build -d || {
+  echo "❌ [pre-push] Error: Falló la construcción o recreación de contenedores de Docker. Push cancelado."
   exit 1
 }
 
-echo "✅ [pre-push] Imágenes de Docker construidas y verificadas exitosamente."
+echo "✅ [pre-push] Contenedores de Docker reconstruidos y actualizados exitosamente."
