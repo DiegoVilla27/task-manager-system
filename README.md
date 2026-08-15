@@ -1,10 +1,12 @@
 # 🪐 Task Manager System - Enterprise Full-Stack Ecosystem
 
 [![Java](https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0--SNAPSHOT-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-19.2.8-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0.2-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3.3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Vitest](https://img.shields.io/badge/Vitest-4.1.10-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Oxlint](https://img.shields.io/badge/Oxlint-1.75.0-F97316?style=for-the-badge&logo=oxc&logoColor=white)](https://oxc.rs/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
@@ -14,12 +16,12 @@ A modern, full-stack enterprise task management solution engineered for high rel
 
 ## 🏛️ Ecosystem Overview & Subprojects
 
-This repository is organized as a unified multi-tier codebase containing two primary projects:
+This repository is organized as a unified multi-tier codebase containing two primary projects alongside root-level code quality automation:
 
 | Subproject | Description | Stack | Documentation |
 | :--- | :--- | :--- | :--- |
 | **`task-manager/`** | RESTful backend API handling authentication, domain aggregates, database persistence, rate limiting, and OpenAPI specs. | Java 17, Spring Boot 4, Spring Security, JWT, PostgreSQL, Bucket4j | [Backend README](file:///Users/diegovilla/Desktop/task-manager-system/task-manager/README.md) |
-| **`task-manager-client/`** | Single Page Application featuring interactive Kanban boards, dynamic filters, atomic UI design system, and JWT lifecycle management. | React 19, TypeScript, Vite 8, Tailwind CSS v4, `@hello-pangea/dnd` | [Frontend README](file:///Users/diegovilla/Desktop/task-manager-system/task-manager-client/README.md) |
+| **`task-manager-client/`** | Single Page Application featuring interactive Kanban boards, dynamic filters, atomic UI design system, and JWT lifecycle management. | React 19, TypeScript, Vite 8, Tailwind CSS v4, `@hello-pangea/dnd`, Vitest | [Frontend README](file:///Users/diegovilla/Desktop/task-manager-system/task-manager-client/README.md) |
 
 ---
 
@@ -58,7 +60,11 @@ flowchart LR
 
 ```text
 task-manager-system/
+├── .husky/                             # Git pre-commit & commit-msg automated hooks
+├── .commitlintrc.json                  # Conventional commits specification rules
+├── .lintstagedrc.js                    # Staged file linting, formatting & test runner
 ├── docker-compose.yml                  # Multi-container orchestration definition
+├── package.json                        # Root monorepo workspace dependencies & scripts
 ├── README.md                           # System root documentation
 │
 ├── task-manager/                       # 🟢 Spring Boot Backend API
@@ -74,19 +80,20 @@ task-manager-system/
 │       │   │   ├── task/               # Task Domain, Lifecycle, Specs & Endpoints
 │       │   │   └── user/               # User Aggregate, Roles, Queries & Endpoints
 │       │   └── utils/
-│       └── test/                       # Unit and domain test suite
+│       └── test/                       # Unit and domain test suite (57+ tests)
 │
 └── task-manager-client/                # 🔵 React 19 Frontend SPA
     ├── package.json
-    ├── vite.config.ts
+    ├── vite.config.ts                  # Vite config with Vitest & path aliases
+    ├── Dockerfile
     ├── README.md
     └── src/
-        ├── core/                       # Axios, Interceptors, Guards, Router
+        ├── core/                       # Axios, Interceptors, Guards, Router & Tests
         ├── features/
         │   ├── auth/                   # Login/Register UI, Auth Store & Services
         │   ├── tasks/                  # Kanban Drag-and-Drop, Tasks Tables, Modals
         │   └── users/                  # User Profile & Stats Hook
-        └── shared/                     # Atomic UI, Hooks & Utility functions
+        └── shared/                     # Atomic UI, Hooks & Utility functions (76+ Tests)
 ```
 
 ---
@@ -102,8 +109,14 @@ Ensure Docker is running, then launch the infrastructure and API:
 docker network create shared-network
 
 # 2. Build and run containers
-docker-compose up --build -d
+docker compose up --build -d
 ```
+
+- **Backend API**: [http://localhost:8080](http://localhost:8080)
+- **Frontend SPA**: [http://localhost:3000](http://localhost:3000)
+- **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+---
 
 ### Option B: Running Locally in Development Mode
 
@@ -122,10 +135,10 @@ cp .env.example .env # or configure environment variables
 #### 3. Start the React Frontend
 ```bash
 cd ../task-manager-client
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
-*Frontend runs at:* [http://localhost:5173](http://localhost:5173)
+*Frontend runs at:* [http://localhost:3000](http://localhost:3000)
 
 ---
 
@@ -139,24 +152,48 @@ Upon initial startup, the database seeder creates a default administrator accoun
 
 ---
 
-## 🧪 Testing & Code Quality
+## 🧪 Testing, Code Quality & Git Hooks
 
+The repository enforces strict enterprise code quality standards via automated Git hooks:
+
+### 🪝 Automated Git Hooks (Husky & lint-staged)
+- **`pre-commit`**: Automatically runs Prettier formatting, `oxlint` static code analysis, and targeted `vitest related` unit tests with coverage on staged frontend files, as well as `./mvnw test` on modified backend Java files.
+- **`commit-msg`**: Validates commit message adherence to [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat:`, `fix:`, `chore:`, `test:`, `docs:`, `refactor:`).
+
+### ☕ Backend Testing (Spring Boot)
 ```bash
-# Run Spring Boot Unit Tests (57 tests)
 cd task-manager
+
+# Run Spring Boot Unit & Domain Tests (57 tests)
 ./mvnw test -Dtest="!TaskManagerApplicationTests"
 
-# Generate Javadoc
+# Generate Javadoc documentation
 ./mvnw javadoc:javadoc
+```
 
-# Run React Client Linting
-cd ../task-manager-client
-npm run lint
+### ⚛️ Frontend Testing & Linting (React Client)
+```bash
+cd task-manager-client
 
-# Build React Client Bundle
-npm run build
+# Run 76 unit and integration tests across 25 suites
+pnpm test:run
+
+# Run tests in interactive watch mode
+pnpm test
+
+# Run tests with V8 code coverage report
+pnpm test:coverage
+
+# Launch interactive Vitest UI browser dashboard
+pnpm test:ui
+
+# Fast static code analysis with Oxlint
+pnpm run lint
+
+# Build production bundle with TypeScript type-checking
+pnpm run build
 ```
 
 ---
 
-> This digital ecosystem has been designed, structured, and developed to high-performance standards by **[Cabuweb](https://cabuweb.com)**.
+> This digital ecosystem has been designed, structured, and developed to high-performance standards by **[Cabuweb](https://cabuweb.com)** - **Software Developer: Diego Villa**.

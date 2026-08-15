@@ -6,6 +6,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3.3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![React Router](https://img.shields.io/badge/React_Router-7.18.2-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white)](https://reactrouter.com/)
 [![Vitest](https://img.shields.io/badge/Vitest-4.1.10-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Oxlint](https://img.shields.io/badge/Oxlint-1.75.0-F97316?style=for-the-badge&logo=oxc&logoColor=white)](https://oxc.rs/)
 [![Testing Library](https://img.shields.io/badge/Testing_Library-16.3.2-E33332?style=for-the-badge&logo=testing-library&logoColor=white)](https://testing-library.com/)
 
 A modern, responsive, high-performance Single Page Application (SPA) for task lifecycle management. Built with **React 19**, **TypeScript**, **Tailwind CSS v4**, and **Vite 8**, featuring an interactive **Kanban Board** with drag-and-drop, rich filtering, atomic UI design system, robust JWT token interceptor renewal, strict schema validation, and an enterprise-grade **Vitest** test suite.
@@ -106,27 +107,29 @@ task-manager-client/
 
 ## 🛠️ Technical Stack & Dependencies
 
-| Category | Library / Dependency | Version | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Framework** | `react` & `react-dom` | `^19.2.8` | Core UI rendering engine |
-| **Language** | `typescript` | `~6.0.2` | Static type system |
-| **Build Tool** | `vite` | `^8.2.0` | Next-generation frontend tooling |
-| **Styling** | `tailwindcss` | `^4.3.3` | Utility-first CSS engine |
-| **Routing** | `react-router-dom` | `^7.18.2` | Declarative client routing |
-| **Drag & Drop** | `@hello-pangea/dnd` | `^18.0.1` | Smooth accessible Kanban drag-and-drop |
-| **HTTP Client** | `axios` | `^1.19.0` | Promise-based HTTP client with interceptors |
-| **Validation** | `zod` | `^4.4.3` | TypeScript-first schema declaration & validation |
-| **Forms** | `react-hook-form` | `^7.85.0` | High-performance form state management |
-| **Icons** | `lucide-react` | `^1.31.0` | Modern customizable SVG icons |
-| **Toasts** | `sonner` | `^2.0.8` | Opinionated, accessible toast notifications |
-| **Utilities** | `clsx` & `tailwind-merge` | `^2.1.1` / `^3.6.0` | Dynamic CSS class merging |
-| **Test Runner** | `vitest` | `^4.1.10` | Blazing fast Vite-native test runner |
-| **Testing DOM** | `@testing-library/react` | `^16.3.2` | React component testing utilities |
-| **DOM Matchers** | `@testing-library/jest-dom` | `^7.0.1` | Custom Jest/Vitest DOM assertions |
-| **User Events** | `@testing-library/user-event` | `^14.6.4` | High-fidelity user event simulation |
-| **Coverage** | `@vitest/coverage-v8` | `^4.1.10` | Native V8 code coverage provider |
-| **Test UI** | `@vitest/ui` | `^4.1.10` | Interactive graphical test dashboard |
-| **DOM Runtime** | `jsdom` | `^30.0.1` | Headless browser environment for Node.js |
+| Category         | Library / Dependency          | Version             | Purpose                                          |
+| :--------------- | :---------------------------- | :------------------ | :----------------------------------------------- |
+| **Framework**    | `react` & `react-dom`         | `^19.2.8`           | Core UI rendering engine                         |
+| **Language**     | `typescript`                  | `~6.0.2`            | Static type system                               |
+| **Build Tool**   | `vite`                        | `^8.2.0`            | Next-generation frontend tooling                 |
+| **Styling**      | `tailwindcss`                 | `^4.3.3`            | Utility-first CSS engine                         |
+| **Routing**      | `react-router-dom`            | `^7.18.2`           | Declarative client routing                       |
+| **Drag & Drop**  | `@hello-pangea/dnd`           | `^18.0.1`           | Smooth accessible Kanban drag-and-drop           |
+| **HTTP Client**  | `axios`                       | `^1.19.0`           | Promise-based HTTP client with interceptors      |
+| **Validation**   | `zod`                         | `^4.4.3`            | TypeScript-first schema declaration & validation |
+| **Forms**        | `react-hook-form`             | `^7.85.0`           | High-performance form state management           |
+| **Icons**        | `lucide-react`                | `^1.31.0`           | Modern customizable SVG icons                    |
+| **Toasts**       | `sonner`                      | `^2.0.8`            | Opinionated, accessible toast notifications      |
+| **Utilities**    | `clsx` & `tailwind-merge`     | `^2.1.1` / `^3.6.0` | Dynamic CSS class merging                        |
+| **Linter**       | `oxlint`                      | `^1.75.0`           | High-performance static code analysis            |
+| **Formatter**    | `prettier`                    | `^3.9.6`            | Opinionated automated code formatting            |
+| **Test Runner**  | `vitest`                      | `^4.1.10`           | Blazing fast Vite-native test runner             |
+| **Testing DOM**  | `@testing-library/react`      | `^16.3.2`           | React component testing utilities                |
+| **DOM Matchers** | `@testing-library/jest-dom`   | `^7.0.1`            | Custom Jest/Vitest DOM assertions                |
+| **User Events**  | `@testing-library/user-event` | `^14.6.4`           | High-fidelity user event simulation              |
+| **Coverage**     | `@vitest/coverage-v8`         | `^4.1.10`           | Native V8 code coverage provider                 |
+| **Test UI**      | `@vitest/ui`                  | `^4.1.10`           | Interactive graphical test dashboard             |
+| **DOM Runtime**  | `jsdom`                       | `^30.0.1`           | Headless browser environment for Node.js         |
 
 ---
 
@@ -261,4 +264,4 @@ pnpm test -t "should handle click"
 
 ---
 
-> This digital ecosystem has been designed, structured, and developed to high-performance standards by **[Cabuweb](https://cabuweb.com)**.
+> This digital ecosystem has been designed, structured, and developed to high-performance standards by **[Cabuweb](https://cabuweb.com)** - **Software Developer: Diego Villa**.

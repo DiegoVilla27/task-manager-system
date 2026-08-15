@@ -1,7 +1,7 @@
 # 🚀 Task Manager API - Spring Boot Backend
 
 [![Java](https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0--SNAPSHOT-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![JWT](https://img.shields.io/badge/JWT-Stateless-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
 [![Swagger](https://img.shields.io/badge/OpenAPI-3.0-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](http://localhost:8080/swagger-ui.html)
@@ -104,16 +104,17 @@ task-manager/
 | Category | Component / Library | Version | Purpose |
 | :--- | :--- | :--- | :--- |
 | **Runtime** | Java OpenJDK | `17` | Language standard runtime |
-| **Framework** | Spring Boot | `4.1.0-SNAPSHOT` | Core enterprise application framework |
+| **Framework** | Spring Boot | `4.1.0` | Core enterprise application framework |
+| **Web MVC** | Spring WebMVC | `7.0.8` | MVC web layer |
 | **Security** | Spring Security | `7.0.0-M1` | Stateless authentication & authorization |
-| **JWT** | JJWT (io.jsonwebtoken) | `0.12.6` | Access & Refresh Token generation/parsing |
-| **Rate Limiting** | Bucket4j Core | `8.10.1` | In-memory token bucket rate limiting |
+| **JWT** | JJWT (io.jsonwebtoken) | `0.13.0` | Access & Refresh Token generation/parsing |
+| **Rate Limiting** | Bucket4j Core | `8.19.0` | In-memory token bucket rate limiting |
 | **Persistence** | Spring Data JPA / Hibernate | Spring Boot default | ORM, queries & formula subqueries |
 | **Database Driver**| PostgreSQL JDBC Driver | `42.7.5` | Production relational database driver |
 | **API Docs** | Springdoc OpenAPI UI | `3.0.3` | OpenAPI 3.0 specification & Swagger UI |
 | **Mapping** | MapStruct | `1.6.3` | High-speed compile-time entity/DTO mapper |
-| **Tooling** | Lombok | `1.18.36` | Boilerplate reduction (getters, constructors) |
-| **Env Loader** | Java Dotenv | `5.2.2` | Local `.env` parameter loader |
+| **Tooling** | Lombok | `1.18.46` | Boilerplate reduction (getters, constructors) |
+| **Env Loader** | Java Dotenv | `3.2.0` | Local `.env` parameter loader |
 | **Testing** | JUnit 5 & Mockito | Spring Boot default | Unit, domain, and mocking tests |
 
 ---
@@ -184,7 +185,7 @@ RATE_LIMITING_REFILL_MINUTES=1
 
 ```bash
 # Compile and run unit tests
-./mvnw clean test
+./mvnw clean test -Dtest="!TaskManagerApplicationTests"
 
 # Generate complete Javadoc documentation
 ./mvnw javadoc:javadoc
@@ -199,4 +200,4 @@ Once running, access the interactive API docs at:
 
 ---
 
-> This digital ecosystem has been designed, structured, and developed to high-performance standards by **[Cabuweb](https://cabuweb.com)**.
+> This digital ecosystem has been designed, structured, and developed to high-performance standards by **[Cabuweb](https://cabuweb.com)** - **Software Developer: Diego Villa**.
