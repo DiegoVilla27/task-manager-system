@@ -15,13 +15,12 @@ on:
       - '.github/workflows/ci-frontend.yml'
 
 jobs:
-  build-and-test:
-    name: Frontend Lint, Typecheck, Test & Build (Node 22)
+  format:
+    name: 🎨 Verify Code Formatting (Prettier)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./task-manager-client
-
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -41,20 +40,121 @@ jobs:
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🎨 Verify Code Formatting (Prettier)
+      - name: 🎨 Prettier Check
         run: pnpm exec prettier --check "src/**/*.{ts,tsx,json,css,html}"
 
-      - name: ⚡ Run Static Analysis (Oxlint)
+  lint:
+    name: ⚡ Static Analysis (Oxlint)
+    needs: format
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: ⚡ Run Oxlint
         run: pnpm run lint
 
-      - name: 🛡️ Strict TypeScript Typecheck (tsc)
+  typecheck:
+    name: 🛡️ Strict TypeScript Typecheck (tsc)
+    needs: lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🛡️ Typecheck
         run: pnpm run typecheck
 
-      - name: 🧪 Run Vitest Test Suite
-        run: pnpm run test:run
+  test:
+    name: 🧪 Vitest Test Suite & Coverage
+    needs: typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: 📊 Check Test Coverage (Vitest)
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run Tests & Coverage
         run: pnpm run test:coverage
 
-      - name: 📦 Build Production Bundle (Vite)
+  build:
+    name: 📦 Build Production Bundle (Vite)
+    needs: test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 📦 Build Vite Bundle
         run: pnpm exec vite build
