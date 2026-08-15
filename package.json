@@ -4,6 +4,10 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
+    "install:root": "pnpm install",
+    "install:client": "pnpm --dir task-manager-client install",
+    "install:server": "cd task-manager && ./mvnw dependency:resolve",
+    "install:all": "pnpm install:root && pnpm install:client && pnpm install:server",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f"

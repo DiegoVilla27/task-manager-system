@@ -50,8 +50,11 @@ jobs:
       - name: 🛡️ Strict TypeScript Typecheck (tsc)
         run: pnpm run typecheck
 
-      - name: 🧪 Run Vitest Test Suite with 80% Coverage
+      - name: 🧪 Run Vitest Test Suite
         run: pnpm run test:run
 
+      - name: 📊 Check Test Coverage (Vitest)
+        run: pnpm run test:coverage
+
       - name: 📦 Build Production Bundle (Vite)
-        run: pnpm run build
+        run: pnpm exec vite build

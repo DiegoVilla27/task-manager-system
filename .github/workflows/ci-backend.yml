@@ -36,11 +36,17 @@ jobs:
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
+      - name: ⚙️ Compile Java Code
+        run: ./mvnw clean compile
+
       - name: 🎨 Verify Java Code Format (Spotless)
         run: ./mvnw spotless:check
 
-      - name: 🧪 Run Unit & Domain Tests with JaCoCo Coverage
-        run: ./mvnw clean test jacoco:report -Dtest="!TaskManagerApplicationTests"
+      - name: 🧪 Run Unit & Domain Tests
+        run: ./mvnw test -Dtest="!TaskManagerApplicationTests"
+
+      - name: 📊 Generate JaCoCo Code Coverage Report
+        run: ./mvnw jacoco:report
 
       - name: 📦 Build Spring Boot Application (JAR)
         run: ./mvnw package -DskipTests
