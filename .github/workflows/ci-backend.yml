@@ -89,24 +89,6 @@ jobs:
       - name: 🧪 Run Tests & JaCoCo Report
         run: ./mvnw test jacoco:report -Dtest="!TaskManagerApplicationTests"
 
-  build:
-    name: 📦 Build Spring Boot JAR
-    needs: test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager
-    steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: ☕ Set up OpenJDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
   sonar:
     name: 🔍 SonarCloud Code Analysis & Quality Gate
     needs: test
@@ -142,3 +124,27 @@ jobs:
             -Dsonar.organization=diegovilla27 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
+  build:
+    name: 📦 Build Spring Boot JAR
+    needs: sonar
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up OpenJDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: 🔑 Make Maven Wrapper Executable
+        run: chmod +x ./mvnw
+
+      - name: 📦 Build JAR Package
+        run: ./mvnw package -DskipTests

@@ -133,29 +133,6 @@ jobs:
       - name: 🧪 Run Tests & Coverage
         run: pnpm run test:coverage
 
-  build:
-    name: 📦 Build Production Bundle (Vite)
-    needs: test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager-client
-    steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 📦 Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11
-
-      - name: 🟢 Set up Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
-
   sonar:
     name: 🔍 SonarCloud Code Analysis & Quality Gate
     needs: test
@@ -200,3 +177,32 @@ jobs:
             -Dsonar.tests=src
             -Dsonar.test.inclusions=src/**/*.test.ts,src/**/*.test.tsx
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+  build:
+    name: 📦 Build Production Bundle (Vite)
+    needs: sonar
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 📦 Build Vite Bundle
+        run: pnpm exec vite build
