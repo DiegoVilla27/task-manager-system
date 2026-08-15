@@ -1,4 +1,4 @@
-import AppRoutes from '@core/router/config';
+import AppRoutes from '@core/router';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from 'sonner';
 import './index.css';
@@ -12,5 +12,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <>
     <AppRoutes />
     <Toaster richColors position="bottom-left" closeButton />
-  </>
+  </>,
 );
