@@ -11,4 +11,6 @@ const routerConfig = [
   },
 ];
 
-export default createBrowserRouter(routerConfig);
+const router = createBrowserRouter(routerConfig);
+
+export default router;

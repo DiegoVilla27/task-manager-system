@@ -18,6 +18,7 @@ export default {
       /\/schema\//,
       /\/layouts?\//,
       /\/pages\//,
+      /\/router\//,
       /\/environments\//,
       /main\.tsx$/,
       /setupTests\.ts$/,
