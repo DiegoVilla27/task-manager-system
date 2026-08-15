@@ -174,6 +174,23 @@
           </excludes>
         </configuration>
       </plugin>
+      <!-- 3. Plugin de formato y estándares de código Java (Spotless / Google Java Format) -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.44.3</version>
+        <configuration>
+          <java>
+            <googleJavaFormat>
+              <version>1.24.0</version>
+              <style>AOSP</style>
+            </googleJavaFormat>
+            <removeUnusedImports />
+            <trimTrailingWhitespace />
+            <endWithNewline />
+          </java>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

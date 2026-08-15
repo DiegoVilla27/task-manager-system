@@ -3,10 +3,8 @@ package com.diegovilla.task_manager.features.task.domain.valueobjects;
 /**
  * Represents the lifecycle status of a task.
  *
- * <p>
- * Tasks follow a linear state machine:
- * </p>
- * 
+ * <p>Tasks follow a linear state machine:
+ *
  * <pre>
  *   PENDING → IN_PROGRESS → COMPLETED
  * </pre>
@@ -14,10 +12,10 @@ package com.diegovilla.task_manager.features.task.domain.valueobjects;
  * @since 1.0.0
  */
 public enum TaskStatus {
-  /** Task has been created but not yet started. */
-  PENDING,
-  /** Task is currently being worked on. */
-  IN_PROGRESS,
-  /** Task has been finished. */
-  COMPLETED
+    /** Task has been created but not yet started. */
+    PENDING,
+    /** Task is currently being worked on. */
+    IN_PROGRESS,
+    /** Task has been finished. */
+    COMPLETED
 }

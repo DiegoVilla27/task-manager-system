@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST controller exposing authentication and identity management operations.
  *
- * <p>Provides public endpoints for user login, new account registration, and JWT token refresh.</p>
+ * <p>Provides public endpoints for user login, new account registration, and JWT token refresh.
  *
  * @since 1.0.0
  */
@@ -34,61 +34,62 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Exposes operations for user registration, authentication, and token management.")
+@Tag(
+        name = "Authentication",
+        description =
+                "Exposes operations for user registration, authentication, and token management.")
 public class AuthController {
 
-  private final AuthService authService;
-  private final AuthDtoMapper authDtoMapper;
+    private final AuthService authService;
+    private final AuthDtoMapper authDtoMapper;
 
-  /**
-   * Authenticates user credentials and returns JWT access and refresh tokens.
-   *
-   * @param loginRequestDTO validated login credentials payload.
-   * @return HTTP 200 with {@link AuthResponseDTO} containing issued tokens.
-   */
-  @PostMapping("/login")
-  @AuthLoginDocumentation
-  public ResponseEntity<AuthResponseDTO> login(
-    @Valid @RequestBody AuthLoginRequestDTO loginRequestDTO
-  ) {
-    AuthLoginCommand command = authDtoMapper.loginRequestDTOToCommand(loginRequestDTO);
-    JwtModel res = authService.login(command);
+    /**
+     * Authenticates user credentials and returns JWT access and refresh tokens.
+     *
+     * @param loginRequestDTO validated login credentials payload.
+     * @return HTTP 200 with {@link AuthResponseDTO} containing issued tokens.
+     */
+    @PostMapping("/login")
+    @AuthLoginDocumentation
+    public ResponseEntity<AuthResponseDTO> login(
+            @Valid @RequestBody AuthLoginRequestDTO loginRequestDTO) {
+        AuthLoginCommand command = authDtoMapper.loginRequestDTOToCommand(loginRequestDTO);
+        JwtModel res = authService.login(command);
 
-    return ResponseEntity.ok(authDtoMapper.jwtModelToResponseDTO(res));
-  }
+        return ResponseEntity.ok(authDtoMapper.jwtModelToResponseDTO(res));
+    }
 
-  /**
-   * Registers a new user account and returns initial JWT tokens.
-   *
-   * @param authRegisterRequestDTO validated registration data payload.
-   * @return HTTP 200 with {@link AuthResponseDTO} containing issued tokens.
-   */
-  @PostMapping("/register")
-  @AuthRegisterDocumentation
-  public ResponseEntity<AuthResponseDTO> register(
-    @Valid @RequestBody AuthRegisterRequestDTO authRegisterRequestDTO
-  ) {
-    AuthRegisterCommand command = authDtoMapper.registerRequestDTOToCommand(authRegisterRequestDTO);
-    JwtModel res = authService.register(command);
+    /**
+     * Registers a new user account and returns initial JWT tokens.
+     *
+     * @param authRegisterRequestDTO validated registration data payload.
+     * @return HTTP 200 with {@link AuthResponseDTO} containing issued tokens.
+     */
+    @PostMapping("/register")
+    @AuthRegisterDocumentation
+    public ResponseEntity<AuthResponseDTO> register(
+            @Valid @RequestBody AuthRegisterRequestDTO authRegisterRequestDTO) {
+        AuthRegisterCommand command =
+                authDtoMapper.registerRequestDTOToCommand(authRegisterRequestDTO);
+        JwtModel res = authService.register(command);
 
-    return ResponseEntity.ok(authDtoMapper.jwtModelToResponseDTO(res));
-  }
+        return ResponseEntity.ok(authDtoMapper.jwtModelToResponseDTO(res));
+    }
 
-  /**
-   * Generates a new access token using a valid refresh token.
-   *
-   * @param authRefreshRequestDTO validated refresh token request payload.
-   * @return HTTP 200 with {@link AuthResponseDTO} containing renewed tokens.
-   */
-  @PostMapping("/refresh")
-  @AuthRefreshDocumentation
-  public ResponseEntity<AuthResponseDTO> refresh(
-    @Valid @RequestBody AuthRefreshRequestDTO authRefreshRequestDTO
-  ) {
-    AuthRefreshCommand command = authDtoMapper.refreshRequestDTOToCommand(authRefreshRequestDTO);
-    JwtModel res = authService.refresh(command);
+    /**
+     * Generates a new access token using a valid refresh token.
+     *
+     * @param authRefreshRequestDTO validated refresh token request payload.
+     * @return HTTP 200 with {@link AuthResponseDTO} containing renewed tokens.
+     */
+    @PostMapping("/refresh")
+    @AuthRefreshDocumentation
+    public ResponseEntity<AuthResponseDTO> refresh(
+            @Valid @RequestBody AuthRefreshRequestDTO authRefreshRequestDTO) {
+        AuthRefreshCommand command =
+                authDtoMapper.refreshRequestDTOToCommand(authRefreshRequestDTO);
+        JwtModel res = authService.refresh(command);
 
-    return ResponseEntity.ok(authDtoMapper.jwtModelToResponseDTO(res));
-  }
+        return ResponseEntity.ok(authDtoMapper.jwtModelToResponseDTO(res));
+    }
 }
-

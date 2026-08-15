@@ -9,9 +9,4 @@ import java.util.UUID;
  * @param userId optional specific user unique identifier constraint.
  * @since 1.0.0
  */
-public record UserFiltersCommand(
-  String search,
-  UUID userId
-) {
-}
-
+public record UserFiltersCommand(String search, UUID userId) {}

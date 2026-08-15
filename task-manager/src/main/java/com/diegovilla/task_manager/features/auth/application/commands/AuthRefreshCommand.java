@@ -6,8 +6,4 @@ package com.diegovilla.task_manager.features.auth.application.commands;
  * @param refresh_token signed JWT refresh token string.
  * @since 1.0.0
  */
-public record AuthRefreshCommand(
-  String refresh_token
-) {
-}
-
+public record AuthRefreshCommand(String refresh_token) {}

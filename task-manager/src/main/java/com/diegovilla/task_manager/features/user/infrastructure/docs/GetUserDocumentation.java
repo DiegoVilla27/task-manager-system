@@ -10,26 +10,33 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
  * OpenAPI documentation annotation for the user lookup endpoint ({@code GET /users/{id}}).
  *
- * <p>Documents HTTP 200 OK with {@link UserWithTaskCountResponseDTO} payload and standard error schemas.</p>
+ * <p>Documents HTTP 200 OK with {@link UserWithTaskCountResponseDTO} payload and standard error
+ * schemas.
  *
  * @since 1.0.0
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Operation(summary = "Get user by ID", description = "Retrieves a single user by their unique identifier along with their total task count.")
-@ApiResponse(responseCode = "200", description = "User retrieved successfully.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserWithTaskCountResponseDTO.class)))
+@Operation(
+        summary = "Get user by ID",
+        description =
+                "Retrieves a single user by their unique identifier along with their total task count.")
+@ApiResponse(
+        responseCode = "200",
+        description = "User retrieved successfully.",
+        content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = UserWithTaskCountResponseDTO.class)))
 @BadRequestApiResponse
 @UnauthorizedApiResponse
 @ForbiddenApiResponse
 @NotFoundApiResponse
 @InternalServerErrorApiResponse
-public @interface GetUserDocumentation {
-}
-
+public @interface GetUserDocumentation {}

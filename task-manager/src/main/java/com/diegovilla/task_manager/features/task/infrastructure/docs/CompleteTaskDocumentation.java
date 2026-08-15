@@ -7,7 +7,6 @@ import com.diegovilla.task_manager.core.openapi.common.NotFoundApiResponse;
 import com.diegovilla.task_manager.core.openapi.common.UnauthorizedApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
@@ -25,5 +24,4 @@ import java.lang.annotation.*;
 @ForbiddenApiResponse
 @NotFoundApiResponse
 @InternalServerErrorApiResponse
-public @interface CompleteTaskDocumentation {
-}
+public @interface CompleteTaskDocumentation {}

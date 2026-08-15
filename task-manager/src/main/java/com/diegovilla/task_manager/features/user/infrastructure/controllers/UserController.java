@@ -6,16 +6,17 @@ import com.diegovilla.task_manager.features.user.application.commands.UserPagina
 import com.diegovilla.task_manager.features.user.application.commands.UserUpdateCommand;
 import com.diegovilla.task_manager.features.user.application.dto.response.UserWithTaskCount;
 import com.diegovilla.task_manager.features.user.application.services.UserService;
+import com.diegovilla.task_manager.features.user.infrastructure.docs.*;
+import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserCreateRequestDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserFiltersDTO;
+import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserUpdateRequestDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.response.UserMeResponseDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.dto.response.UserWithTaskCountResponseDTO;
 import com.diegovilla.task_manager.features.user.infrastructure.mappers.UserDtoMapper;
-import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserCreateRequestDTO;
-import com.diegovilla.task_manager.features.user.infrastructure.dto.request.UserUpdateRequestDTO;
-import com.diegovilla.task_manager.features.user.infrastructure.docs.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -24,13 +25,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 /**
  * REST controller exposing user management operations.
  *
- * <p>Handles user self-lookup, administrative user querying with pagination and filters,
- * user registration, profile updates, and deletion workflows.</p>
+ * <p>Handles user self-lookup, administrative user querying with pagination and filters, user
+ * registration, profile updates, and deletion workflows.
  *
  * @since 1.0.0
  */
@@ -38,124 +37,122 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Tag(name = "Users", description = "Exposes operations for managing user accounts within the Task Manager platform.")
+@Tag(
+        name = "Users",
+        description =
+                "Exposes operations for managing user accounts within the Task Manager platform.")
 public class UserController {
 
-  private final UserService userService;
-  private final UserDtoMapper userDtoMapper;
+    private final UserService userService;
+    private final UserDtoMapper userDtoMapper;
 
-  /**
-   * Retrieves the profile information of the currently authenticated user.
-   *
-   * @return HTTP 200 with the current user's profile details as a {@link UserMeResponseDTO}.
-   */
-  @GetMapping("/me")
-  @GetUserMeDocumentation
-  public ResponseEntity<UserMeResponseDTO> getMe() {
-    UserWithTaskCount user = userService.getMe();
+    /**
+     * Retrieves the profile information of the currently authenticated user.
+     *
+     * @return HTTP 200 with the current user's profile details as a {@link UserMeResponseDTO}.
+     */
+    @GetMapping("/me")
+    @GetUserMeDocumentation
+    public ResponseEntity<UserMeResponseDTO> getMe() {
+        UserWithTaskCount user = userService.getMe();
 
-    return ResponseEntity.ok(new UserMeResponseDTO(
-      user.user().getId(),
-      user.user().getName(),
-      user.user().getLastname(),
-      user.user().getEmail()
-    ));
-  }
+        return ResponseEntity.ok(
+                new UserMeResponseDTO(
+                        user.user().getId(),
+                        user.user().getName(),
+                        user.user().getLastname(),
+                        user.user().getEmail()));
+    }
 
-  /**
-   * Retrieves a paginated and filtered list of all users along with their task counts.
-   *
-   * <p>Requires administrator authorization ({@code ROLE_ADMIN}).</p>
-   *
-   * @param page    one-based page number (default 1).
-   * @param limit   number of items per page (default 10).
-   * @param filters query filter criteria.
-   * @return HTTP 200 with a {@link Page} of {@link UserWithTaskCountResponseDTO} instances.
-   */
-  @GetMapping
-  @GetUsersDocumentation
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<Page<UserWithTaskCountResponseDTO>> getAll(
-    @RequestParam(defaultValue = "1")
-    @Min(value = 1, message = "Page must be greater than or equal to 0")
-    int page,
-    @RequestParam(defaultValue = "10")
-    @Min(value = 1, message = "Limit must be greater than 0")
-    int limit,
-    UserFiltersDTO filters
-  ) {
-    UserPaginationCommand userPaginationCommand = new UserPaginationCommand(page - 1, limit);
-    UserFiltersCommand userFiltersCommand = userDtoMapper.filtersRequestDTOToCommand(filters);
-    Page<UserWithTaskCount> users = userService.getAll(userPaginationCommand, userFiltersCommand);
+    /**
+     * Retrieves a paginated and filtered list of all users along with their task counts.
+     *
+     * <p>Requires administrator authorization ({@code ROLE_ADMIN}).
+     *
+     * @param page one-based page number (default 1).
+     * @param limit number of items per page (default 10).
+     * @param filters query filter criteria.
+     * @return HTTP 200 with a {@link Page} of {@link UserWithTaskCountResponseDTO} instances.
+     */
+    @GetMapping
+    @GetUsersDocumentation
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<UserWithTaskCountResponseDTO>> getAll(
+            @RequestParam(defaultValue = "1")
+                    @Min(value = 1, message = "Page must be greater than or equal to 0")
+                    int page,
+            @RequestParam(defaultValue = "10")
+                    @Min(value = 1, message = "Limit must be greater than 0")
+                    int limit,
+            UserFiltersDTO filters) {
+        UserPaginationCommand userPaginationCommand = new UserPaginationCommand(page - 1, limit);
+        UserFiltersCommand userFiltersCommand = userDtoMapper.filtersRequestDTOToCommand(filters);
+        Page<UserWithTaskCount> users =
+                userService.getAll(userPaginationCommand, userFiltersCommand);
 
-    return ResponseEntity.ok(users.map(userDtoMapper::modelToWithTasksResponseDTO));
-  }
+        return ResponseEntity.ok(users.map(userDtoMapper::modelToWithTasksResponseDTO));
+    }
 
-  /**
-   * Retrieves a single user by their unique identifier.
-   *
-   * @param id unique identifier (UUID) of the user to retrieve.
-   * @return HTTP 200 with the matching {@link UserWithTaskCountResponseDTO}.
-   */
-  @GetMapping("/{id}")
-  @GetUserDocumentation
-  public ResponseEntity<UserWithTaskCountResponseDTO> getById(@PathVariable UUID id) {
-    UserWithTaskCount user = userService.getById(id);
+    /**
+     * Retrieves a single user by their unique identifier.
+     *
+     * @param id unique identifier (UUID) of the user to retrieve.
+     * @return HTTP 200 with the matching {@link UserWithTaskCountResponseDTO}.
+     */
+    @GetMapping("/{id}")
+    @GetUserDocumentation
+    public ResponseEntity<UserWithTaskCountResponseDTO> getById(@PathVariable UUID id) {
+        UserWithTaskCount user = userService.getById(id);
 
-    return ResponseEntity.ok(userDtoMapper.modelToWithTasksResponseDTO(user));
-  }
+        return ResponseEntity.ok(userDtoMapper.modelToWithTasksResponseDTO(user));
+    }
 
-  /**
-   * Creates a new user account.
-   *
-   * @param dto validated creation request payload.
-   * @return HTTP 201 with the created {@link UserWithTaskCountResponseDTO}.
-   */
-  @PostMapping
-  @CreateUserDocumentation
-  public ResponseEntity<UserWithTaskCountResponseDTO> create(
-    @Valid @RequestBody UserCreateRequestDTO dto) {
-    UserCreateCommand userCreateCommand = userDtoMapper.createRequestDTOToCommand(dto);
-    UserWithTaskCount userCreated = userService.create(userCreateCommand);
+    /**
+     * Creates a new user account.
+     *
+     * @param dto validated creation request payload.
+     * @return HTTP 201 with the created {@link UserWithTaskCountResponseDTO}.
+     */
+    @PostMapping
+    @CreateUserDocumentation
+    public ResponseEntity<UserWithTaskCountResponseDTO> create(
+            @Valid @RequestBody UserCreateRequestDTO dto) {
+        UserCreateCommand userCreateCommand = userDtoMapper.createRequestDTOToCommand(dto);
+        UserWithTaskCount userCreated = userService.create(userCreateCommand);
 
-    return ResponseEntity.status(HttpStatus.CREATED)
-      .body(userDtoMapper.modelToWithTasksResponseDTO(userCreated));
-  }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userDtoMapper.modelToWithTasksResponseDTO(userCreated));
+    }
 
-  /**
-   * Partially updates an existing user profile.
-   *
-   * @param id  unique identifier (UUID) of the user to update.
-   * @param dto validated update request payload.
-   * @return HTTP 200 with the updated {@link UserWithTaskCountResponseDTO}.
-   */
-  @PatchMapping("/{id}")
-  @UpdateUserDocumentation
-  public ResponseEntity<UserWithTaskCountResponseDTO> update(
-    @PathVariable UUID id,
-    @Valid @RequestBody UserUpdateRequestDTO dto) {
-    UserUpdateCommand userUpdateCommand = userDtoMapper.updateRequestDTOToCommand(dto);
-    UserWithTaskCount userUpdated = userService.update(id, userUpdateCommand);
+    /**
+     * Partially updates an existing user profile.
+     *
+     * @param id unique identifier (UUID) of the user to update.
+     * @param dto validated update request payload.
+     * @return HTTP 200 with the updated {@link UserWithTaskCountResponseDTO}.
+     */
+    @PatchMapping("/{id}")
+    @UpdateUserDocumentation
+    public ResponseEntity<UserWithTaskCountResponseDTO> update(
+            @PathVariable UUID id, @Valid @RequestBody UserUpdateRequestDTO dto) {
+        UserUpdateCommand userUpdateCommand = userDtoMapper.updateRequestDTOToCommand(dto);
+        UserWithTaskCount userUpdated = userService.update(id, userUpdateCommand);
 
-    return ResponseEntity.ok()
-      .body(userDtoMapper.modelToWithTasksResponseDTO(userUpdated));
-  }
+        return ResponseEntity.ok().body(userDtoMapper.modelToWithTasksResponseDTO(userUpdated));
+    }
 
-  /**
-   * Deletes a user account permanently.
-   *
-   * @param id    unique identifier (UUID) of the user to delete.
-   * @param force flag indicating whether to cascade delete associated tasks.
-   * @return HTTP 204 with no response body.
-   */
-  @DeleteMapping("/{id}")
-  @DeleteUserDocumentation
-  public ResponseEntity<Void> delete(
-    @PathVariable UUID id,
-    @RequestParam(defaultValue = "false") boolean force
-  ) {
-    userService.delete(id, force);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-  }
+    /**
+     * Deletes a user account permanently.
+     *
+     * @param id unique identifier (UUID) of the user to delete.
+     * @param force flag indicating whether to cascade delete associated tasks.
+     * @return HTTP 204 with no response body.
+     */
+    @DeleteMapping("/{id}")
+    @DeleteUserDocumentation
+    public ResponseEntity<Void> delete(
+            @PathVariable UUID id, @RequestParam(defaultValue = "false") boolean force) {
+        userService.delete(id, force);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
-

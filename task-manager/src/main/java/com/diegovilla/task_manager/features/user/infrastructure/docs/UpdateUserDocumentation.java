@@ -11,13 +11,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
  * OpenAPI documentation annotation for the user update endpoint ({@code PATCH /users/{id}}).
  *
- * <p>Documents HTTP 200 OK with {@link UserWithTaskCountResponseDTO} payload and standard error schemas.</p>
+ * <p>Documents HTTP 200 OK with {@link UserWithTaskCountResponseDTO} payload and standard error
+ * schemas.
  *
  * @since 1.0.0
  */
@@ -25,13 +25,17 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Operation(summary = "Update user", description = "Partially updates user profile information.")
-@ApiResponse(responseCode = "200", description = "User updated successfully.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserWithTaskCountResponseDTO.class)))
+@ApiResponse(
+        responseCode = "200",
+        description = "User updated successfully.",
+        content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = UserWithTaskCountResponseDTO.class)))
 @BadRequestApiResponse
 @UnauthorizedApiResponse
 @ForbiddenApiResponse
 @NotFoundApiResponse
 @ConflictApiResponse
 @InternalServerErrorApiResponse
-public @interface UpdateUserDocumentation {
-}
-
+public @interface UpdateUserDocumentation {}

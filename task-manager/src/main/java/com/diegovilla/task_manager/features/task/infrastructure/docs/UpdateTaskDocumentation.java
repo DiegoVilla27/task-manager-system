@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
@@ -23,12 +22,17 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Operation(summary = "Update task", description = "Partially updates task title or description.")
-@ApiResponse(responseCode = "200", description = "Task updated successfully.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskWithUserResponseDTO.class)))
+@ApiResponse(
+        responseCode = "200",
+        description = "Task updated successfully.",
+        content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = TaskWithUserResponseDTO.class)))
 @BadRequestApiResponse
 @UnauthorizedApiResponse
 @ForbiddenApiResponse
 @NotFoundApiResponse
 @ConflictApiResponse
 @InternalServerErrorApiResponse
-public @interface UpdateTaskDocumentation {
-}
+public @interface UpdateTaskDocumentation {}

@@ -1,7 +1,6 @@
 package com.diegovilla.task_manager.features.task.application.commands;
 
 import com.diegovilla.task_manager.features.task.domain.valueobjects.TaskStatus;
-
 import java.util.UUID;
 
 /**
@@ -12,9 +11,4 @@ import java.util.UUID;
  * @param status optional lifecycle status filter.
  * @since 1.0.0
  */
-public record TaskFiltersCommand(
-  UUID userId,
-  String search,
-  TaskStatus status
-) {
-}
+public record TaskFiltersCommand(UUID userId, String search, TaskStatus status) {}

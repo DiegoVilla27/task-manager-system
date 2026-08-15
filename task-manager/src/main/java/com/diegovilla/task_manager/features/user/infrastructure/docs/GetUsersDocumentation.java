@@ -6,14 +6,13 @@ import com.diegovilla.task_manager.core.openapi.common.InternalServerErrorApiRes
 import com.diegovilla.task_manager.core.openapi.common.UnauthorizedApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
  * Aggregates OpenAPI metadata for the <em>Get All Users</em> endpoint.
  *
- * <p>Documents the {@code GET /users} operation which retrieves a paginated
- * list of user accounts with calculated task statistics, restricted to administrators.</p>
+ * <p>Documents the {@code GET /users} operation which retrieves a paginated list of user accounts
+ * with calculated task statistics, restricted to administrators.
  *
  * @since 1.0.0
  */
@@ -21,16 +20,14 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Operation(
-  summary = "Get all users",
-  description = "Retrieves a paginated list of users filtered by optional query criteria. Requires administrator privileges."
-)
+        summary = "Get all users",
+        description =
+                "Retrieves a paginated list of users filtered by optional query criteria. Requires administrator privileges.")
 @ApiResponse(
-  responseCode = "200",
-  description = "Users retrieved successfully as a paginated collection."
-)
+        responseCode = "200",
+        description = "Users retrieved successfully as a paginated collection.")
 @BadRequestApiResponse
 @UnauthorizedApiResponse
 @ForbiddenApiResponse
 @InternalServerErrorApiResponse
-public @interface GetUsersDocumentation {
-}
+public @interface GetUsersDocumentation {}

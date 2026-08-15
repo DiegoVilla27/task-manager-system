@@ -7,13 +7,12 @@ import com.diegovilla.task_manager.core.openapi.common.NotFoundApiResponse;
 import com.diegovilla.task_manager.core.openapi.common.UnauthorizedApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
  * OpenAPI documentation annotation for the user deletion endpoint ({@code DELETE /users/{id}}).
  *
- * <p>Documents HTTP 204 No Content and standard error response schemas.</p>
+ * <p>Documents HTTP 204 No Content and standard error response schemas.
  *
  * @since 1.0.0
  */
@@ -27,6 +26,4 @@ import java.lang.annotation.*;
 @ForbiddenApiResponse
 @NotFoundApiResponse
 @InternalServerErrorApiResponse
-public @interface DeleteUserDocumentation {
-}
-
+public @interface DeleteUserDocumentation {}

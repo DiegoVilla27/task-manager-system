@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
@@ -21,12 +20,19 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Operation(summary = "Get task by ID", description = "Retrieves a single task by its unique identifier along with owner details.")
-@ApiResponse(responseCode = "200", description = "Task retrieved successfully.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskWithUserResponseDTO.class)))
+@Operation(
+        summary = "Get task by ID",
+        description = "Retrieves a single task by its unique identifier along with owner details.")
+@ApiResponse(
+        responseCode = "200",
+        description = "Task retrieved successfully.",
+        content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = TaskWithUserResponseDTO.class)))
 @BadRequestApiResponse
 @UnauthorizedApiResponse
 @ForbiddenApiResponse
 @NotFoundApiResponse
 @InternalServerErrorApiResponse
-public @interface GetTaskDocumentation {
-}
+public @interface GetTaskDocumentation {}

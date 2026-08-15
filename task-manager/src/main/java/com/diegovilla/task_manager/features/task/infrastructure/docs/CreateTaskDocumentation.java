@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
@@ -22,11 +21,16 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Operation(summary = "Create a task", description = "Creates a new task in the system.")
-@ApiResponse(responseCode = "201", description = "Task created successfully.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskWithUserResponseDTO.class)))
+@ApiResponse(
+        responseCode = "201",
+        description = "Task created successfully.",
+        content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = TaskWithUserResponseDTO.class)))
 @BadRequestApiResponse
 @UnauthorizedApiResponse
 @ForbiddenApiResponse
 @ConflictApiResponse
 @InternalServerErrorApiResponse
-public @interface CreateTaskDocumentation {
-}
+public @interface CreateTaskDocumentation {}

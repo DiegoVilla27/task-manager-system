@@ -10,13 +10,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
  * OpenAPI documentation annotation for the user creation endpoint ({@code POST /users}).
  *
- * <p>Documents HTTP 201 Created and standard error response schemas.</p>
+ * <p>Documents HTTP 201 Created and standard error response schemas.
  *
  * @since 1.0.0
  */
@@ -24,12 +23,16 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Operation(summary = "Create a user", description = "Creates a new user in the system.")
-@ApiResponse(responseCode = "201", description = "User created successfully.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserWithTaskCountResponseDTO.class)))
+@ApiResponse(
+        responseCode = "201",
+        description = "User created successfully.",
+        content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = UserWithTaskCountResponseDTO.class)))
 @BadRequestApiResponse
 @UnauthorizedApiResponse
 @ForbiddenApiResponse
 @ConflictApiResponse
 @InternalServerErrorApiResponse
-public @interface CreateUserDocumentation {
-}
-
+public @interface CreateUserDocumentation {}

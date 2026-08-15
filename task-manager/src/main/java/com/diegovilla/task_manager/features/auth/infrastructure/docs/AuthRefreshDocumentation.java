@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
@@ -20,19 +19,16 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Operation(
-  summary = "Refresh JWT token",
-  description = "Generates a new access token using a valid refresh token."
-)
+        summary = "Refresh JWT token",
+        description = "Generates a new access token using a valid refresh token.")
 @ApiResponse(
-  responseCode = "200",
-  description = "Token refreshed successfully.",
-  content = @Content(
-    mediaType = "application/json",
-    schema = @Schema(implementation = AuthResponseDTO.class)
-  )
-)
+        responseCode = "200",
+        description = "Token refreshed successfully.",
+        content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = AuthResponseDTO.class)))
 @BadRequestApiResponse
 @UnauthorizedApiResponse
 @InternalServerErrorApiResponse
-public @interface AuthRefreshDocumentation {
-}
+public @interface AuthRefreshDocumentation {}

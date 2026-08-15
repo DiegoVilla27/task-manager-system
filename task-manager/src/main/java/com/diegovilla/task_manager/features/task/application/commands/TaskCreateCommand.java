@@ -5,17 +5,11 @@ import java.util.UUID;
 /**
  * Immutable command carrying the data required to create a new task.
  *
- * <p>
- * All fields are required.
- * </p>
+ * <p>All fields are required.
  *
- * @param title       new title for the task.
+ * @param title new title for the task.
  * @param description new description for the task.
- * @param userId      user id for the task.
+ * @param userId user id for the task.
  * @since 1.0.0
  */
-public record TaskCreateCommand(
-        String title,
-        String description,
-        UUID userId) {
-}
+public record TaskCreateCommand(String title, String description, UUID userId) {}

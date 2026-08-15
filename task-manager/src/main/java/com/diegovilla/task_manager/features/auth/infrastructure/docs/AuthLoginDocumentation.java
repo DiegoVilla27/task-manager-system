@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import java.lang.annotation.*;
 
 /**
@@ -20,19 +19,16 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Operation(
-  summary = "User login",
-  description = "Authenticates user credentials and returns JWT access and refresh tokens."
-)
+        summary = "User login",
+        description = "Authenticates user credentials and returns JWT access and refresh tokens.")
 @ApiResponse(
-  responseCode = "200",
-  description = "Authenticated successfully.",
-  content = @Content(
-    mediaType = "application/json",
-    schema = @Schema(implementation = AuthResponseDTO.class)
-  )
-)
+        responseCode = "200",
+        description = "Authenticated successfully.",
+        content =
+                @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = AuthResponseDTO.class)))
 @BadRequestApiResponse
 @UnauthorizedApiResponse
 @InternalServerErrorApiResponse
-public @interface AuthLoginDocumentation {
-}
+public @interface AuthLoginDocumentation {}
