@@ -156,8 +156,47 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
 
+  sonar:
+    name: 🔍 SonarCloud Code Analysis & Quality Gate
+    needs: test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository (Full History)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 📦 Build Vite Bundle
-        run: pnpm exec vite build
+      - name: 🧪 Run Vitest Coverage
+        run: pnpm run test:coverage
+
+      - name: 🔍 SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: task-manager-client
+          args: >
+            -Dsonar.projectKey=DiegoVilla27_task-manager-system
+            -Dsonar.organization=diegovilla27
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=src/**/*.test.ts,src/**/*.test.tsx
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info

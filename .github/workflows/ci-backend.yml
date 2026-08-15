@@ -107,8 +107,38 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
+  sonar:
+    name: 🔍 SonarCloud Code Analysis & Quality Gate
+    needs: test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager
+    steps:
+      - name: 📥 Checkout Repository (Full History)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ☕ Set up OpenJDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
-      - name: 📦 Build JAR Package
-        run: ./mvnw package -DskipTests
+      - name: 🧪 Run Tests & Generate JaCoCo Coverage
+        run: ./mvnw test jacoco:report -Dtest="!TaskManagerApplicationTests"
+
+      - name: 🔍 SonarCloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=DiegoVilla27_task-manager-system \
+            -Dsonar.organization=diegovilla27 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
