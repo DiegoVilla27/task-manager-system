@@ -26,6 +26,8 @@ services:
       dockerfile: Dockerfile
     container_name: react_client
     restart: always
+    env_file:
+      - ./task-manager-client/.env
     ports:
       - "3000:3000"
     networks:

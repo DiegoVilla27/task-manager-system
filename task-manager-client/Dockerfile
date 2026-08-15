@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 3000
 
 # Iniciar el servidor de desarrollo de Vite escuchando en todas las interfaces de red
-CMD ["pnpm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["pnpm", "run", "dev"]
