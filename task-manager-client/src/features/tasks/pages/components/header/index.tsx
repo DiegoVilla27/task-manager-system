@@ -24,6 +24,7 @@ const HeaderTasks = ({ setIsModalOpen, viewMode, setViewMode }: Props) => {
         {/* Toggle para alternar entre vista Tabla y Kanban */}
         <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
           <button
+            type="button"
             onClick={() => setViewMode('table')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               viewMode === 'table'
@@ -35,6 +36,7 @@ const HeaderTasks = ({ setIsModalOpen, viewMode, setViewMode }: Props) => {
             <span>Tabla</span>
           </button>
           <button
+            type="button"
             onClick={() => setViewMode('kanban')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               viewMode === 'kanban'
