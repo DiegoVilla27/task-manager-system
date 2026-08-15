@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+echo "🐳 [pre-push] Validando estado de Docker..."
+if ! docker info >/dev/null 2>&1; then
+  echo "❌ [pre-push] Error: Docker daemon no está en ejecución. Debes iniciar Docker para poder hacer push."
+  exit 1
+fi
+
+echo "🔨 [pre-push] Reconstruyendo imágenes de Docker (modo estricto)..."
+docker compose build || {
+  echo "❌ [pre-push] Error: Falló la construcción de las imágenes de Docker. Push cancelado."
+  exit 1
+}
+
+echo "✅ [pre-push] Imágenes de Docker construidas y verificadas exitosamente."

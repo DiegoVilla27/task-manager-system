@@ -159,6 +159,7 @@ The repository enforces strict enterprise code quality standards via automated G
 ### 🪝 Automated Git Hooks (Husky & lint-staged)
 - **`pre-commit`**: Automatically runs Prettier formatting, `oxlint` static code analysis, and targeted `vitest related` unit tests with coverage on staged frontend files, as well as `./mvnw test` on modified backend Java files.
 - **`commit-msg`**: Validates commit message adherence to [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat:`, `fix:`, `chore:`, `test:`, `docs:`, `refactor:`).
+- **`pre-push`**: Strictly validates that the Docker daemon is active and executes `docker compose build` to verify multi-container images build successfully before allowing commits to be pushed to remote.
 
 ### ☕ Backend Testing (Spring Boot)
 ```bash
