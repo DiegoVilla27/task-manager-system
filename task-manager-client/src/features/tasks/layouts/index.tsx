@@ -11,7 +11,11 @@ export const MainLayout: React.FC = () => {
 
       {/* Main abarca exactamente la altura disponible restante y maneja su propio scroll */}
       <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto flex flex-col">
-        <Suspense fallback={<div className="p-8 text-center text-purple-600 font-semibold">Cargando...</div>}>
+        <Suspense
+          fallback={
+            <div className="p-8 text-center text-purple-600 font-semibold">Cargando...</div>
+          }
+        >
           <Outlet />
         </Suspense>
       </main>

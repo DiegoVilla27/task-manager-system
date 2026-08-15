@@ -9,6 +9,6 @@ const useMe = () => {
       getMeSvc();
     }
   }, []);
-}
+};
 
-export default useMe
+export default useMe;

@@ -5,14 +5,14 @@
  * @module shared/hooks/use-me.test
  */
 
-import StorageService from "@shared/utils/storage";
-import { renderHook, waitFor } from "@testing-library/react";
-import useMe from ".";
-import { getMeSvc } from "@features/users/service";
+import StorageService from '@shared/utils/storage';
+import { renderHook, waitFor } from '@testing-library/react';
+import useMe from '.';
+import { getMeSvc } from '@features/users/service';
 
 // Mock user service endpoint function
 vi.mock('@features/users/service', () => ({
-  getMeSvc: vi.fn()
+  getMeSvc: vi.fn(),
 }));
 
 describe('useMe', () => {

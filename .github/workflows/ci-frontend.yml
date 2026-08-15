@@ -4,24 +4,55 @@ on:
   push:
     branches:
       - dev
-    paths:
-      - 'task-manager-client/**'
-      - '.github/workflows/ci-frontend.yml'
+      - main
   pull_request:
     branches:
       - dev
-    paths:
-      - 'task-manager-client/**'
-      - '.github/workflows/ci-frontend.yml'
+      - main
 
 jobs:
-  build-and-test:
-    name: Frontend Lint, Typecheck, Test & Build (Node 22)
+  format:
+    name: 🎨 Verify Code Formatting (Prettier)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./task-manager-client
+    steps:
+      - name: 🛑 Verify PR source branch is dev (when targeting main)
+        if: github.base_ref == 'main' && github.head_ref != 'dev'
+        run: |
+          echo "❌ ERROR: No está permitido hacer Pull Request a 'main' desde '${{ github.head_ref }}'."
+          echo "👉 Todo cambio hacia 'main' debe provenir obligatoriamente de la rama 'dev'."
+          exit 1
 
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🎨 Prettier Check
+        run: pnpm exec prettier --check "src/**/*.{ts,tsx,json,css,html}"
+
+  lint:
+    name: ⚡ Static Analysis (Oxlint)
+    needs: format
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -41,17 +72,92 @@ jobs:
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: 🎨 Verify Code Formatting (Prettier)
-        run: pnpm exec prettier --check "src/**/*.{ts,tsx,json,css,html}"
-
-      - name: ⚡ Run Static Analysis (Oxlint)
+      - name: ⚡ Run Oxlint
         run: pnpm run lint
 
-      - name: 🛡️ Strict TypeScript Typecheck (tsc)
+  typecheck:
+    name: 🛡️ Strict TypeScript Typecheck (tsc)
+    needs: lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🛡️ Typecheck
         run: pnpm run typecheck
 
-      - name: 🧪 Run Vitest Test Suite with 80% Coverage
-        run: pnpm run test:run
+  test:
+    name: 🧪 Vitest Test Suite & Coverage
+    needs: typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: 📦 Build Production Bundle (Vite)
-        run: pnpm run build
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run Tests & Coverage
+        run: pnpm run test:coverage
+
+  build:
+    name: 📦 Build Production Bundle (Vite)
+    needs: test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 📦 Build Vite Bundle
+        run: pnpm exec vite build

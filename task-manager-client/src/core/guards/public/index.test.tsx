@@ -1,12 +1,11 @@
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import PublicGuard from ".";
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import PublicGuard from '.';
 
 describe('Public Guard', () => {
-
   beforeEach(() => {
     localStorage.clear();
-  })
+  });
 
   it('should redirect to home if token is present', () => {
     // Arrange
@@ -20,7 +19,7 @@ describe('Public Guard', () => {
           </Route>
           <Route path="/" index element={<h1>Home</h1>} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     // Assert
     expect(screen.getByText('Home')).toBeInTheDocument();
@@ -38,7 +37,7 @@ describe('Public Guard', () => {
           </Route>
           <Route path="/" index element={<h1>Home</h1>} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     // Assert
     expect(screen.getByText('Login')).toBeInTheDocument();

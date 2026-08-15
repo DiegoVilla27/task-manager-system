@@ -5,7 +5,7 @@
  * @module shared/utils/clean-params.test
  */
 
-import { cleanParams } from ".";
+import { cleanParams } from '.';
 
 describe('cleanParams', () => {
   /**
@@ -37,7 +37,7 @@ describe('cleanParams', () => {
    */
   it('should return undefined if all properties are empty', () => {
     const params = {
-      name: ''
+      name: '',
     };
     expect(cleanParams(params)).toBeUndefined();
   });

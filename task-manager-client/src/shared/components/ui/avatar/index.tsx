@@ -7,13 +7,7 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export const Avatar: React.FC<AvatarProps> = ({
-  name,
-  src,
-  size = 'md',
-  className,
-  ...props
-}) => {
+export const Avatar: React.FC<AvatarProps> = ({ name, src, size = 'md', className, ...props }) => {
   const initials = name
     .split(' ')
     .map((n) => n[0])
@@ -35,7 +29,7 @@ export const Avatar: React.FC<AvatarProps> = ({
         className={cn(
           'rounded-full object-cover border border-purple-200 dark:border-purple-700',
           sizes[size],
-          className
+          className,
         )}
       />
     );
@@ -46,7 +40,7 @@ export const Avatar: React.FC<AvatarProps> = ({
       className={cn(
         'rounded-full bg-purple-100 dark:bg-purple-900/50 border border-purple-200 dark:border-purple-700 flex items-center justify-center font-semibold text-purple-600 dark:text-purple-300',
         sizes[size],
-        className
+        className,
       )}
       {...props}
     >

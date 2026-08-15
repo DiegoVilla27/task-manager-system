@@ -1,5 +1,3 @@
-
-
 interface Props {
   currentPage: number;
   totalPages: number;
@@ -7,14 +5,9 @@ interface Props {
   itemsPerPage: number;
 }
 
-const usePagination = ({
-  currentPage,
-  totalItems,
-  itemsPerPage,
-  totalPages
-}: Props) => {
-
-  const startItem = totalItems === 0 ? 0 : Math.min((currentPage - 1) * itemsPerPage + 1, totalItems);
+const usePagination = ({ currentPage, totalItems, itemsPerPage, totalPages }: Props) => {
+  const startItem =
+    totalItems === 0 ? 0 : Math.min((currentPage - 1) * itemsPerPage + 1, totalItems);
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   // Calcular las páginas a mostrar (máximo 5 páginas dinámicas)
@@ -50,8 +43,8 @@ const usePagination = ({
     endItem,
     visiblePages,
     isFirstPage,
-    isLastPage
-  }
-}
+    isLastPage,
+  };
+};
 
-export default usePagination
+export default usePagination;

@@ -5,8 +5,8 @@
  * @module shared/components/ui/badge.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { Badge } from ".";
+import { render, screen } from '@testing-library/react';
+import { Badge } from '.';
 
 describe('UI: badge', () => {
   /**

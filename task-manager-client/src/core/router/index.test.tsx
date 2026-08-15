@@ -1,25 +1,24 @@
-import { render, screen } from "@testing-library/react";
-import AppRoutes from ".";
-import useMe from "@shared/hooks/use-me";
+import { render, screen } from '@testing-library/react';
+import AppRoutes from '.';
+import useMe from '@shared/hooks/use-me';
 
 vi.mock('@shared/hooks/use-me', () => ({
-  default: vi.fn()
+  default: vi.fn(),
 }));
 
 vi.mock('@core/router/config', () => ({
-  default: { id: 'router-test' }
-}))
+  default: { id: 'router-test' },
+}));
 
 vi.mock('react-router-dom', () => ({
   RouterProvider: vi.fn(({ router }) => (
     <div data-testid="router-provider" data-router-id={router.id}>
       Router Mounted
     </div>
-  ))
-}))
+  )),
+}));
 
 describe('AppRoutes', () => {
-
   beforeEach(() => {
     vi.clearAllMocks();
   });

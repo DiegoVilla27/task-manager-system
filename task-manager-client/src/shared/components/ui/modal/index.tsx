@@ -12,18 +12,8 @@ export interface Props {
   className?: string;
 }
 
-export const Modal: React.FC<Props> = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-  className,
-}) => {
-
-  const {
-    modalRef,
-    handleBackdropClick
-  } = useModal({ isOpen, onClose });
+export const Modal: React.FC<Props> = ({ isOpen, onClose, title, children, className }) => {
+  const { modalRef, handleBackdropClick } = useModal({ isOpen, onClose });
 
   if (!isOpen) return null;
 
@@ -38,16 +28,12 @@ export const Modal: React.FC<Props> = ({
         ref={modalRef}
         className={cn(
           'bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-700 space-y-4 animate-scaleUp',
-          className
+          className,
         )}
-        role='dialog'
+        role="dialog"
       >
         <div className="flex items-center justify-between">
-          {title && (
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              {title}
-            </h3>
-          )}
+          {title && <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>}
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg transition-colors ml-auto cursor-pointer"
@@ -58,6 +44,6 @@ export const Modal: React.FC<Props> = ({
         <div>{children}</div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };

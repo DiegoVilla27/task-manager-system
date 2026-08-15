@@ -1,7 +1,26 @@
-import { Avatar, Badge, Button, Table, TableBody, TableCell, TableHeader, TablePagination, TableRow } from "@shared/components/ui";
-import { AlertCircle, Calendar, Check, CheckCircle2, Copy, Pencil, Timer, Trash2 } from "lucide-react";
-import type { Task, TaskStatusType } from "../../interfaces/response";
-import useTableTasks from "./hooks";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TablePagination,
+  TableRow,
+} from '@shared/components/ui';
+import {
+  AlertCircle,
+  Calendar,
+  Check,
+  CheckCircle2,
+  Copy,
+  Pencil,
+  Timer,
+  Trash2,
+} from 'lucide-react';
+import type { Task, TaskStatusType } from '../../interfaces/response';
+import useTableTasks from './hooks';
 
 interface Props {
   tasks: Task[];
@@ -24,14 +43,9 @@ const TableTasks: React.FC<Props> = ({
   onTaskDeleted,
   onEditTask,
 }: Props) => {
-  const {
-    copiedId,
-    handleCopyId,
-    formatDate,
-    startTask,
-    completeTask,
-    deleteTask,
-  } = useTableTasks({ onTaskStatusChange, onTaskDeleted });
+  const { copiedId, handleCopyId, formatDate, startTask, completeTask, deleteTask } = useTableTasks(
+    { onTaskStatusChange, onTaskDeleted },
+  );
 
   const renderStatusBadge = (status: TaskStatusType, taskId: string) => {
     switch (status) {
@@ -74,22 +88,41 @@ const TableTasks: React.FC<Props> = ({
     <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 shadow-xs overflow-hidden flex-1 flex flex-col">
       <Table>
         <TableHeader>
-          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell
+            isHeader
+            className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase"
+          >
             ID
           </TableCell>
-          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell
+            isHeader
+            className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase"
+          >
             Tarea
           </TableCell>
-          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell
+            isHeader
+            className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase"
+          >
             Estado
           </TableCell>
-          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell
+            isHeader
+            className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase"
+          >
             Asignado
           </TableCell>
-          <TableCell isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell
+            isHeader
+            className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase"
+          >
             Fecha Creación
           </TableCell>
-          <TableCell align="right" isHeader className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase">
+          <TableCell
+            align="right"
+            isHeader
+            className="font-semibold text-xs text-slate-500 dark:text-slate-400 uppercase"
+          >
             Acciones
           </TableCell>
         </TableHeader>
@@ -100,7 +133,10 @@ const TableTasks: React.FC<Props> = ({
                 {/* ID separado con botón para copiar */}
                 <TableCell className="whitespace-nowrap">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-mono font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-1 rounded-md border border-purple-100 dark:border-purple-800/60 max-w-25 truncate" title={task.id}>
+                    <span
+                      className="text-xs font-mono font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-1 rounded-md border border-purple-100 dark:border-purple-800/60 max-w-25 truncate"
+                      title={task.id}
+                    >
                       {task.id}
                     </span>
                     <button
@@ -155,20 +191,17 @@ const TableTasks: React.FC<Props> = ({
                 {/* Acciones: Editar y Eliminar */}
                 <TableCell align="right" className="whitespace-nowrap">
                   <div className="flex items-center justify-end gap-1">
-                    {
-                      task.status !== 'COMPLETED'
-                        ?
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40"
-                          title="Editar tarea"
-                          onClick={() => onEditTask?.(task)}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        : null
-                    }
+                    {task.status !== 'COMPLETED' ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40"
+                        title="Editar tarea"
+                        onClick={() => onEditTask?.(task)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                    ) : null}
                     <Button
                       variant="ghost"
                       size="sm"

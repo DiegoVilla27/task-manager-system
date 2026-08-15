@@ -17,21 +17,21 @@ export const TablePagination: React.FC<Props> = ({
   itemsPerPage,
   onPageChange,
 }) => {
-
-  const {
-    startItem,
-    endItem,
-    visiblePages,
-    isFirstPage,
-    isLastPage,
-  } = useTablePagination({ totalItems, currentPage, totalPages, itemsPerPage });
+  const { startItem, endItem, visiblePages, isFirstPage, isLastPage } = useTablePagination({
+    totalItems,
+    currentPage,
+    totalPages,
+    itemsPerPage,
+  });
 
   return (
     <div className="px-4 sm:px-6 py-3.5 bg-slate-50/60 dark:bg-slate-900/30 border-t border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
       <div>
-        Mostrando <span className="font-semibold text-slate-700 dark:text-slate-200">{startItem}</span> a{' '}
+        Mostrando{' '}
+        <span className="font-semibold text-slate-700 dark:text-slate-200">{startItem}</span> a{' '}
         <span className="font-semibold text-slate-700 dark:text-slate-200">{endItem}</span> de{' '}
-        <span className="font-semibold text-slate-700 dark:text-slate-200">{totalItems}</span> resultados
+        <span className="font-semibold text-slate-700 dark:text-slate-200">{totalItems}</span>{' '}
+        resultados
       </div>
 
       <div className="flex items-center gap-2">
@@ -48,10 +48,11 @@ export const TablePagination: React.FC<Props> = ({
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`w-7 h-7 rounded-lg text-xs font-semibold flex items-center justify-center transition-all cursor-pointer ${page === currentPage
-              ? 'bg-purple-500 text-white shadow-xs'
-              : 'border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-              }`}
+            className={`w-7 h-7 rounded-lg text-xs font-semibold flex items-center justify-center transition-all cursor-pointer ${
+              page === currentPage
+                ? 'bg-purple-500 text-white shadow-xs'
+                : 'border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+            }`}
           >
             {page}
           </button>

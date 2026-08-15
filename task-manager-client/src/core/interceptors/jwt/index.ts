@@ -1,7 +1,7 @@
-import axiosInstance from "@core/axios";
-import { logoutSvc } from "@features/auth/services";
-import StorageService from "@shared/utils/storage";
-import type { AxiosError } from "axios";
+import axiosInstance from '@core/axios';
+import { logoutSvc } from '@features/auth/services';
+import StorageService from '@shared/utils/storage';
+import type { AxiosError } from 'axios';
 
 const interceptorJwtAuth = (): void => {
   axiosInstance.interceptors.request.use(
@@ -28,6 +28,6 @@ const interceptorJwtAuth = (): void => {
       return Promise.reject(error);
     },
   );
-}
+};
 
 export default interceptorJwtAuth;

@@ -40,12 +40,7 @@ export const TasksPage: React.FC = () => {
       />
 
       {/* Buscador y Filtros */}
-      <FiltersTasks
-        search={search}
-        setSearch={setSearch}
-        status={status}
-        setStatus={setStatus}
-      />
+      <FiltersTasks search={search} setSearch={setSearch} status={status} setStatus={setStatus} />
 
       {/* Alternar entre vista Tabla o Kanban Drag & Drop */}
       {viewMode === 'table' ? (

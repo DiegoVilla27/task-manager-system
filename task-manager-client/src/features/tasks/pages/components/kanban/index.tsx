@@ -1,9 +1,19 @@
-import { Avatar, Badge, Button } from "@shared/components/ui";
-import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import { AlertCircle, Calendar, Check, CheckCircle2, Copy, GripVertical, Pencil, Timer, Trash2 } from "lucide-react";
-import React from "react";
-import type { Task, TaskStatusType } from "../../interfaces/response";
-import useKanbanTasks from "./hooks";
+import { Avatar, Badge, Button } from '@shared/components/ui';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
+import {
+  AlertCircle,
+  Calendar,
+  Check,
+  CheckCircle2,
+  Copy,
+  GripVertical,
+  Pencil,
+  Timer,
+  Trash2,
+} from 'lucide-react';
+import React from 'react';
+import type { Task, TaskStatusType } from '../../interfaces/response';
+import useKanbanTasks from './hooks';
 
 interface Props {
   tasks: Task[];

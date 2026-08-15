@@ -4,12 +4,7 @@ import { Button, Input, Link } from '@shared/components/ui';
 import useRegisterPage from './hooks';
 
 export const RegisterPage: React.FC = () => {
-
-  const {
-    register,
-    submit,
-    errors
-  } = useRegisterPage();
+  const { register, submit, errors } = useRegisterPage();
 
   return (
     <div>
@@ -27,7 +22,7 @@ export const RegisterPage: React.FC = () => {
             type="text"
             placeholder="Juan"
             leftIcon={<UserIcon className="w-5 h-5" />}
-            {...register("name")}
+            {...register('name')}
             error={errors.name?.message}
           />
           <Input
@@ -35,7 +30,7 @@ export const RegisterPage: React.FC = () => {
             type="text"
             placeholder="Pérez"
             leftIcon={<UserIcon className="w-5 h-5" />}
-            {...register("lastname")}
+            {...register('lastname')}
             error={errors.lastname?.message}
           />
         </div>
@@ -45,7 +40,7 @@ export const RegisterPage: React.FC = () => {
           type="email"
           placeholder="ejemplo@correo.com"
           leftIcon={<Mail className="w-5 h-5" />}
-          {...register("email")}
+          {...register('email')}
           error={errors.email?.message}
         />
 
@@ -54,7 +49,7 @@ export const RegisterPage: React.FC = () => {
           type="password"
           placeholder="••••••••"
           leftIcon={<Lock className="w-5 h-5" />}
-          {...register("password")}
+          {...register('password')}
           error={errors.password?.message}
         />
 
@@ -63,7 +58,7 @@ export const RegisterPage: React.FC = () => {
           type="password"
           placeholder="••••••••"
           leftIcon={<Lock className="w-5 h-5" />}
-          {...register("confirmPassword")}
+          {...register('confirmPassword')}
           error={errors.confirmPassword?.message}
         />
 

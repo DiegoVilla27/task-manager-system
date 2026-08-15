@@ -14,7 +14,7 @@ const useTableTasks = ({ onTaskStatusChange, onTaskDeleted }: Props = {}) => {
   const handleCopyId = (id: string) => {
     navigator.clipboard.writeText(id);
     setCopiedId(id);
-    toast.success("ID copiado al portapapeles");
+    toast.success('ID copiado al portapapeles');
     setTimeout(() => {
       setCopiedId(null);
     }, 2000);
@@ -38,11 +38,11 @@ const useTableTasks = ({ onTaskStatusChange, onTaskDeleted }: Props = {}) => {
     const success = await startTaskSvc(taskId);
 
     if (success) {
-      toast.success("Task started");
+      toast.success('Task started');
     } else {
       // Revertir en caso de falla en el servidor
       onTaskStatusChange?.(taskId, 'PENDING');
-      toast.error("Error al iniciar tarea. Se revirtió el cambio.");
+      toast.error('Error al iniciar tarea. Se revirtió el cambio.');
     }
   };
 
@@ -52,21 +52,21 @@ const useTableTasks = ({ onTaskStatusChange, onTaskDeleted }: Props = {}) => {
     const success = await completeTaskSvc(taskId);
 
     if (success) {
-      toast.success("Task completed");
+      toast.success('Task completed');
     } else {
       // Revertir en caso de falla en el servidor
       onTaskStatusChange?.(taskId, 'IN_PROGRESS');
-      toast.error("Error al completar tarea. Se revirtió el cambio.");
+      toast.error('Error al completar tarea. Se revirtió el cambio.');
     }
   };
 
   const deleteTask = async (taskId: string) => {
     const success = await deleteTaskSvc(taskId);
     if (success) {
-      toast.success("Task deleted");
+      toast.success('Task deleted');
       onTaskDeleted?.();
     } else {
-      toast.error("Error al eliminar la tarea.");
+      toast.error('Error al eliminar la tarea.');
     }
   };
 

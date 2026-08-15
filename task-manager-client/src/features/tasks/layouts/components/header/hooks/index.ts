@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const useHeader = () => {
-
   const [user, setUser] = useState<UserMeResponse | null>(null);
   const navigate = useNavigate();
 
@@ -20,8 +19,8 @@ const useHeader = () => {
 
   return {
     user,
-    logout
+    logout,
   };
 };
 
-export default useHeader
+export default useHeader;

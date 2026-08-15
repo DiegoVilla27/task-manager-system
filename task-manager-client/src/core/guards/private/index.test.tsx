@@ -1,12 +1,11 @@
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import PrivateGuard from ".";
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import PrivateGuard from '.';
 
 describe('Private Guard', () => {
-
   beforeEach(() => {
     localStorage.clear();
-  })
+  });
 
   it('should redirect to login if token is not present', () => {
     // Arrange
@@ -19,7 +18,7 @@ describe('Private Guard', () => {
           </Route>
           <Route path="/auth/login" element={<h1>Login</h1>} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     // Assert
     expect(screen.getByText('Login')).toBeInTheDocument();
@@ -38,7 +37,7 @@ describe('Private Guard', () => {
           </Route>
           <Route path="/auth/login" element={<h1>Login</h1>} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     // Assert
     expect(screen.getByText('Home')).toBeInTheDocument();

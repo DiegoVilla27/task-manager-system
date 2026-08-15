@@ -5,8 +5,8 @@
  * @module shared/hooks/use-debounce.test
  */
 
-import { act, renderHook } from "@testing-library/react";
-import { useDebounce } from ".";
+import { act, renderHook } from '@testing-library/react';
+import { useDebounce } from '.';
 
 describe('useDebounce', () => {
   beforeEach(() => {
@@ -42,7 +42,7 @@ describe('useDebounce', () => {
     // Arrange
     const { result, rerender } = renderHook(
       ({ value, delay }: { value: string; delay: number }) => useDebounce(value, delay),
-      { initialProps: { value: 'diego', delay: 400 } }
+      { initialProps: { value: 'diego', delay: 400 } },
     );
 
     // Act: Rerender with a new input value

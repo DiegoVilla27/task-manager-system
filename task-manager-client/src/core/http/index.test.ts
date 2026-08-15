@@ -1,6 +1,6 @@
-import axiosInstance from "@core/axios";
-import { httpService } from ".";
-import { cleanParams } from "@shared/utils/clean-params";
+import axiosInstance from '@core/axios';
+import { httpService } from '.';
+import { cleanParams } from '@shared/utils/clean-params';
 
 // 1. Mockeamos axiosInstance
 vi.mock('@core/axios', () => ({
@@ -19,11 +19,9 @@ vi.mock('@shared/utils/clean-params', () => ({
 }));
 
 describe('httpService', () => {
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
-
 
   it('should perform GET request, clean params and return data', async () => {
     // Arrange
@@ -48,8 +46,7 @@ describe('httpService', () => {
     const data = await httpService.post('/users', payload);
     // Assert
     expect(axiosInstance.post).toHaveBeenCalledTimes(1);
-    expect(axiosInstance.post)
-      .toHaveBeenCalledWith('/users', payload, { params: undefined });
+    expect(axiosInstance.post).toHaveBeenCalledWith('/users', payload, { params: undefined });
     expect(cleanParams).toHaveBeenCalledTimes(1);
     expect(data).toBe(res.data);
   });
@@ -63,8 +60,7 @@ describe('httpService', () => {
     const data = await httpService.patch('/users', payload);
     // Assert
     expect(axiosInstance.patch).toHaveBeenCalledTimes(1);
-    expect(axiosInstance.patch)
-      .toHaveBeenCalledWith('/users', payload, { params: undefined });
+    expect(axiosInstance.patch).toHaveBeenCalledWith('/users', payload, { params: undefined });
     expect(cleanParams).toHaveBeenCalledTimes(1);
     expect(data).toBe(res.data);
   });
@@ -78,8 +74,7 @@ describe('httpService', () => {
     const data = await httpService.put('/users', payload);
     // Assert
     expect(axiosInstance.put).toHaveBeenCalledTimes(1);
-    expect(axiosInstance.put)
-      .toHaveBeenCalledWith('/users', payload, { params: undefined });
+    expect(axiosInstance.put).toHaveBeenCalledWith('/users', payload, { params: undefined });
     expect(cleanParams).toHaveBeenCalledTimes(1);
     expect(data).toBe(res.data);
   });
@@ -92,9 +87,8 @@ describe('httpService', () => {
     const data = await httpService.delete('/users/123');
     // Assert
     expect(axiosInstance.delete).toHaveBeenCalledTimes(1);
-    expect(axiosInstance.delete)
-      .toHaveBeenCalledWith('/users/123', { params: undefined });
+    expect(axiosInstance.delete).toHaveBeenCalledWith('/users/123', { params: undefined });
     expect(cleanParams).toHaveBeenCalledTimes(1);
     expect(data).toBe(res.data);
   });
-})
+});

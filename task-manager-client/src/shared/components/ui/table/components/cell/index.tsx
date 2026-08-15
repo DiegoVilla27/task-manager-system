@@ -11,19 +11,17 @@ export const TableCell = ({
   isHeader = false,
   className = '',
   align = 'left',
-  colSpan
+  colSpan,
 }: Props) => {
-  const alignClass = align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left';
+  const alignClass =
+    align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left';
 
   // Renderizado dinámico del tag: 'th' o 'td'
   const Component = isHeader ? 'th' : 'td';
 
   return (
-    <Component
-      colSpan={colSpan}
-      className={`py-4 px-4 sm:px-6 ${alignClass} ${className}`}
-    >
+    <Component colSpan={colSpan} className={`py-4 px-4 sm:px-6 ${alignClass} ${className}`}>
       {children}
     </Component>
-  )
-}
+  );
+};

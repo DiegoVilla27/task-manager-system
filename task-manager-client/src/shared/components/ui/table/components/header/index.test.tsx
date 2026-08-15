@@ -5,8 +5,8 @@
  * @module shared/components/ui/table/header.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { TableHeader } from ".";
+import { render, screen } from '@testing-library/react';
+import { TableHeader } from '.';
 
 describe('UI: table header', () => {
   /**
@@ -17,11 +17,9 @@ describe('UI: table header', () => {
     render(
       <table>
         <TableHeader>
-          <th>
-            Name
-          </th>
+          <th>Name</th>
         </TableHeader>
-      </table>
+      </table>,
     );
 
     // Assert

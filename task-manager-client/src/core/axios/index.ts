@@ -1,5 +1,5 @@
-import { environment } from "@core/environments";
-import axios from "axios";
+import { environment } from '@core/environments';
+import axios from 'axios';
 
 export const axiosInstance = axios.create({
   baseURL: environment.apiUrl,

@@ -1,22 +1,17 @@
-import { Button, Input } from "@shared/components/ui";
-import { Filter, Search, X } from "lucide-react";
-import { TaskStatus } from "../../interfaces/response";
-import useFiltersTasks from "./hooks";
+import { Button, Input } from '@shared/components/ui';
+import { Filter, Search, X } from 'lucide-react';
+import { TaskStatus } from '../../interfaces/response';
+import useFiltersTasks from './hooks';
 
 interface Props {
   search: string;
   setSearch: (search: string) => void;
   status: string;
-  setStatus: React.Dispatch<React.SetStateAction<"" | "PENDING" | "IN_PROGRESS" | "COMPLETED">>;
+  setStatus: React.Dispatch<React.SetStateAction<'' | 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'>>;
 }
 
 const FiltersTasks = ({ search, setSearch, status, setStatus }: Props) => {
-
-  const {
-    inputValue,
-    setInputValue,
-    handleClearSearch
-  } = useFiltersTasks({ search, setSearch });
+  const { inputValue, setInputValue, handleClearSearch } = useFiltersTasks({ search, setSearch });
 
   return (
     <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/80 shadow-xs flex flex-col md:flex-row gap-4 justify-between items-center">
@@ -55,18 +50,16 @@ const FiltersTasks = ({ search, setSearch, status, setStatus }: Props) => {
           Todos
         </Button>
 
-        {
-          Object.values(TaskStatus).map((s) => (
-            <Button
-              key={s}
-              size="sm"
-              variant={status === s ? 'primary' : 'secondary'}
-              onClick={() => setStatus(s)}
-            >
-              {s}
-            </Button>
-          ))
-        }
+        {Object.values(TaskStatus).map((s) => (
+          <Button
+            key={s}
+            size="sm"
+            variant={status === s ? 'primary' : 'secondary'}
+            onClick={() => setStatus(s)}
+          >
+            {s}
+          </Button>
+        ))}
       </div>
     </div>
   );

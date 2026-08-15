@@ -1,8 +1,8 @@
-import { httpService } from "@core/http";
-import type { TaskCreateRequest, TasksRequest, TaskUpdateRequest } from "../interfaces/request";
-import type { Task, TasksResponse } from "../interfaces/response";
+import { httpService } from '@core/http';
+import type { TaskCreateRequest, TasksRequest, TaskUpdateRequest } from '../interfaces/request';
+import type { Task, TasksResponse } from '../interfaces/response';
 
-const API_TASKS = "/tasks";
+const API_TASKS = '/tasks';
 
 const getAllTasksSvc = async (payload: TasksRequest): Promise<TasksResponse | null> => {
   try {
@@ -10,7 +10,7 @@ const getAllTasksSvc = async (payload: TasksRequest): Promise<TasksResponse | nu
       page: payload.page,
       limit: payload.limit,
       ...(payload.filters?.search ? { search: payload.filters.search } : {}),
-      ...(payload.filters?.status ? { status: payload.filters.status } : {})
+      ...(payload.filters?.status ? { status: payload.filters.status } : {}),
     });
     return response;
   } catch {
@@ -69,5 +69,5 @@ export {
   deleteTaskSvc,
   getAllTasksSvc,
   startTaskSvc,
-  updateTaskSvc
+  updateTaskSvc,
 };

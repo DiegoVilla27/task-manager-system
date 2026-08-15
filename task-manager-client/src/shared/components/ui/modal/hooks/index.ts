@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react';
 
 export interface Props {
   isOpen: boolean;
@@ -6,7 +6,6 @@ export interface Props {
 }
 
 const useModal = ({ isOpen, onClose }: Props) => {
-
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Manejar el scroll del body y el evento de la tecla Escape
@@ -36,11 +35,10 @@ const useModal = ({ isOpen, onClose }: Props) => {
     }
   };
 
-
   return {
     modalRef,
-    handleBackdropClick
-  }
-}
+    handleBackdropClick,
+  };
+};
 
-export default useModal
+export default useModal;

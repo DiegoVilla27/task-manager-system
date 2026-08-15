@@ -1,8 +1,8 @@
-import { httpService } from "@core/http";
-import { getMeSvc } from "@features/users/service";
-import StorageService from "@shared/utils/storage";
-import type { AuthLoginRequest, AuthRegisterRequest } from "../interfaces/request";
-import type { AuthResponse } from "../interfaces/response";
+import { httpService } from '@core/http';
+import { getMeSvc } from '@features/users/service';
+import StorageService from '@shared/utils/storage';
+import type { AuthLoginRequest, AuthRegisterRequest } from '../interfaces/request';
+import type { AuthResponse } from '../interfaces/response';
 
 const API_AUTH = '/auth';
 
@@ -36,14 +36,10 @@ const logoutSvc = () => {
 
 const saveTokensSvc = async (tokens: AuthResponse) => {
   if (tokens) {
-    StorageService.set("TOKEN", tokens.access_token);
-    StorageService.set("REFRESH", tokens.refresh_token);
+    StorageService.set('TOKEN', tokens.access_token);
+    StorageService.set('REFRESH', tokens.refresh_token);
     await getMeSvc();
   }
 };
 
-export {
-  loginSvc,
-  logoutSvc,
-  registerSvc
-};
+export { loginSvc, logoutSvc, registerSvc };

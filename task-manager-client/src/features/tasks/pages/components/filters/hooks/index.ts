@@ -1,5 +1,5 @@
 import { useDebounce } from '@shared/hooks/use-debounce';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 
 interface Props {
   search: string;
@@ -7,7 +7,6 @@ interface Props {
 }
 
 const useFiltersTasks = ({ search, setSearch }: Props) => {
-
   const [inputValue, setInputValue] = useState(search);
   const debouncedSearch = useDebounce(inputValue, 400);
 
@@ -30,8 +29,8 @@ const useFiltersTasks = ({ search, setSearch }: Props) => {
   return {
     inputValue,
     setInputValue,
-    handleClearSearch
-  }
-}
+    handleClearSearch,
+  };
+};
 
-export default useFiltersTasks
+export default useFiltersTasks;

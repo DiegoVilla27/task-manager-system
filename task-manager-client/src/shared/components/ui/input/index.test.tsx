@@ -5,8 +5,8 @@
  * @module shared/components/ui/input.test
  */
 
-import { render, screen } from "@testing-library/react";
-import { Input } from ".";
+import { render, screen } from '@testing-library/react';
+import { Input } from '.';
 
 describe('UI: input', () => {
   /**
