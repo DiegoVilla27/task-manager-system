@@ -17,7 +17,7 @@ export const LoginPage: React.FC = () => {
 
       <form className="space-y-5" onSubmit={submit}>
         <Input
-          label="Correo Electrónicos"
+          label="Correo Electrónico"
           type="email"
           placeholder="ejemplo@correo.com"
           leftIcon={<Mail className="w-5 h-5" />}
@@ -26,21 +26,21 @@ export const LoginPage: React.FC = () => {
         />
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-              Contraseña
-            </label>
-            <Link to="#" variant="purple" className="text-xs">
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </div>
           <Input
+            id="password"
+            label="Contraseña"
             type="password"
             placeholder="••••••••"
             leftIcon={<Lock className="w-5 h-5" />}
             {...register('password')}
             error={errors.password?.message}
           />
+        </div>
+
+        <div className="flex items-center justify-start mb-6 w-full">
+          <Link to="#" variant="purple" className="text-xs">
+            ¿Olvidaste tu contraseña?
+          </Link>
         </div>
 
         <Button

@@ -20,8 +20,10 @@ jobs:
     steps:
       - name: 🛑 Verify PR source branch is dev (when targeting main)
         if: github.base_ref == 'main' && github.head_ref != 'dev'
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref }}
         run: |
-          echo "❌ ERROR: No está permitido hacer Pull Request a 'main' desde '${{ github.head_ref }}'."
+          echo "❌ ERROR: No está permitido hacer Pull Request a 'main' desde '$SOURCE_BRANCH'."
           echo "👉 Todo cambio hacia 'main' debe provenir obligatoriamente de la rama 'dev'."
           exit 1
 
@@ -41,7 +43,7 @@ jobs:
           cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
 
       - name: 📥 Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: 🎨 Prettier Check
         run: pnpm exec prettier --check "src/**/*.{ts,tsx,json,css,html}"
@@ -70,7 +72,7 @@ jobs:
           cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
 
       - name: 📥 Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: ⚡ Run Oxlint
         run: pnpm run lint
@@ -99,7 +101,7 @@ jobs:
           cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
 
       - name: 📥 Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: 🛡️ Typecheck
         run: pnpm run typecheck
@@ -128,14 +130,59 @@ jobs:
           cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
 
       - name: 📥 Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: 🧪 Run Tests & Coverage
         run: pnpm run test:coverage
 
+  sonar:
+    name: 🔍 SonarCloud Code Analysis & Quality Gate
+    needs: test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository (Full History)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🧪 Run Vitest Coverage
+        run: pnpm run test:coverage
+
+      - name: 🔍 SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: task-manager-client
+          args: >
+            -Dsonar.projectKey=DiegoVilla27_task-manager-system
+            -Dsonar.organization=diegovilla27
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=src/**/*.test.ts,src/**/*.test.tsx
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+
   build:
     name: 📦 Build Production Bundle (Vite)
-    needs: test
+    needs: sonar
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -157,7 +204,7 @@ jobs:
           cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
 
       - name: 📥 Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: 📦 Build Vite Bundle
         run: pnpm exec vite build
