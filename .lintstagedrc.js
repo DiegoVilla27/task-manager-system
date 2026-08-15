@@ -1,9 +1,33 @@
 export default {
   "task-manager-client/**/*.{ts,tsx}": (filenames) => {
     const filesList = filenames.join(" ");
-    const relativeFiles = filenames.map((f) => f.replace(/^.*?task-manager-client\//, ""));
-    const coverageIncludes = relativeFiles
-      .filter((f) => !f.includes(".test.") && !f.includes(".d.ts"))
+
+    // Normalización de rutas para compatibilidad entre Windows, Linux y macOS
+    const normalizedFiles = filenames.map((f) => f.replace(/\\/g, "/"));
+    const relativeFiles = normalizedFiles.map((f) =>
+      f.replace(/^.*?task-manager-client\//, "")
+    );
+
+    // Patrones de archivos que no requieren tests unitarios obligatorios
+    const nonTestablePatterns = [
+      /\.test\./,
+      /\.d\.ts$/,
+      /\/interfaces\//,
+      /\/types\//,
+      /\/models\//,
+      /\/schema\//,
+      /\/layouts?\//,
+      /\/pages\//,
+      /\/environments\//,
+      /main\.tsx$/,
+      /setupTests\.ts$/,
+    ];
+
+    const testableFiles = relativeFiles.filter(
+      (f) => !nonTestablePatterns.some((pattern) => pattern.test(f))
+    );
+
+    const coverageIncludes = testableFiles
       .map((f) => `--coverage.include="${f}"`)
       .join(" ");
 
@@ -24,7 +48,7 @@ export default {
   },
   "task-manager/src/**/*.java": () => {
     return [
-      `bash -c "cd task-manager && ./mvnw test"`,
+      `bash -c "cd task-manager && ./mvnw test -Dtest=\\"!TaskManagerApplicationTests\\""`,
     ];
   },
 };

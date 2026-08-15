@@ -4,12 +4,7 @@ import { Button, Input, Link } from '@shared/components/ui';
 import useLoginPage from './hooks';
 
 export const LoginPage: React.FC = () => {
-
-  const {
-    register,
-    submit,
-    errors
-  } = useLoginPage();
+  const { register, submit, errors } = useLoginPage();
 
   return (
     <div>
@@ -22,11 +17,11 @@ export const LoginPage: React.FC = () => {
 
       <form className="space-y-5" onSubmit={submit}>
         <Input
-          label="Correo Electrónico"
+          label="Correo Electrónicos"
           type="email"
           placeholder="ejemplo@correo.com"
           leftIcon={<Mail className="w-5 h-5" />}
-          {...register("email")}
+          {...register('email')}
           error={errors.email?.message}
         />
 
@@ -43,7 +38,7 @@ export const LoginPage: React.FC = () => {
             type="password"
             placeholder="••••••••"
             leftIcon={<Lock className="w-5 h-5" />}
-            {...register("password")}
+            {...register('password')}
             error={errors.password?.message}
           />
         </div>
