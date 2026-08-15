@@ -121,6 +121,7 @@ export const KanbanTasks: React.FC<Props> = ({
                                       {task.id}
                                     </span>
                                     <button
+                                      type="button"
                                       onClick={() => handleCopyId(task.id)}
                                       className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer"
                                       title="Copiar ID"
