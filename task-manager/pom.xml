@@ -191,6 +191,65 @@
           </java>
         </configuration>
       </plugin>
+      <!-- 4. Plugin de Cobertura de Código JaCoCo con validación de umbral del 80% -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.12</version>
+        <configuration>
+          <excludes>
+            <!-- Excluir DTOs, Mappers generados, Entidades, Configuraciones y Modelos simples sin lógica -->
+            <exclude>**/dto/**</exclude>
+            <exclude>**/entity/**</exclude>
+            <exclude>**/mappers/**</exclude>
+            <exclude>**/docs/**</exclude>
+            <exclude>**/core/security/SecurityConfig.class</exclude>
+            <exclude>**/core/security/seeders/**</exclude>
+            <exclude>**/core/openapi/**</exclude>
+            <exclude>**/TaskManagerApplication.class</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>check-coverage</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.80</minimum>
+                    </limit>
+                    <limit>
+                      <counter>BRANCH</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.80</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

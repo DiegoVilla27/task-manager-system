@@ -1,0 +1,57 @@
+name: CI Frontend (React Client)
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - 'task-manager-client/**'
+      - '.github/workflows/ci-frontend.yml'
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - 'task-manager-client/**'
+      - '.github/workflows/ci-frontend.yml'
+
+jobs:
+  build-and-test:
+    name: Frontend Lint, Typecheck, Test & Build (Node 22)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🎨 Verify Code Formatting (Prettier)
+        run: pnpm exec prettier --check "src/**/*.{ts,tsx,json,css,html}"
+
+      - name: ⚡ Run Static Analysis (Oxlint)
+        run: pnpm run lint
+
+      - name: 🛡️ Strict TypeScript Typecheck (tsc)
+        run: pnpm run typecheck
+
+      - name: 🧪 Run Vitest Test Suite with 80% Coverage
+        run: pnpm run test:run
+
+      - name: 📦 Build Production Bundle (Vite)
+        run: pnpm run build

@@ -12,7 +12,7 @@ export default defineConfig({
     setupFiles: './src/setupTests.ts', // Archivo de configuración global opcional pero recomendado
     coverage: {
       provider: 'v8', // Motor de cobertura
-      reporter: ['text', 'json', 'html'], // Formatos de reporte
+      reporter: ['text', 'json', 'html', 'lcov'], // Formatos de reporte
       include: ['src/**/*.{ts,tsx}'], // Qué archivos medir
       exclude: [
         'src/main.tsx',
