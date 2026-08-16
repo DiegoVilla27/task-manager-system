@@ -17,6 +17,7 @@ export default {
       /\/models\//,
       /\/schema\//,
       /\/environments\//,
+      /\/router\//,
       /main\.tsx$/,
       /setupTests\.ts$/,
     ];
