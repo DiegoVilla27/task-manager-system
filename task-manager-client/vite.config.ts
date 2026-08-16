@@ -24,9 +24,6 @@ export default defineConfig({
         'src/**/types/**',
         'src/**/models/**',
         'src/**/schema/**',
-        'src/**/layout/**',
-        'src/**/layouts/**',
-        'src/**/pages/**',
         'src/core/environments/**',
       ],
       thresholds: {
