@@ -11,6 +11,7 @@ const useLoginPage = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<AuthLoginRequest>({
     resolver: zodResolver(LoginSchema),
@@ -29,6 +30,7 @@ const useLoginPage = () => {
   return {
     register,
     errors,
+    setValue,
     submit: handleSubmit(onSubmit),
   };
 };
