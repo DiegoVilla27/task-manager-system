@@ -5,17 +5,10 @@ import type { UserMeResponse } from '../interfaces/response';
 const API_USERS = '/users';
 
 const getMeSvc = async (): Promise<UserMeResponse | null> => {
-  try {
-    const res = await httpService.get<UserMeResponse>(`${API_USERS}/me`);
+  const res = await httpService.get<UserMeResponse>(`${API_USERS}/me`);
+  StorageService.set('ME', res);
 
-    if (res) {
-      StorageService.set('ME', res);
-    }
-
-    return res;
-  } catch {
-    return null;
-  }
+  return res;
 };
 
 export { getMeSvc };
