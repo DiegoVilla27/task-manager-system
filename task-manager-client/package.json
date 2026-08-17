@@ -12,6 +12,7 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:coverage:watch": "vitest --coverage",
+    "test:integration": "vitest run --passWithNoTests 'src/**/*.integration.test.{ts,tsx}'",
     "test:run": "vitest run",
     "test:ui": "vitest --ui"
   },
