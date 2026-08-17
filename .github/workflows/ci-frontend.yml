@@ -5,20 +5,34 @@ on:
     branches:
       - dev
       - main
-    paths:
-      - 'task-manager-client/**'
-      - '.github/workflows/ci-frontend.yml'
   pull_request:
     branches:
       - dev
       - main
-    paths:
-      - 'task-manager-client/**'
-      - '.github/workflows/ci-frontend.yml'
 
 jobs:
+  changes:
+    name: 🔍 Check Frontend Changes
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check for frontend changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'task-manager-client/**'
+              - '.github/workflows/ci-frontend.yml'
+
   format:
     name: 🎨 Verify Code Formatting (Prettier)
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -56,7 +70,8 @@ jobs:
 
   lint:
     name: ⚡ Static Analysis (Oxlint)
-    needs: format
+    needs: [changes, format]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -85,7 +100,8 @@ jobs:
 
   typecheck:
     name: 🛡️ Strict TypeScript Typecheck (tsc)
-    needs: lint
+    needs: [changes, lint]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -114,7 +130,8 @@ jobs:
 
   unit-tests:
     name: 🧪 Unit Tests & Vitest Coverage
-    needs: typecheck
+    needs: [changes, typecheck]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -143,7 +160,8 @@ jobs:
 
   integration-tests:
     name: 🔗 Integration Tests (MSW / Component)
-    needs: typecheck
+    needs: [changes, typecheck]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -172,7 +190,8 @@ jobs:
 
   sonar:
     name: 🔍 SonarCloud Code Analysis & Quality Gate
-    needs: [unit-tests, integration-tests]
+    needs: [changes, unit-tests, integration-tests]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -217,7 +236,8 @@ jobs:
 
   build:
     name: 📦 Build Production Bundle (Vite)
-    needs: sonar
+    needs: [changes, sonar]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
