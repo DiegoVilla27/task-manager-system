@@ -5,10 +5,16 @@ on:
     branches:
       - dev
       - main
+    paths:
+      - 'task-manager-client/**'
+      - '.github/workflows/ci-frontend.yml'
   pull_request:
     branches:
       - dev
       - main
+    paths:
+      - 'task-manager-client/**'
+      - '.github/workflows/ci-frontend.yml'
 
 jobs:
   format:
