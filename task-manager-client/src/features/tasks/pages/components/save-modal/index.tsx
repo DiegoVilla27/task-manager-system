@@ -1,23 +1,13 @@
 import React from 'react';
 import { Button, Input, Modal } from '@shared/components/ui';
-import type { Task } from '../../interfaces/response';
 import useSaveModal from './hooks';
 
-interface Props {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-  taskToEdit: Task | null;
-}
-
-const SaveModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, taskToEdit }: Props) => {
-  const { register, submit, errors, isSubmitting, isEditing, handleKeyDown } = useSaveModal({
-    taskToEdit,
-    onSuccess,
-  });
+const SaveModal: React.FC = () => {
+  const { isOpen, closeModal, register, submit, errors, isSubmitting, isEditing, handleKeyDown } =
+    useSaveModal();
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? 'Edit Task' : 'Create Task'}>
+    <Modal isOpen={isOpen} title={isEditing ? 'Edit Task' : 'Create Task'}>
       <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
         {isEditing ? 'Update the details of your task.' : 'Enter the details to create a new task.'}
       </p>
@@ -39,7 +29,7 @@ const SaveModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, taskToEdit }: 
         />
 
         <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+          <Button type="button" variant="ghost" size="sm" onClick={closeModal}>
             Cancel
           </Button>
           <Button type="submit" variant="primary" size="sm" isLoading={isSubmitting}>

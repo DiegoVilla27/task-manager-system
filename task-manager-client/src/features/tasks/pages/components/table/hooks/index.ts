@@ -1,7 +1,8 @@
-import { completeTaskSvc, deleteTaskSvc, startTaskSvc } from '@features/tasks/pages/service';
+import { completeTaskSvc, deleteTaskSvc, startTaskSvc } from '@features/tasks/services';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { TaskStatusType } from '../../../interfaces/response';
+import type { TaskStatusType } from '../../../../interfaces/response';
+import useModalStore from '@features/tasks/store/modalStore';
 
 interface Props {
   onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
@@ -10,6 +11,7 @@ interface Props {
 
 const useTableTasks = ({ onTaskStatusChange, onTaskDeleted }: Props = {}) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const { openModal } = useModalStore();
 
   const handleCopyId = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -77,6 +79,7 @@ const useTableTasks = ({ onTaskStatusChange, onTaskDeleted }: Props = {}) => {
     startTask,
     completeTask,
     deleteTask,
+    openModal,
   };
 };
 

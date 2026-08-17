@@ -1,5 +1,5 @@
 import { httpService } from '@core/http';
-import { getMeSvc } from '@features/users/service';
+import { getMeSvc } from '@features/users/services';
 import StorageService from '@shared/utils/storage';
 import type { AuthLoginRequest, AuthRegisterRequest } from '../interfaces/request';
 import type { AuthResponse } from '../interfaces/response';

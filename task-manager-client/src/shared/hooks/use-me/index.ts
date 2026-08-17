@@ -1,4 +1,4 @@
-import { getMeSvc } from '@features/users/service';
+import { getMeSvc } from '@features/users/services';
 import StorageService from '@shared/utils/storage';
 import { useEffect } from 'react';
 
