@@ -6,6 +6,7 @@
  * @module shared/components/ui/modal.test
  */
 
+import useModalStore from '@features/tasks/store/modalStore';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Modal } from '.';
@@ -17,7 +18,7 @@ describe('UI: modal', () => {
   it('should render modal', () => {
     // Arrange & Act
     render(
-      <Modal isOpen={true} onClose={() => {}}>
+      <Modal isOpen={true}>
         <div>Hola!</div>
       </Modal>,
     );
@@ -32,7 +33,7 @@ describe('UI: modal', () => {
   it('should not render modal', () => {
     // Arrange & Act
     render(
-      <Modal isOpen={false} onClose={() => {}}>
+      <Modal isOpen={false}>
         <div>Hola!</div>
       </Modal>,
     );
@@ -47,7 +48,7 @@ describe('UI: modal', () => {
   it('should render modal with title', () => {
     // Arrange & Act
     render(
-      <Modal isOpen={true} title="Hola" onClose={() => {}}>
+      <Modal isOpen={true} title="Hola">
         <div>Hola!</div>
       </Modal>,
     );
@@ -62,18 +63,21 @@ describe('UI: modal', () => {
   it('should close modal with click backdrop', async () => {
     // Arrange
     const user = userEvent.setup();
-    const onClose = vi.fn();
+    const mockedCloseModal = vi.fn();
+    useModalStore.setState({
+      closeModal: mockedCloseModal,
+    });
 
     // Act
     render(
-      <Modal isOpen={true} onClose={onClose}>
+      <Modal isOpen={true}>
         <div>Hola!</div>
       </Modal>,
     );
     await user.click(screen.getByRole('presentation'));
 
     // Assert
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(mockedCloseModal).toHaveBeenCalledTimes(1);
   });
 
   /**
@@ -83,18 +87,21 @@ describe('UI: modal', () => {
   it('should not close modal when clicking inside of modal', async () => {
     // Arrange
     const user = userEvent.setup();
-    const onClose = vi.fn();
+    const mockedCloseModal = vi.fn();
+    useModalStore.setState({
+      closeModal: mockedCloseModal,
+    });
 
     // Act
     render(
-      <Modal isOpen={true} onClose={onClose}>
+      <Modal isOpen={true}>
         <div>Hola!</div>
       </Modal>,
     );
     await user.click(screen.getByRole('dialog'));
 
     // Assert
-    expect(onClose).not.toHaveBeenCalled();
+    expect(mockedCloseModal).not.toHaveBeenCalled();
   });
 
   /**
@@ -103,18 +110,19 @@ describe('UI: modal', () => {
   it('should close modal with press escape', async () => {
     // Arrange
     const user = userEvent.setup();
-    const onClose = vi.fn();
-
+    const mockedCloseModal = vi.fn();
+    useModalStore.setState({
+      closeModal: mockedCloseModal,
+    });
     // Act
     render(
-      <Modal isOpen={true} onClose={onClose}>
+      <Modal isOpen={true}>
         <div>Hola!</div>
       </Modal>,
     );
     await user.keyboard('{Escape}');
-
     // Assert
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(mockedCloseModal).toHaveBeenCalledTimes(1);
   });
 
   /**
@@ -123,17 +131,20 @@ describe('UI: modal', () => {
   it('should not close modal when press something different to escape', async () => {
     // Arrange
     const user = userEvent.setup();
-    const onClose = vi.fn();
+    const mockedCloseModal = vi.fn();
+    useModalStore.setState({
+      closeModal: mockedCloseModal,
+    });
 
     // Act
     render(
-      <Modal isOpen={true} onClose={onClose}>
+      <Modal isOpen={true}>
         <div>Hola!</div>
       </Modal>,
     );
     await user.keyboard('{Enter}');
 
     // Assert
-    expect(onClose).not.toHaveBeenCalled();
+    expect(mockedCloseModal).not.toHaveBeenCalled();
   });
 });

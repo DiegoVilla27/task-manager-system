@@ -1,6 +1,6 @@
 import { Button, Input } from '@shared/components/ui';
 import { Filter, Search, X } from 'lucide-react';
-import { TaskStatus } from '../../interfaces/response';
+import { TaskStatus } from '../../../interfaces/response';
 import useFiltersTasks from './hooks';
 
 interface Props {

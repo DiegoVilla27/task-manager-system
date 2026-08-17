@@ -1,20 +1,13 @@
+import { completeTaskSvc, startTaskSvc } from '@features/tasks/services';
 import type { DropResult } from '@hello-pangea/dnd';
-import { completeTaskSvc, startTaskSvc } from '@features/tasks/pages/service';
-import type { TaskStatusType } from '../../../interfaces/response';
-import useTableTasks from '../../table/hooks';
 import { toast } from 'sonner';
+import type { TaskStatusType } from '../../../../interfaces/response';
 
 interface Props {
   onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
-  onTaskDeleted?: () => void;
 }
 
-const useKanbanTasks = ({ onTaskStatusChange, onTaskDeleted }: Props) => {
-  const { copiedId, handleCopyId, formatDate, deleteTask } = useTableTasks({
-    onTaskStatusChange,
-    onTaskDeleted,
-  });
-
+const useKanbanTasks = ({ onTaskStatusChange }: Props) => {
   const handleDragEnd = async (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
@@ -67,10 +60,6 @@ const useKanbanTasks = ({ onTaskStatusChange, onTaskDeleted }: Props) => {
   };
 
   return {
-    copiedId,
-    handleCopyId,
-    formatDate,
-    deleteTask,
     handleDragEnd,
   };
 };

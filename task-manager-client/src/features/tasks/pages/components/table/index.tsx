@@ -19,7 +19,7 @@ import {
   Timer,
   Trash2,
 } from 'lucide-react';
-import type { Task, TaskStatusType } from '../../interfaces/response';
+import type { Task, TaskStatusType } from '../../../interfaces/response';
 import useTableTasks from './hooks';
 
 interface Props {
@@ -30,7 +30,6 @@ interface Props {
   totalElements: number;
   onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
   onTaskDeleted?: () => void;
-  onEditTask?: (task: Task) => void;
 }
 
 const TableTasks: React.FC<Props> = ({
@@ -41,11 +40,9 @@ const TableTasks: React.FC<Props> = ({
   totalPages,
   onTaskStatusChange,
   onTaskDeleted,
-  onEditTask,
 }: Props) => {
-  const { copiedId, handleCopyId, formatDate, startTask, completeTask, deleteTask } = useTableTasks(
-    { onTaskStatusChange, onTaskDeleted },
-  );
+  const { copiedId, handleCopyId, formatDate, startTask, completeTask, deleteTask, openModal } =
+    useTableTasks({ onTaskStatusChange, onTaskDeleted });
 
   const renderStatusBadge = (status: TaskStatusType, taskId: string) => {
     switch (status) {
@@ -197,7 +194,7 @@ const TableTasks: React.FC<Props> = ({
                         size="sm"
                         className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40"
                         title="Editar tarea"
-                        onClick={() => onEditTask?.(task)}
+                        onClick={() => openModal(task)}
                       >
                         <Pencil className="w-4 h-4" />
                       </Button>

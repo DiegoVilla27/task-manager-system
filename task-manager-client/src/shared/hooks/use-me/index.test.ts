@@ -8,10 +8,10 @@
 import StorageService from '@shared/utils/storage';
 import { renderHook, waitFor } from '@testing-library/react';
 import useMe from '.';
-import { getMeSvc } from '@features/users/service';
+import { getMeSvc } from '@features/users/services';
 
 // Mock user service endpoint function
-vi.mock('@features/users/service', () => ({
+vi.mock('@features/users/services', () => ({
   getMeSvc: vi.fn(),
 }));
 

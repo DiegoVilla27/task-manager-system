@@ -1,14 +1,16 @@
 import { Button } from '@shared/components/ui';
 import { LayoutGrid, Plus, Table as TableIcon } from 'lucide-react';
 import type { ViewMode } from '../../hooks';
+import useModalStore from '@features/tasks/store/modalStore';
 
 interface Props {
-  setIsModalOpen: (value: boolean) => void;
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
 }
 
-const HeaderTasks = ({ setIsModalOpen, viewMode, setViewMode }: Props) => {
+const HeaderTasks = ({ viewMode, setViewMode }: Props) => {
+  const { openModal } = useModalStore();
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
@@ -52,7 +54,7 @@ const HeaderTasks = ({ setIsModalOpen, viewMode, setViewMode }: Props) => {
         <Button
           variant="primary"
           leftIcon={<Plus className="w-4 h-4" />}
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => openModal()}
         >
           Nueva Tarea
         </Button>

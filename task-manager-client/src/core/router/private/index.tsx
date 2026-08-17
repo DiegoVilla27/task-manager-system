@@ -1,5 +1,5 @@
 import PrivateGuard from '@core/guards/private';
-import MainLayout from '@features/tasks/layouts';
+import MainLayout from '@features/tasks/layout';
 import { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 
