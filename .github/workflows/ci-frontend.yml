@@ -5,20 +5,34 @@ on:
     branches:
       - dev
       - main
-    paths:
-      - 'task-manager-client/**'
-      - '.github/workflows/ci-frontend.yml'
   pull_request:
     branches:
       - dev
       - main
-    paths:
-      - 'task-manager-client/**'
-      - '.github/workflows/ci-frontend.yml'
 
 jobs:
+  changes:
+    name: 🔍 Check Frontend Changes
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check for frontend changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'task-manager-client/**'
+              - '.github/workflows/ci-frontend.yml'
+
   format:
     name: 🎨 Verify Code Formatting (Prettier)
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -56,7 +70,8 @@ jobs:
 
   lint:
     name: ⚡ Static Analysis (Oxlint)
-    needs: format
+    needs: [changes, format]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -85,7 +100,8 @@ jobs:
 
   typecheck:
     name: 🛡️ Strict TypeScript Typecheck (tsc)
-    needs: lint
+    needs: [changes, lint]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -112,9 +128,10 @@ jobs:
       - name: 🛡️ Typecheck
         run: pnpm run typecheck
 
-  test:
-    name: 🧪 Vitest Test Suite & Coverage
-    needs: typecheck
+  unit-tests:
+    name: 🧪 Unit Tests & Vitest Coverage
+    needs: [changes, typecheck]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -141,9 +158,40 @@ jobs:
       - name: 🧪 Run Tests & Coverage
         run: pnpm run test:coverage
 
+  integration-tests:
+    name: 🔗 Integration Tests (MSW / Component)
+    needs: [changes, typecheck]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🔗 Run Integration Tests (if any)
+        run: pnpm run test:integration
+
   sonar:
     name: 🔍 SonarCloud Code Analysis & Quality Gate
-    needs: test
+    needs: [changes, unit-tests, integration-tests]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -188,7 +236,8 @@ jobs:
 
   build:
     name: 📦 Build Production Bundle (Vite)
-    needs: sonar
+    needs: [changes, sonar]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
