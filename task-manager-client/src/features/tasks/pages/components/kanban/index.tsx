@@ -80,6 +80,7 @@ export const KanbanTasks: React.FC<Props> = ({
                       {columnTasks.length > 0 ? (
                         columnTasks.map((task, index) => (
                           <ColumnDraggable
+                            key={task.id}
                             index={index}
                             task={task}
                             onTaskStatusChange={onTaskStatusChange}
