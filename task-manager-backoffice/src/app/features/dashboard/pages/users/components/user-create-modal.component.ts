@@ -40,7 +40,7 @@ import { UserMock } from '../models/user.model';
       title="Nuevo Usuario"
       subtitle="Otorga acceso al panel administrativo y asigna un rol inicial"
       size="xl"
-      (close)="handleClose()"
+      (closed)="handleClose()"
     >
       <form [formGroup]="form" (ngSubmit)="handleSubmit()" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -133,7 +133,7 @@ export class UserCreateModalComponent {
 
   readonly isOpen = input.required<boolean>();
 
-  readonly close = output<void>();
+  readonly closed = output<void>();
   readonly created = output<Partial<UserMock>>();
 
   readonly roleOptions: SelectOption[] = [
@@ -182,7 +182,7 @@ export class UserCreateModalComponent {
       department: 'Frontend Engineering',
       status: 'ACTIVE',
     });
-    this.close.emit();
+    this.closed.emit();
   }
 
   handleSubmit(): void {

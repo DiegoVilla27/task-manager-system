@@ -28,7 +28,7 @@
   <!-- 5. Create Task Modal -->
   <app-task-create-modal
     [isOpen]="isCreateModalOpen()"
-    (close)="closeCreateModal()"
+    (closed)="closeCreateModal()"
     (created)="handleCreateTask($event)"
   />
 
@@ -36,7 +36,7 @@
   <app-task-edit-modal
     [isOpen]="isEditModalOpen()"
     [task]="selectedTask()"
-    (close)="closeEditModal()"
+    (closed)="closeEditModal()"
     (saved)="handleSaveTask($event)"
   />
 
@@ -44,7 +44,7 @@
   <app-task-delete-modal
     [isOpen]="isDeleteModalOpen()"
     [task]="selectedTask()"
-    (close)="closeDeleteModal()"
+    (closed)="closeDeleteModal()"
     (confirmed)="handleDeleteTask($event)"
   />
 </div>

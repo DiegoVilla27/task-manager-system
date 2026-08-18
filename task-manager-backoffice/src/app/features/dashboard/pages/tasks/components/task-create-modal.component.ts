@@ -42,7 +42,7 @@ import { TaskMock } from '../models/task.model';
       title="Crear Nueva Tarea"
       subtitle="Asigna y planifica una nueva actividad para el equipo"
       size="xl"
-      (close)="handleClose()"
+      (closed)="handleClose()"
     >
       <form [formGroup]="form" (ngSubmit)="handleSubmit()" class="space-y-4">
         <!-- Title -->
@@ -149,7 +149,7 @@ export class TaskCreateModalComponent {
 
   readonly isOpen = input.required<boolean>();
 
-  readonly close = output<void>();
+  readonly closed = output<void>();
   readonly created = output<Partial<TaskMock>>();
 
   readonly statusOptions: SelectOption[] = [
@@ -200,7 +200,7 @@ export class TaskCreateModalComponent {
       assignee: 'Diego Villa',
       tags: 'Backend, API',
     });
-    this.close.emit();
+    this.closed.emit();
   }
 
   handleSubmit(): void {

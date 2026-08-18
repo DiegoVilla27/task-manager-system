@@ -41,7 +41,7 @@ import { UserMock } from '../models/user.model';
       [title]="'Editar Usuario: ' + (user()?.name || '')"
       subtitle="Modifica el rol, departamento y estado de la cuenta"
       size="xl"
-      (close)="handleClose()"
+      (closed)="handleClose()"
     >
       @if (user()) {
         <form [formGroup]="form" (ngSubmit)="handleSubmit()" class="space-y-4">
@@ -131,7 +131,7 @@ export class UserEditModalComponent {
   readonly isOpen = input.required<boolean>();
   readonly user = input<UserMock | null>(null);
 
-  readonly close = output<void>();
+  readonly closed = output<void>();
   readonly saved = output<UserMock>();
 
   readonly roleOptions: SelectOption[] = [
@@ -188,7 +188,7 @@ export class UserEditModalComponent {
   }
 
   handleClose(): void {
-    this.close.emit();
+    this.closed.emit();
   }
 
   handleSubmit(): void {

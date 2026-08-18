@@ -17,7 +17,7 @@ import { TaskMock } from '../models/task.model';
       [isOpen]="isOpen()"
       title="Eliminar Tarea"
       size="md"
-      (close)="handleClose()"
+      (closed)="handleClose()"
     >
       @if (task()) {
         <div class="space-y-4">
@@ -86,11 +86,11 @@ export class TaskDeleteModalComponent {
   readonly isOpen = input.required<boolean>();
   readonly task = input<TaskMock | null>(null);
 
-  readonly close = output<void>();
+  readonly closed = output<void>();
   readonly confirmed = output<string>();
 
   handleClose(): void {
-    this.close.emit();
+    this.closed.emit();
   }
 
   handleConfirm(): void {

@@ -17,7 +17,7 @@ import { UserMock } from '../models/user.model';
       [isOpen]="isOpen()"
       title="Eliminar Usuario"
       size="md"
-      (close)="handleClose()"
+      (closed)="handleClose()"
     >
       @if (user()) {
         <div class="space-y-4">
@@ -85,11 +85,11 @@ export class UserDeleteModalComponent {
   readonly isOpen = input.required<boolean>();
   readonly user = input<UserMock | null>(null);
 
-  readonly close = output<void>();
+  readonly closed = output<void>();
   readonly confirmed = output<string>();
 
   handleClose(): void {
-    this.close.emit();
+    this.closed.emit();
   }
 
   handleConfirm(): void {

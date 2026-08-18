@@ -95,12 +95,8 @@ export class SelectComponent implements ControlValueAccessor {
   protected readonly val = signal<string | number | null>('');
   protected readonly isCvaDisabled = signal<boolean>(false);
 
-  private onChange: (value: unknown) => void = (val: unknown) => {
-    void val;
-  };
-  private onTouched: () => void = () => {
-    /* initial noop */
-  };
+  private onChange: (value: unknown) => void = () => undefined;
+  private onTouched: () => void = () => undefined;
 
   protected readonly effectiveDisabled = computed(
     () => this.disabled() || this.isCvaDisabled(),

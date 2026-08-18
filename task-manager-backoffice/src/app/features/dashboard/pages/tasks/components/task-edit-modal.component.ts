@@ -43,7 +43,7 @@ import { TaskMock } from '../models/task.model';
       [title]="'Editar Tarea: ' + (task()?.code || '')"
       subtitle="Actualiza el estado, avance y asignación de la tarea"
       size="xl"
-      (close)="handleClose()"
+      (closed)="handleClose()"
     >
       @if (task()) {
         <form [formGroup]="form" (ngSubmit)="handleSubmit()" class="space-y-4">
@@ -147,7 +147,7 @@ export class TaskEditModalComponent {
   readonly isOpen = input.required<boolean>();
   readonly task = input<TaskMock | null>(null);
 
-  readonly close = output<void>();
+  readonly closed = output<void>();
   readonly saved = output<TaskMock>();
 
   readonly statusOptions: SelectOption[] = [
@@ -198,7 +198,7 @@ export class TaskEditModalComponent {
   }
 
   handleClose(): void {
-    this.close.emit();
+    this.closed.emit();
   }
 
   handleSubmit(): void {

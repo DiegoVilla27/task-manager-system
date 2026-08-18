@@ -124,7 +124,7 @@ export class ModalComponent implements OnDestroy {
   readonly size = input<ModalSize>('md');
   readonly showCloseButton = input<boolean>(true);
 
-  readonly close = output<void>();
+  readonly closed = output<void>();
 
   protected readonly modalTemplate =
     viewChild<TemplateRef<unknown>>('modalTemplate');
@@ -159,14 +159,12 @@ export class ModalComponent implements OnDestroy {
   }
 
   private attachToBody(template: TemplateRef<unknown>): void {
-    if (!this.portalOutlet) {
-      this.portalOutlet = new DomPortalOutlet(
-        this.document.body,
-        this.vcr,
-        this.appRef,
-        this.envInjector,
-      );
-    }
+    this.portalOutlet ??= new DomPortalOutlet(
+      this.document.body,
+      this.vcr,
+      this.appRef,
+      this.envInjector,
+    );
 
     if (!this.portalOutlet.hasAttached()) {
       const portal = new TemplatePortal(template, this.vcr);
@@ -183,7 +181,7 @@ export class ModalComponent implements OnDestroy {
   }
 
   protected handleClose(): void {
-    this.close.emit();
+    this.closed.emit();
   }
 
   ngOnDestroy(): void {

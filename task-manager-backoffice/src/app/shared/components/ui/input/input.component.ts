@@ -75,12 +75,8 @@ export class InputComponent implements ControlValueAccessor {
   protected readonly val = signal<string>('');
   protected readonly isCvaDisabled = signal<boolean>(false);
 
-  private onChange: (value: string) => void = (val: string) => {
-    void val;
-  };
-  private onTouched: () => void = () => {
-    /* initial noop */
-  };
+  private onChange: (value: string) => void = () => undefined;
+  private onTouched: () => void = () => undefined;
 
   protected readonly effectiveDisabled = computed(
     () => this.disabled() || this.isCvaDisabled(),

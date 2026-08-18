@@ -33,7 +33,7 @@
   <!-- 5. Create User Modal -->
   <app-user-create-modal
     [isOpen]="isCreateModalOpen()"
-    (close)="closeCreateModal()"
+    (closed)="closeCreateModal()"
     (created)="handleCreateUser($event)"
   />
 
@@ -41,7 +41,7 @@
   <app-user-edit-modal
     [isOpen]="isEditModalOpen()"
     [user]="selectedUser()"
-    (close)="closeEditModal()"
+    (closed)="closeEditModal()"
     (saved)="handleSaveUser($event)"
   />
 
@@ -49,7 +49,7 @@
   <app-user-delete-modal
     [isOpen]="isDeleteModalOpen()"
     [user]="selectedUser()"
-    (close)="closeDeleteModal()"
+    (closed)="closeDeleteModal()"
     (confirmed)="handleDeleteUser($event)"
   />
 </div>
