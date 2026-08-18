@@ -29,8 +29,8 @@ jobs:
               - 'task-manager-client/**'
               - '.github/workflows/ci-frontend.yml'
 
-  format:
-    name: 🎨 Verify Code Formatting (Prettier)
+  static-checks:
+    name: ⚡ Fast-Fail Quality Gate (Format, Lint & Types)
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
@@ -65,72 +65,18 @@ jobs:
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: 🎨 Prettier Check
+      - name: 🎨 Prettier Format Check
         run: pnpm exec prettier --check "src/**/*.{ts,tsx,json,css,html}"
-
-  lint:
-    name: ⚡ Static Analysis (Oxlint)
-    needs: [changes, format]
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager-client
-    steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 📦 Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11
-
-      - name: 🟢 Set up Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
-
-      - name: 📥 Install Dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: ⚡ Run Oxlint
         run: pnpm run lint
 
-  typecheck:
-    name: 🛡️ Strict TypeScript Typecheck (tsc)
-    needs: [changes, lint]
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager-client
-    steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 📦 Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11
-
-      - name: 🟢 Set up Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
-
-      - name: 📥 Install Dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: 🛡️ Typecheck
+      - name: 🛡️ Strict TypeScript Typecheck
         run: pnpm run typecheck
 
   unit-tests:
     name: 🧪 Unit Tests & Vitest Coverage
-    needs: [changes, typecheck]
+    needs: [changes, static-checks]
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
@@ -155,12 +101,19 @@ jobs:
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: 🧪 Run Tests & Coverage
+      - name: 🧪 Run Tests & Generate Coverage
         run: pnpm run test:coverage
+
+      - name: 📤 Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: task-manager-client/coverage/lcov.info
+          retention-days: 1
 
   integration-tests:
     name: 🔗 Integration Tests (MSW / Component)
-    needs: [changes, typecheck]
+    needs: [changes, static-checks]
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
@@ -188,55 +141,9 @@ jobs:
       - name: 🔗 Run Integration Tests (if any)
         run: pnpm run test:integration
 
-  sonar:
-    name: 🔍 SonarCloud Code Analysis & Quality Gate
-    needs: [changes, unit-tests, integration-tests]
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager-client
-    steps:
-      - name: 📥 Checkout Repository (Full History)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: 📦 Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11
-
-      - name: 🟢 Set up Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-          cache-dependency-path: './task-manager-client/pnpm-lock.yaml'
-
-      - name: 📥 Install Dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: 🧪 Run Vitest Coverage
-        run: pnpm run test:coverage
-
-      - name: 🔍 SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: task-manager-client
-          args: >
-            -Dsonar.projectKey=DiegoVilla27_task-manager-system
-            -Dsonar.organization=diegovilla27
-            -Dsonar.sources=src
-            -Dsonar.tests=src
-            -Dsonar.test.inclusions=src/**/*.test.ts,src/**/*.test.tsx
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-
   build:
     name: 📦 Build Production Bundle (Vite)
-    needs: [changes, sonar]
+    needs: [changes, static-checks]
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
@@ -263,3 +170,37 @@ jobs:
 
       - name: 📦 Build Vite Bundle
         run: pnpm exec vite build
+
+  sonar:
+    name: 🔍 SonarCloud Code Analysis & Quality Gate
+    needs: [changes, unit-tests]
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-client
+    steps:
+      - name: 📥 Checkout Repository (Full History)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📥 Download Coverage Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: task-manager-client/coverage
+
+      - name: 🔍 SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: task-manager-client
+          args: >
+            -Dsonar.projectKey=DiegoVilla27_task-manager-system
+            -Dsonar.organization=diegovilla27
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=src/**/*.test.ts,src/**/*.test.tsx
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
