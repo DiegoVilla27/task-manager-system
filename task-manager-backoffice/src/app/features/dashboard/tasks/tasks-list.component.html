@@ -1,0 +1,487 @@
+<div class="space-y-6">
+  <!-- Page Header & Actions -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-1">
+        <span>Backoffice</span>
+        <span>/</span>
+        <span class="text-slate-400">Operaciones</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Gestión de Tareas</h1>
+      <p class="text-sm text-slate-400 mt-1">Supervisión, asignación y seguimiento de actividades del sistema</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- New Task CTA -->
+      <button
+        type="button"
+        (click)="openCreateModal()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 active:scale-95 transition-all"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Nueva Tarea</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Grid / Task Metrics (4 Estados sin "En Revisión") -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <!-- Stat 1 -->
+    <div class="p-4.5 rounded-2xl bg-slate-900/90 border border-slate-800/80 shadow-xs">
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Tareas</p>
+      <p class="text-2xl font-bold text-white mt-1">38</p>
+      <span class="text-[11px] text-slate-500">Registradas en el backoffice</span>
+    </div>
+    <!-- Stat 2 -->
+    <div class="p-4.5 rounded-2xl bg-slate-900/90 border border-slate-800/80 shadow-xs">
+      <div class="flex items-center justify-between">
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Por Hacer</p>
+        <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+      </div>
+      <p class="text-2xl font-bold text-slate-200 mt-1">16</p>
+      <span class="text-[11px] text-slate-500">Pendientes de inicio</span>
+    </div>
+    <!-- Stat 3 -->
+    <div class="p-4.5 rounded-2xl bg-slate-900/90 border border-slate-800/80 shadow-xs">
+      <div class="flex items-center justify-between">
+        <p class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">En Progreso</p>
+        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+      </div>
+      <p class="text-2xl font-bold text-indigo-300 mt-1">15</p>
+      <span class="text-[11px] text-indigo-400/80">En desarrollo activo</span>
+    </div>
+    <!-- Stat 4 -->
+    <div class="p-4.5 rounded-2xl bg-slate-900/90 border border-slate-800/80 shadow-xs">
+      <div class="flex items-center justify-between">
+        <p class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Completadas</p>
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      </div>
+      <p class="text-2xl font-bold text-emerald-300 mt-1">7</p>
+      <span class="text-[11px] text-emerald-400/80">Finalizadas con éxito</span>
+    </div>
+  </div>
+
+  <!-- Filters & Search Toolbar (Sin filtro de prioridad) -->
+  <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3">
+    <div class="flex flex-1 flex-col sm:flex-row items-center gap-3 w-full">
+      <!-- Search Input -->
+      <div class="relative w-full sm:w-80">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          placeholder="Buscar tarea por título, código o tag..."
+          class="w-full pl-10 pr-4 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
+        />
+      </div>
+
+      <!-- Status Filter -->
+      <select class="w-full sm:w-48 py-2 px-3 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-300 text-xs focus:outline-none focus:border-indigo-500">
+        <option value="">Todos los Estados</option>
+        <option value="TODO">Por Hacer</option>
+        <option value="IN_PROGRESS">En Progreso</option>
+        <option value="COMPLETED">Completada</option>
+      </select>
+    </div>
+
+    <div class="flex items-center gap-2 self-end sm:self-center">
+      <button
+        type="button"
+        class="px-3 py-2 rounded-xl bg-slate-950/70 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white text-xs transition-colors"
+      >
+        Limpiar Filtros
+      </button>
+    </div>
+  </div>
+
+  <!-- Table View Card (Única vista, sin modo Kanban) -->
+  <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-slate-950/60 border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <tr>
+            <th scope="col" class="px-6 py-4">Código & Tarea</th>
+            <th scope="col" class="px-6 py-4">Asignado a</th>
+            <th scope="col" class="px-6 py-4">Estado</th>
+            <th scope="col" class="px-6 py-4">Progreso</th>
+            <th scope="col" class="px-6 py-4">Fecha Límite</th>
+            <th scope="col" class="px-6 py-4 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/80">
+          @for (task of tasks(); track task.id) {
+            <tr class="hover:bg-slate-800/40 transition-colors">
+              <!-- Task Details -->
+              <td class="px-6 py-4">
+                <div class="max-w-md">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="px-2 py-0.5 rounded-md bg-slate-800 text-indigo-400 font-mono text-[11px] font-bold border border-slate-700">
+                      {{ task.code }}
+                    </span>
+                    @for (tag of task.tags; track tag) {
+                      <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 text-slate-400 border border-slate-800">
+                        {{ tag }}
+                      </span>
+                    }
+                  </div>
+                  <p class="font-semibold text-white text-sm leading-snug">{{ task.title }}</p>
+                  <p class="text-slate-400 text-xs mt-1 line-clamp-1">{{ task.description }}</p>
+                </div>
+              </td>
+
+              <!-- Assignee -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-tr {{ task.assignee.avatarBg }} flex items-center justify-center text-xs font-bold text-white shadow-sm ring-1 ring-slate-700 shrink-0">
+                    {{ task.assignee.initials }}
+                  </div>
+                  <div>
+                    <p class="font-medium text-slate-200">{{ task.assignee.name }}</p>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Status -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                @if (task.status === 'TODO') {
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-500/15 text-slate-300 border border-slate-600/40">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                    Por Hacer
+                  </span>
+                } @else if (task.status === 'IN_PROGRESS') {
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+                    En Progreso
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    Completada
+                  </span>
+                }
+              </td>
+
+              <!-- Progress Bar -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="w-32">
+                  <div class="flex items-center justify-between text-[11px] mb-1">
+                    <span class="text-slate-400">Avance</span>
+                    <span class="font-bold text-white font-mono">{{ task.progress }}%</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      class="h-1.5 rounded-full"
+                      [class.bg-emerald-500]="task.progress === 100"
+                      [class.bg-indigo-500]="task.progress > 0 && task.progress < 100"
+                      [class.bg-slate-700]="task.progress === 0"
+                      [style.width.%]="task.progress"
+                    ></div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Due Date -->
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-1.5 text-slate-300">
+                  <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>{{ task.dueDate }}</span>
+                </div>
+              </td>
+
+              <!-- Actions CRUD -->
+              <td class="px-6 py-4 whitespace-nowrap text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  <button
+                    type="button"
+                    (click)="openEditModal(task)"
+                    class="p-2 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+                    title="Editar tarea"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="openDeleteModal(task)"
+                    class="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                    title="Eliminar tarea"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="px-6 py-4 bg-slate-950/60 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-xs text-slate-400">
+        Mostrando <span class="font-semibold text-white">1 - 5</span> de <span class="font-semibold text-white">38</span> tareas
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" disabled class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-600 cursor-not-allowed text-xs">
+          Anterior
+        </button>
+        <button type="button" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold text-xs">
+          1
+        </button>
+        <button type="button" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 text-xs">
+          2
+        </button>
+        <button type="button" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 text-xs">
+          3
+        </button>
+        <button type="button" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 text-xs">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE TASK MODAL MOCKUP -->
+  @if (isCreateModalOpen()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" (click)="closeCreateModal()"></div>
+      <div class="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-800">
+          <div>
+            <h3 class="text-xl font-bold text-white">Crear Nueva Tarea</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Asigna y planifica una nueva actividad para el equipo</p>
+          </div>
+          <button
+            type="button"
+            (click)="closeCreateModal()"
+            class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form class="space-y-4" (submit)="$event.preventDefault()">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Título de la Tarea</label>
+            <input
+              type="text"
+              placeholder="Ej. Implementar integración OAuth2 con Google"
+              class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Descripción Detallada</label>
+            <textarea
+              rows="3"
+              placeholder="Detalla los requerimientos, endpoints necesarios o criterios de aceptación..."
+              class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Estado Inicial</label>
+              <select class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-indigo-500">
+                <option value="TODO" selected>Por Hacer</option>
+                <option value="IN_PROGRESS">En Progreso</option>
+                <option value="COMPLETED">Completada</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Asignar Responsable</label>
+              <select class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-indigo-500">
+                <option value="DV">Diego Villa (Super Admin)</option>
+                <option value="AM">Alejandro Morales (Frontend)</option>
+                <option value="CR">Camila Rodriguez (Manager)</option>
+                <option value="SH">Sofia Hernandez (Backend)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Fecha Límite</label>
+              <input
+                type="date"
+                class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Etiquetas (separadas por comas)</label>
+              <input
+                type="text"
+                placeholder="Backend, API, Sprint-4, Postgres"
+                class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+            <button
+              type="button"
+              (click)="closeCreateModal()"
+              class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              (click)="closeCreateModal()"
+              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all"
+            >
+              Guardar Tarea
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- EDIT TASK MODAL MOCKUP -->
+  @if (isEditModalOpen() && selectedTask()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" (click)="closeEditModal()"></div>
+      <div class="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-800">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-mono font-bold">{{ selectedTask()?.code }}</span>
+              <h3 class="text-xl font-bold text-white">Editar Tarea</h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Modificar estado o responsable</p>
+          </div>
+          <button
+            type="button"
+            (click)="closeEditModal()"
+            class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form class="space-y-4" (submit)="$event.preventDefault()">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Título de la Tarea</label>
+            <input
+              type="text"
+              [value]="selectedTask()?.title"
+              class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Descripción Detallada</label>
+            <textarea
+              rows="3"
+              class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+            >{{ selectedTask()?.description }}</textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Estado</label>
+              <select class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-200 text-xs focus:outline-none focus:border-indigo-500">
+                <option value="TODO" [selected]="selectedTask()?.status === 'TODO'">Por Hacer</option>
+                <option value="IN_PROGRESS" [selected]="selectedTask()?.status === 'IN_PROGRESS'">En Progreso</option>
+                <option value="COMPLETED" [selected]="selectedTask()?.status === 'COMPLETED'">Completada</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Asignado a</label>
+              <input
+                type="text"
+                [value]="selectedTask()?.assignee?.name"
+                class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Avance (%)</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              [value]="selectedTask()?.progress"
+              class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+            <button
+              type="button"
+              (click)="closeEditModal()"
+              class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              (click)="closeEditModal()"
+              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all"
+            >
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- DELETE TASK MODAL MOCKUP -->
+  @if (isDeleteModalOpen() && selectedTask()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm" (click)="closeDeleteModal()"></div>
+      <div class="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">¿Eliminar Tarea?</h3>
+            <p class="text-xs text-slate-400">Esta acción no se puede deshacer.</p>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-300 leading-relaxed mb-6">
+          Estás por eliminar la tarea <span class="font-bold text-white">[{{ selectedTask()?.code }}]</span> <span class="text-slate-200 font-medium">"{{ selectedTask()?.title }}"</span>.
+        </p>
+
+        <div class="flex items-center justify-end gap-3">
+          <button
+            type="button"
+            (click)="closeDeleteModal()"
+            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="closeDeleteModal()"
+            class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-lg shadow-rose-600/30 transition-all"
+          >
+            Confirmar Eliminación
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
