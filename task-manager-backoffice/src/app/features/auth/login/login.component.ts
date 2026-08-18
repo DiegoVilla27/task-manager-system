@@ -1,25 +1,31 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { LoginBrandComponent } from './components/login-brand.component';
+import {
+  LoginFormComponent,
+  LoginFormValue,
+} from './components/login-form.component';
+import { LoginSsoComponent } from './components/login-sso.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [
+    CommonModule,
+    LoginBrandComponent,
+    LoginFormComponent,
+    LoginSsoComponent,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
-  // Visual state mockups
-  readonly showPassword = signal<boolean>(false);
-  readonly isRememberMeChecked = signal<boolean>(true);
-
-  togglePasswordVisibility(): void {
-    this.showPassword.update((v) => !v);
+  handleLoginSubmit(values: LoginFormValue): void {
+    console.log('Login attempt:', values.email);
   }
 
-  toggleRememberMe(): void {
-    this.isRememberMeChecked.update((v) => !v);
+  handleSsoSelect(provider: 'github' | 'okta'): void {
+    console.log('SSO Provider selected:', provider);
   }
 }

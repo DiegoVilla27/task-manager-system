@@ -21,15 +21,25 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should toggle password visibility', () => {
-    expect(component.showPassword()).toBeFalse();
-    component.togglePasswordVisibility();
-    expect(component.showPassword()).toBeTrue();
+  it('should handle login submit', () => {
+    spyOn(console, 'log');
+    component.handleLoginSubmit({
+      email: 'test@example.com',
+      password: 'password123',
+      rememberMe: true,
+    });
+    expect(console.log).toHaveBeenCalledWith(
+      'Login attempt:',
+      'test@example.com',
+    );
   });
 
-  it('should toggle remember me', () => {
-    expect(component.isRememberMeChecked()).toBeTrue();
-    component.toggleRememberMe();
-    expect(component.isRememberMeChecked()).toBeFalse();
+  it('should handle SSO select', () => {
+    spyOn(console, 'log');
+    component.handleSsoSelect('github');
+    expect(console.log).toHaveBeenCalledWith(
+      'SSO Provider selected:',
+      'github',
+    );
   });
 });

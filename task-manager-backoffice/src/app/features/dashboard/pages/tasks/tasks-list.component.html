@@ -1,0 +1,50 @@
+<div class="space-y-6">
+  <!-- 1. Header & Actions -->
+  <app-tasks-header (newTaskClicked)="openCreateModal()" />
+
+  <!-- 2. Stats Grid -->
+  <app-tasks-stats [tasks]="tasks()" [totalRegistered]="38" />
+
+  <!-- 3. Filters & Search Toolbar -->
+  <app-tasks-filters
+    [searchQuery]="searchQuery()"
+    [statusFilter]="statusFilter()"
+    (searchChange)="handleSearchChange($event)"
+    (statusChange)="handleStatusChange($event)"
+    (clearFilters)="handleClearFilters()"
+  />
+
+  <!-- 4. Tasks Table & Pagination -->
+  <app-tasks-table
+    [tasks]="filteredTasks()"
+    [totalTasks]="tasks().length"
+    [currentPage]="currentPage()"
+    [itemsPerPage]="pageSize()"
+    (edit)="openEditModal($event)"
+    (delete)="openDeleteModal($event)"
+    (pageChange)="handlePageChange($event)"
+  />
+
+  <!-- 5. Create Task Modal -->
+  <app-task-create-modal
+    [isOpen]="isCreateModalOpen()"
+    (closed)="closeCreateModal()"
+    (created)="handleCreateTask($event)"
+  />
+
+  <!-- 6. Edit Task Modal -->
+  <app-task-edit-modal
+    [isOpen]="isEditModalOpen()"
+    [task]="selectedTask()"
+    (closed)="closeEditModal()"
+    (saved)="handleSaveTask($event)"
+  />
+
+  <!-- 7. Delete Task Modal -->
+  <app-task-delete-modal
+    [isOpen]="isDeleteModalOpen()"
+    [task]="selectedTask()"
+    (closed)="closeDeleteModal()"
+    (confirmed)="handleDeleteTask($event)"
+  />
+</div>
