@@ -232,6 +232,8 @@ jobs:
             -Dsonar.sources=src
             -Dsonar.tests=src
             -Dsonar.test.inclusions=src/**/*.spec.ts
+            -Dsonar.exclusions=src/main.ts
+            -Dsonar.coverage.exclusions=src/main.ts,src/**/*.spec.ts
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
 
   build:
