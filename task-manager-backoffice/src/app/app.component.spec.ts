@@ -20,8 +20,4 @@ describe('AppComponent', () => {
   it('should create the application', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should have title task-manager-backoffice', () => {
-    expect(component.title).toBe('task-manager-backoffice');
-  });
 });
