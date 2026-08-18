@@ -38,7 +38,8 @@ export class TasksListComponent {
       id: 'TSK-001',
       code: 'TM-101',
       title: 'Configurar arquitectura de microservicios Spring Boot',
-      description: 'Implementar gateway y servicio de autenticación JWT centralizado.',
+      description:
+        'Implementar gateway y servicio de autenticación JWT centralizado.',
       status: 'IN_PROGRESS',
       assignee: {
         name: 'Diego Villa',
@@ -53,7 +54,8 @@ export class TasksListComponent {
       id: 'TSK-002',
       code: 'TM-102',
       title: 'Maquetar Backoffice con Tailwind CSS v4 y OnPush',
-      description: 'Crear vistas de autenticación, administración de usuarios y tareas.',
+      description:
+        'Crear vistas de autenticación, administración de usuarios y tareas.',
       status: 'IN_PROGRESS',
       assignee: {
         name: 'Alejandro Morales',
@@ -68,7 +70,8 @@ export class TasksListComponent {
       id: 'TSK-003',
       code: 'TM-103',
       title: 'Auditoría de seguridad y penetración OWASP',
-      description: 'Verificar cabeceras CORS, CSRF tokens y cifrado de datos sensibles.',
+      description:
+        'Verificar cabeceras CORS, CSRF tokens y cifrado de datos sensibles.',
       status: 'TODO',
       assignee: {
         name: 'Camila Rodriguez',
@@ -83,7 +86,8 @@ export class TasksListComponent {
       id: 'TSK-004',
       code: 'TM-104',
       title: 'Diseñar pipeline CI/CD con Docker y Husky',
-      description: 'Automatizar pruebas unitarias, linting y generación de imágenes Docker.',
+      description:
+        'Automatizar pruebas unitarias, linting y generación de imágenes Docker.',
       status: 'COMPLETED',
       assignee: {
         name: 'Sofia Hernandez',
@@ -98,7 +102,8 @@ export class TasksListComponent {
       id: 'TSK-005',
       code: 'TM-105',
       title: 'Optimizar índices de base de datos PostgreSQL',
-      description: 'Analizar planes de ejecución y crear índices compuestos para consultas lentas.',
+      description:
+        'Analizar planes de ejecución y crear índices compuestos para consultas lentas.',
       status: 'TODO',
       assignee: {
         name: 'Carlos Mendoza',

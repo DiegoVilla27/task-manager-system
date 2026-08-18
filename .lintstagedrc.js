@@ -46,6 +46,19 @@ export default {
       `pnpm --dir task-manager-client exec prettier --write ${filenames.join(" ")}`,
     ];
   },
+  "task-manager-backoffice/**/*.{ts,html}": (filenames) => {
+    const filesList = filenames.join(" ");
+    return [
+      `pnpm --dir task-manager-backoffice exec prettier --write ${filesList}`,
+      `pnpm --dir task-manager-backoffice exec eslint --no-warn-ignored ${filesList}`,
+      `pnpm --dir task-manager-backoffice exec tsc --noEmit`,
+    ];
+  },
+  "task-manager-backoffice/**/*.{json,scss,css,md}": (filenames) => {
+    return [
+      `pnpm --dir task-manager-backoffice exec prettier --write ${filenames.join(" ")}`,
+    ];
+  },
   "task-manager/src/**/*.java": () => {
     return [
       `bash -c 'cd task-manager && ./mvnw spotless:apply'`,

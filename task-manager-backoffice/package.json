@@ -1,12 +1,21 @@
 {
   "name": "task-manager-backoffice",
-  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss,css,json}\"",
+    "format:write": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
+    "test": "ng test",
+    "test:unit": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage",
+    "test:integration": "ng test --watch=false --browsers=ChromeHeadlessCI",
+    "test:coverage": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage"
   },
   "private": true,
   "dependencies": {
@@ -24,10 +33,16 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.27",
+    "@angular-eslint/eslint-plugin": "^22.1.0",
+    "@angular-eslint/eslint-plugin-template": "^22.1.0",
+    "@angular-eslint/template-parser": "^22.1.0",
     "@angular/cli": "^19.2.27",
     "@angular/compiler-cli": "^19.2.0",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/jasmine": "~5.1.0",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0",
     "jasmine-core": "~5.6.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
@@ -35,7 +50,9 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "postcss": "^8.5.26",
+    "prettier": "^3.9.6",
     "tailwindcss": "^4.3.3",
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.67.0"
   }
 }
