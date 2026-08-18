@@ -68,9 +68,39 @@ jobs:
       - name: 🎨 Prettier Check
         run: pnpm run format:check
 
+  lint:
+    name: ⚡ Static Analysis (ESLint)
+    needs: [changes, format]
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-backoffice/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: ⚡ Run ESLint
+        run: pnpm run lint
+
   typecheck:
     name: 🛡️ Strict TypeScript Typecheck (tsc)
-    needs: [changes, format]
+    needs: [changes, lint]
     if: ${{ needs.changes.outputs.backoffice == 'true' }}
     runs-on: ubuntu-latest
     defaults:
@@ -98,9 +128,115 @@ jobs:
       - name: 🛡️ Run Typecheck
         run: pnpm run typecheck
 
+  unit-tests:
+    name: 🧪 Unit Tests & Karma Coverage
+    needs: [changes, typecheck]
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-backoffice/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🧪 Run Tests & Generate Coverage
+        run: pnpm run test:coverage
+
+  integration-tests:
+    name: 🔗 Integration Tests (Component / Router)
+    needs: [changes, typecheck]
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-backoffice/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🔗 Run Integration Tests
+        run: pnpm run test:integration
+
+  sonar:
+    name: 🔍 SonarCloud Code Analysis & Quality Gate
+    needs: [changes, unit-tests, integration-tests]
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+    steps:
+      - name: 📥 Checkout Repository (Full History)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-backoffice/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🧪 Run Coverage for Sonar
+        run: pnpm run test:coverage
+
+      - name: 🔍 SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: task-manager-backoffice
+          args: >
+            -Dsonar.projectKey=DiegoVilla27_task-manager-system
+            -Dsonar.organization=diegovilla27
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=src/**/*.spec.ts
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+
   build:
     name: 📦 Build Production Bundle (Angular)
-    needs: [changes, typecheck]
+    needs: [changes, sonar]
     if: ${{ needs.changes.outputs.backoffice == 'true' }}
     runs-on: ubuntu-latest
     defaults:
