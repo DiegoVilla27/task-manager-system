@@ -1,7 +1,7 @@
 <div
   class="h-screen w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white"
 >
-  <!-- 1. HEADER: Tamaño fijo en Y, todo en X, pegado arriba -->
+  <!-- 1. HEADER: Altura fija, ancho completo, anclado superior -->
   <header
     class="h-16 w-full shrink-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between z-30"
   >
@@ -287,7 +287,7 @@
 
   <!-- 2. CONTENEDOR CENTRAL: Flex horizontal entre Header y Footer -->
   <div class="flex-1 min-h-0 flex overflow-hidden w-full">
-    <!-- ASIDE: Tamaño fijo en Y (h-full con scroll interno) y 300px en X cuando está abierto -->
+    <!-- ASIDE: Altura fija (h-full con scroll interno) y 300px de ancho cuando está abierto -->
     <aside
       class="shrink-0 h-full bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 ease-in-out z-20"
       [class.w-[300px]]="!isSidebarCollapsed()"
@@ -495,7 +495,7 @@
       </div>
     </aside>
 
-    <!-- MAIN: Toma todo el espacio restante en Y (entre header y footer) y todo el ancho restante en X -->
+    <!-- MAIN: Área central entre header y footer con ancho completo -->
     <main
       class="flex-1 min-w-0 h-full overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-950"
     >
@@ -505,7 +505,7 @@
     </main>
   </div>
 
-  <!-- 3. FOOTER: Tamaño fijo en Y, todo en X, pegado abajo -->
+  <!-- 3. FOOTER: Altura fija, ancho completo, anclado inferior -->
   <footer
     class="h-10 w-full shrink-0 bg-slate-900/95 border-t border-slate-800/80 px-4 sm:px-6 flex items-center justify-between z-20 text-xs text-slate-400"
   >

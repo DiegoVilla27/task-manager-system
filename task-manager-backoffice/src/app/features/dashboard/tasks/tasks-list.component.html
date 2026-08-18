@@ -418,10 +418,12 @@
   <!-- CREATE TASK MODAL MOCKUP -->
   @if (isCreateModalOpen()) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+      <button
+        type="button"
+        class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm border-0 w-full h-full cursor-default"
         (click)="closeCreateModal()"
-      ></div>
+        aria-label="Cerrar modal de creación"
+      ></button>
       <div
         class="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
       >
@@ -574,10 +576,12 @@
   <!-- EDIT TASK MODAL MOCKUP -->
   @if (isEditModalOpen() && selectedTask()) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+      <button
+        type="button"
+        class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm border-0 w-full h-full cursor-default"
         (click)="closeEditModal()"
-      ></div>
+        aria-label="Cerrar modal de edición"
+      ></button>
       <div
         class="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
       >
@@ -735,10 +739,12 @@
   <!-- DELETE TASK MODAL MOCKUP -->
   @if (isDeleteModalOpen() && selectedTask()) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+      <button
+        type="button"
+        class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm border-0 w-full h-full cursor-default"
         (click)="closeDeleteModal()"
-      ></div>
+        aria-label="Cerrar modal de eliminación"
+      ></button>
       <div
         class="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200"
       >
