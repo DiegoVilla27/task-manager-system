@@ -29,8 +29,8 @@ jobs:
               - 'task-manager/**'
               - '.github/workflows/ci-backend.yml'
 
-  format:
-    name: 🎨 Verify Java Code Format (Spotless)
+  static-checks:
+    name: ⚡ Fast-Fail Quality Gate (Spotless & Compile)
     needs: changes
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
@@ -63,34 +63,12 @@ jobs:
       - name: 🎨 Spotless Format Check
         run: ./mvnw spotless:check
 
-  compile:
-    name: ⚙️ Compile Java Code
-    needs: [changes, format]
-    if: ${{ needs.changes.outputs.backend == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager
-    steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: ☕ Set up OpenJDK 17
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
-      - name: 🔑 Make Maven Wrapper Executable
-        run: chmod +x ./mvnw
-
-      - name: ⚙️ Maven Clean Compile
+      - name: ⚙️ Compile Java Code
         run: ./mvnw clean compile
 
   unit-tests:
     name: 🧪 Unit Tests & JaCoCo Coverage
-    needs: [changes, compile]
+    needs: [changes, static-checks]
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
@@ -113,9 +91,16 @@ jobs:
       - name: 🧪 Run Tests & JaCoCo Report
         run: ./mvnw test jacoco:report -Dtest="!TaskManagerApplicationTests,!*IntegrationTest,!*IT"
 
+      - name: 📤 Upload JaCoCo Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jacoco
+          path: task-manager/target/site/jacoco/jacoco.xml
+          retention-days: 1
+
   integration-tests:
     name: 🔗 Integration Tests (Testcontainers / Spring)
-    needs: [changes, compile]
+    needs: [changes, static-checks]
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
@@ -135,49 +120,20 @@ jobs:
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
-      - name: 🔗 Run Integration Tests (if any)
-        run: ./mvnw test -Dtest="*IntegrationTest,*IT" -Dsurefire.failIfNoSpecifiedTests=false
-
-  sonar:
-    name: 🔍 SonarCloud Code Analysis & Quality Gate
-    needs: [changes, unit-tests, integration-tests]
-    if: ${{ needs.changes.outputs.backend == 'true' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager
-    steps:
-      - name: 📥 Checkout Repository (Full History)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: ☕ Set up OpenJDK 17
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
-      - name: 🔑 Make Maven Wrapper Executable
-        run: chmod +x ./mvnw
-
-      - name: 🧪 Run Tests & Generate JaCoCo Coverage
-        run: ./mvnw test jacoco:report -Dtest="!TaskManagerApplicationTests,!*IntegrationTest,!*IT"
-
-      - name: 🔍 SonarCloud Scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: 🔗 Run Integration Tests (Optional / If exist)
         run: |
-          ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=DiegoVilla27_task-manager-system \
-            -Dsonar.organization=diegovilla27 \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          IT_FILES=$(find src/test/java -name "*IntegrationTest.java" -o -name "*IT.java" 2>/dev/null || true)
+          if [ -n "$IT_FILES" ]; then
+            echo "🧪 Tests de integración encontrados:"
+            echo "$IT_FILES"
+            ./mvnw test -Dtest="*IntegrationTest,*IT" -Dsurefire.failIfNoSpecifiedTests=false
+          else
+            echo "ℹ️ No se encontraron archivos de integración (*IntegrationTest.java, *IT.java). Omitiendo de forma segura."
+          fi
 
   build:
     name: 📦 Build Spring Boot JAR
-    needs: [changes, sonar]
+    needs: [changes, static-checks]
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
@@ -199,3 +155,43 @@ jobs:
 
       - name: 📦 Build JAR Package
         run: ./mvnw package -DskipTests
+
+  sonar:
+    name: 🔍 SonarCloud Code Analysis & Quality Gate
+    needs: [changes, unit-tests]
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager
+    steps:
+      - name: 📥 Checkout Repository (Full History)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ☕ Set up OpenJDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: 🔑 Make Maven Wrapper Executable
+        run: chmod +x ./mvnw
+
+      - name: 📥 Download JaCoCo Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jacoco
+          path: task-manager/target/site/jacoco
+
+      - name: 🔍 SonarCloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=DiegoVilla27_task-manager-system \
+            -Dsonar.organization=diegovilla27 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
