@@ -1,0 +1,169 @@
+<div class="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12 relative overflow-hidden">
+  <!-- Background Glow & Grid Ornaments -->
+  <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-indigo-600/15 rounded-full blur-[130px] pointer-events-none"></div>
+  <div class="absolute bottom-10 right-10 w-[350px] h-[350px] bg-cyan-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none"></div>
+
+  <!-- Login Card Container -->
+  <div class="w-full max-w-md relative z-10">
+    <!-- Brand Title & Badge -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 shadow-xl shadow-indigo-500/25 mb-4 ring-4 ring-indigo-500/10">
+        <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+        TaskManager Backoffice
+      </h1>
+      <p class="text-sm text-slate-400 mt-2">
+        Acceso restringido para administradores y operadores
+      </p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-slate-950/80">
+      <div class="flex items-center justify-between pb-6 mb-6 border-b border-slate-800/80">
+        <div>
+          <h2 class="text-lg font-semibold text-white">Iniciar Sesión</h2>
+          <p class="text-xs text-slate-400">Ingresa tus credenciales de backoffice</p>
+        </div>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          2FA Habilitado
+        </span>
+      </div>
+
+      <!-- Mockup Form (Pure Maquetación) -->
+      <form class="space-y-4" (submit)="$event.preventDefault()">
+        <!-- Email Field -->
+        <div>
+          <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+            Correo Electrónico / Usuario
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
+              </svg>
+            </div>
+            <input
+              id="email"
+              type="email"
+              placeholder="admin@taskmanager.io"
+              value="admin@taskmanager.io"
+              class="w-full pl-10 pr-4 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+            />
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              Contraseña
+            </label>
+            <a href="javascript:void(0)" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors font-medium">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              placeholder="••••••••••••"
+              value="SuperSecret123!"
+              class="w-full pl-10 pr-11 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+              title="Mostrar u ocultar contraseña"
+            >
+              @if (showPassword()) {
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                </svg>
+              } @else {
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember Me & Security Level -->
+        <div class="flex items-center justify-between pt-1">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              [checked]="isRememberMeChecked()"
+              (change)="toggleRememberMe()"
+              class="w-4 h-4 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900"
+            />
+            <span class="text-xs text-slate-400">Recordar sesión (30 días)</span>
+          </label>
+          <span class="text-[11px] text-slate-500 font-mono">SSL / TLS 1.3</span>
+        </div>
+
+        <!-- Submit Button Mockup / Link to Dashboard -->
+        <div class="pt-2">
+          <a
+            routerLink="/dashboard/tasks"
+            class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white text-sm font-semibold shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 active:scale-[0.99] transition-all cursor-pointer"
+          >
+            <span>Acceder al Panel</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </a>
+        </div>
+      </form>
+
+      <!-- SSO / Alternative Auth Mockup -->
+      <div class="mt-6">
+        <div class="relative flex py-2 items-center">
+          <div class="flex-grow border-t border-slate-800"></div>
+          <span class="flex-shrink mx-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">O ingresar con SSO</span>
+          <div class="flex-grow border-t border-slate-800"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-4">
+          <button
+            type="button"
+            class="flex items-center justify-center gap-2 py-2 px-3 bg-slate-950/60 border border-slate-800 hover:bg-slate-800/80 rounded-xl text-xs font-medium text-slate-300 transition-colors"
+          >
+            <svg class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>GitHub Org</span>
+          </button>
+          <button
+            type="button"
+            class="flex items-center justify-center gap-2 py-2 px-3 bg-slate-950/60 border border-slate-800 hover:bg-slate-800/80 rounded-xl text-xs font-medium text-slate-300 transition-colors"
+          >
+            <svg class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14h2v2h-2v-2zm0-10h2v8h-2V6z"/>
+            </svg>
+            <span>Okta SSO</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security & System Notice Footer -->
+    <div class="mt-6 text-center">
+      <p class="text-xs text-slate-500">
+        Task Manager Backoffice v1.0.0 · © 2026 Todos los derechos reservados
+      </p>
+    </div>
+  </div>
+</div>
