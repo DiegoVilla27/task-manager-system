@@ -120,8 +120,16 @@ jobs:
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
-      - name: 🔗 Run Integration Tests (if any)
-        run: ./mvnw test -Dtest="*IntegrationTest,*IT" -Dsurefire.failIfNoSpecifiedTests=false
+      - name: 🔗 Run Integration Tests (Optional / If exist)
+        run: |
+          IT_FILES=$(find src/test/java -name "*IntegrationTest.java" -o -name "*IT.java" 2>/dev/null || true)
+          if [ -n "$IT_FILES" ]; then
+            echo "🧪 Tests de integración encontrados:"
+            echo "$IT_FILES"
+            ./mvnw test -Dtest="*IntegrationTest,*IT" -Dsurefire.failIfNoSpecifiedTests=false
+          else
+            echo "ℹ️ No se encontraron archivos de integración (*IntegrationTest.java, *IT.java). Omitiendo de forma segura."
+          fi
 
   build:
     name: 📦 Build Spring Boot JAR

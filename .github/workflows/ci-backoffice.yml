@@ -138,8 +138,16 @@ jobs:
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: 🔗 Run Integration Tests
-        run: pnpm run test:integration
+      - name: 🔗 Run Integration Tests (Optional / If exist)
+        run: |
+          IT_FILES=$(find src -name "*.integration.spec.ts" 2>/dev/null || true)
+          if [ -n "$IT_FILES" ]; then
+            echo "🧪 Tests de integración encontrados:"
+            echo "$IT_FILES"
+            pnpm run test:integration
+          else
+            echo "ℹ️ No se encontraron archivos de integración (*.integration.spec.ts). Omitiendo de forma segura."
+          fi
 
   build:
     name: 📦 Build Production Bundle (Angular)
