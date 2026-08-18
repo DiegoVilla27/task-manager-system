@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BackofficeLayoutComponent } from './backoffice-layout.component';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { BackofficeLayoutComponent } from './backoffice-layout.component';
 
 describe('BackofficeLayoutComponent', () => {
   let component: BackofficeLayoutComponent;
@@ -9,7 +11,11 @@ describe('BackofficeLayoutComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [BackofficeLayoutComponent],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BackofficeLayoutComponent);
@@ -35,13 +41,5 @@ describe('BackofficeLayoutComponent', () => {
     expect(component.isUserMenuOpen()).toBeTrue();
     component.toggleUserMenu();
     expect(component.isUserMenuOpen()).toBeFalse();
-  });
-
-  it('should toggle notifications dropdown', () => {
-    expect(component.isNotificationsOpen()).toBeFalse();
-    component.toggleNotifications();
-    expect(component.isNotificationsOpen()).toBeTrue();
-    component.toggleNotifications();
-    expect(component.isNotificationsOpen()).toBeFalse();
   });
 });

@@ -10,7 +10,7 @@ export const DASHBOARD_ROUTES: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'tasks',
+        redirectTo: 'users',
         pathMatch: 'full',
       },
       {
