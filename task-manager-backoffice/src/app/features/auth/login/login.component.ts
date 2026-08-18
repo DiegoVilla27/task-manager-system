@@ -7,7 +7,6 @@ import { LoginFormComponent } from './components/form/login-form.component';
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, LoginBrandComponent, LoginFormComponent],
-
   template: `
     <div
       class="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12 relative overflow-hidden"
