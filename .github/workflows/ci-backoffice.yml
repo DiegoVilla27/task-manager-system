@@ -1,0 +1,129 @@
+name: CI Backoffice (Angular)
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  changes:
+    name: 🔍 Check Backoffice Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backoffice: ${{ steps.filter.outputs.backoffice }}
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check for backoffice changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backoffice:
+              - 'task-manager-backoffice/**'
+              - '.github/workflows/ci-backoffice.yml'
+
+  format:
+    name: 🎨 Verify Code Formatting (Prettier)
+    needs: changes
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+    steps:
+      - name: 🛑 Verify PR source branch is dev (when targeting main)
+        if: github.base_ref == 'main' && github.head_ref != 'dev'
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "❌ ERROR: No está permitido hacer Pull Request a 'main' desde '$SOURCE_BRANCH'."
+          echo "👉 Todo cambio hacia 'main' debe provenir obligatoriamente de la rama 'dev'."
+          exit 1
+
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-backoffice/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🎨 Prettier Check
+        run: pnpm run format:check
+
+  typecheck:
+    name: 🛡️ Strict TypeScript Typecheck (tsc)
+    needs: [changes, format]
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-backoffice/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🛡️ Run Typecheck
+        run: pnpm run typecheck
+
+  build:
+    name: 📦 Build Production Bundle (Angular)
+    needs: [changes, typecheck]
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: './task-manager-backoffice/pnpm-lock.yaml'
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 📦 Build Angular Bundle
+        run: pnpm run build

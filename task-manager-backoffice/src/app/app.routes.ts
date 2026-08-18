@@ -9,12 +9,16 @@ export const routes: Routes = [
   {
     path: 'auth/login',
     loadComponent: () =>
-      import('./features/auth/login/login.component').then((m) => m.LoginComponent),
+      import('./features/auth/login/login.component').then(
+        (m) => m.LoginComponent,
+      ),
   },
   {
     path: 'dashboard',
     loadComponent: () =>
-      import('./core/layout/backoffice-layout.component').then((m) => m.BackofficeLayoutComponent),
+      import('./core/layout/backoffice-layout.component').then(
+        (m) => m.BackofficeLayoutComponent,
+      ),
     children: [
       {
         path: '',
@@ -25,14 +29,14 @@ export const routes: Routes = [
         path: 'tasks',
         loadComponent: () =>
           import('./features/dashboard/tasks/tasks-list.component').then(
-            (m) => m.TasksListComponent
+            (m) => m.TasksListComponent,
           ),
       },
       {
         path: 'users',
         loadComponent: () =>
           import('./features/dashboard/users/users-list.component').then(
-            (m) => m.UsersListComponent
+            (m) => m.UsersListComponent,
           ),
       },
     ],

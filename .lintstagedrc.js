@@ -46,6 +46,13 @@ export default {
       `pnpm --dir task-manager-client exec prettier --write ${filenames.join(" ")}`,
     ];
   },
+  "task-manager-backoffice/**/*.{ts,html,scss,css,json}": (filenames) => {
+    const filesList = filenames.join(" ");
+    return [
+      `pnpm --dir task-manager-backoffice exec prettier --write ${filesList}`,
+      `pnpm --dir task-manager-backoffice exec tsc --noEmit`,
+    ];
+  },
   "task-manager/src/**/*.java": () => {
     return [
       `bash -c 'cd task-manager && ./mvnw spotless:apply'`,

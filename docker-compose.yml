@@ -32,3 +32,16 @@ services:
       - "3000:3000"
     networks:
       - shared-network
+
+  angular-backoffice:
+    build:
+      context: ./task-manager-backoffice
+      dockerfile: Dockerfile
+    container_name: angular_backoffice
+    restart: always
+    env_file:
+      - ./task-manager-backoffice/.env
+    ports:
+      - "4200:4200"
+    networks:
+      - shared-network
