@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 4200
 
 # Iniciar el servidor de desarrollo de Angular escuchando en todas las interfaces de red
-CMD ["pnpm", "start", "--", "--host", "0.0.0.0", "--port", "4200"]
+CMD ["pnpm", "exec", "ng", "serve", "--host", "0.0.0.0", "--port", "4200"]
