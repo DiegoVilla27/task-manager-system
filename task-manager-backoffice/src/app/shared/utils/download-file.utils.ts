@@ -21,6 +21,6 @@ export const triggerBlobDownload = (
   link.click();
 
   // 4. Limpiar el DOM y liberar el objeto de la memoria RAM
-  document.body.removeChild(link);
+  link.remove();
   window.URL.revokeObjectURL(blobUrl);
 };

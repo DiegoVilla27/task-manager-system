@@ -16,25 +16,25 @@ describe('BreadcrumbService', () => {
   beforeEach(() => {
     routerEvents$ = new Subject<Event>();
 
+    const usersChild = {
+      snapshot: {
+        url: [{ path: 'users' }],
+        data: { breadcrumb: 'Usuarios' },
+      },
+      firstChild: null,
+    };
+
+    const dashboardChild = {
+      snapshot: {
+        url: [{ path: 'dashboard' }],
+        data: { breadcrumb: 'Dashboard' },
+      },
+      firstChild: usersChild,
+    };
+
     const mockActivatedRoute = {
       root: {
-        children: [
-          {
-            snapshot: {
-              url: [{ path: 'dashboard' }],
-              data: { breadcrumb: 'Dashboard' },
-            },
-            children: [
-              {
-                snapshot: {
-                  url: [{ path: 'users' }],
-                  data: { breadcrumb: 'Usuarios' },
-                },
-                children: [],
-              },
-            ],
-          },
-        ],
+        firstChild: dashboardChild,
       },
     };
 

@@ -12,8 +12,8 @@ export class UserService {
   private readonly BASE_USERS = `${environment.API_URL}/users`;
   private readonly http = inject(HttpClient);
 
-  private _user$ = signal<UserMeResponse | null>(null);
-  public user$ = this._user$.asReadonly();
+  private readonly _user$ = signal<UserMeResponse | null>(null);
+  public readonly user$ = this._user$.asReadonly();
 
   public me(): Observable<UserMeResponse> {
     return this.http.get<UserMeResponse>(`${this.BASE_USERS}/me`).pipe(

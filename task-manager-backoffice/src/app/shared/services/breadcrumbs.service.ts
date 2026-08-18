@@ -19,13 +19,13 @@ export interface Breadcrumb {
  */
 @Injectable({ providedIn: 'root' })
 export class BreadcrumbService {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   /**
    * ⚡ GLOBAL STATE SIGNAL: Read-only reactive state collector holding the active navigation path segments hierarchy.
    */
-  breadcrumbs = signal<Breadcrumb[]>([]);
+  readonly breadcrumbs = signal<Breadcrumb[]>([]);
 
   constructor() {
     // Escucha cada cambio de ruta completado
@@ -53,31 +53,23 @@ export class BreadcrumbService {
     url = '',
     breadcrumbs: Breadcrumb[] = [],
   ): Breadcrumb[] {
-    const children: ActivatedRoute[] = route.children;
+    const child = route.firstChild;
 
-    if (children.length === 0) {
+    if (!child) {
       return breadcrumbs;
     }
 
-    for (const child of children) {
-      const routeURL: string = child.snapshot.url
-        .map((segment) => segment.path)
-        .join('/');
-      let nextUrl = url;
-      if (routeURL !== '') {
-        nextUrl += `/${routeURL}`;
-      }
+    const routeURL: string = child.snapshot.url
+      .map((segment) => segment.path)
+      .join('/');
+    const nextUrl = routeURL !== '' ? `${url}/${routeURL}` : url;
+    const label = child.snapshot.data['breadcrumb'];
 
-      const label = child.snapshot.data['breadcrumb'];
-
-      // Si la ruta configuró una etiqueta de breadcrumb, la agregamos
-      if (label) {
-        breadcrumbs.push({ label, url: nextUrl || '/' });
-      }
-
-      return this.buildBreadcrumbs(child, nextUrl, breadcrumbs);
+    // Si la ruta configuró una etiqueta de breadcrumb, la agregamos
+    if (label) {
+      breadcrumbs.push({ label, url: nextUrl || '/' });
     }
 
-    return breadcrumbs;
+    return this.buildBreadcrumbs(child, nextUrl, breadcrumbs);
   }
 }

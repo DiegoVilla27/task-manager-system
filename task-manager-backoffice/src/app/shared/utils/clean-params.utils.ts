@@ -16,23 +16,27 @@ import { HttpParams } from '@angular/common/http';
  * // Resulting params: search=Diego&page=1
  * ```
  */
-export function cleanParams(payload: Record<string, unknown>): HttpParams {
+export function cleanParams(
+  payload: Record<string, string | number | boolean | null | undefined>,
+): HttpParams {
   let params = new HttpParams();
 
   if (!payload) return params;
 
-  Object.keys(payload).forEach((key) => {
-    const value = payload[key];
-
-    // Filtramos explícitamente null, undefined y strings vacíos tras hacerles .trim()
-    const isNullOrUndefined = value === null || value === undefined;
-    const isEmptyString = typeof value === 'string' && value.trim() === '';
-
-    if (!isNullOrUndefined && !isEmptyString) {
-      // HttpParams requiere que todos los valores se guarden como strings
-      params = params.set(key, value.toString());
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === null || value === undefined) {
+      continue;
     }
-  });
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed !== '') {
+        params = params.set(key, trimmed);
+      }
+    } else {
+      params = params.set(key, String(value));
+    }
+  }
 
   return params;
 }

@@ -41,7 +41,7 @@ export const dashboardGuard: CanActivateFn = () => {
   // Si hay token pero la Signal está vacía, resincronizamos la identidad real contra el backend
   return userSvc.me().pipe(
     map((user) => {
-      if (user && user.email === emailAdmin) {
+      if (user?.email === emailAdmin) {
         return true;
       }
       toastSvc.error(

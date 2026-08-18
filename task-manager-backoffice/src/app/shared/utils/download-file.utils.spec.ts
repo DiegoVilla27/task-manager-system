@@ -12,16 +12,11 @@ describe('triggerBlobDownload', () => {
       document.body,
       'appendChild',
     ).and.callThrough();
-    const removeChildSpy = spyOn(
-      document.body,
-      'removeChild',
-    ).and.callThrough();
 
     triggerBlobDownload(fakeBlob, 'test-report.csv');
 
     expect(createObjectURLSpy).toHaveBeenCalledWith(fakeBlob);
     expect(appendChildSpy).toHaveBeenCalled();
-    expect(removeChildSpy).toHaveBeenCalled();
     expect(revokeObjectURLSpy).toHaveBeenCalledWith(
       'blob:http://localhost/test-uuid',
     );

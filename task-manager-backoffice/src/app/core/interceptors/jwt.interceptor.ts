@@ -2,7 +2,7 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { StorageUtils } from '@shared/utils/storage.utils';
 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = StorageUtils.get('access_token');
+  const token = StorageUtils.get<string>('access_token');
   let authReq = req;
 
   // Inject active session credentials into compatible outbound request targets

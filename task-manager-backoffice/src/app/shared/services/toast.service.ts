@@ -14,7 +14,7 @@ import { ApiFieldError } from '@core/interceptors/error.interceptor';
 })
 export class ToastService {
   /** Platform identifier token used to safeguard DOM access during SSR operations. */
-  private platformId = inject(PLATFORM_ID);
+  private readonly platformId = inject(PLATFORM_ID);
 
   /**
    * Spawns a new temporary, animated toast notification in the DOM.

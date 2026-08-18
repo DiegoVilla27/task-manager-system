@@ -4,7 +4,12 @@ describe('cleanParams', () => {
   it('should return empty HttpParams if payload is empty, null or undefined', () => {
     expect(cleanParams({}).toString()).toBe('');
     expect(
-      cleanParams(null as unknown as Record<string, unknown>).toString(),
+      cleanParams(
+        null as unknown as Record<
+          string,
+          string | number | boolean | null | undefined
+        >,
+      ).toString(),
     ).toBe('');
   });
 
