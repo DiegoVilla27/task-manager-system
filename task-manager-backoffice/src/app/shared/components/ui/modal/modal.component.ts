@@ -130,6 +130,7 @@ export class ModalComponent implements OnDestroy {
     viewChild<TemplateRef<unknown>>('modalTemplate');
 
   private portalOutlet: DomPortalOutlet | null = null;
+  private portalContainer: HTMLElement | null = null;
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   protected readonly sizeClasses = computed(() => {
@@ -159,16 +160,21 @@ export class ModalComponent implements OnDestroy {
   }
 
   private attachToBody(template: TemplateRef<unknown>): void {
-    this.portalOutlet ??= new DomPortalOutlet(
-      this.document.body,
-      this.vcr,
-      this.appRef,
-      this.envInjector,
-    );
+    if (!this.portalContainer) {
+      this.portalContainer = this.document.createElement('div');
+      this.portalContainer.className = 'app-modal-portal-host';
+      this.document.body.appendChild(this.portalContainer);
+      this.portalOutlet = new DomPortalOutlet(
+        this.portalContainer,
+        this.vcr,
+        this.appRef,
+        this.envInjector,
+      );
+    }
 
-    if (!this.portalOutlet.hasAttached()) {
+    if (!this.portalOutlet?.hasAttached()) {
       const portal = new TemplatePortal(template, this.vcr);
-      this.portalOutlet.attach(portal);
+      this.portalOutlet?.attach(portal);
       this.document.body.style.overflow = 'hidden';
     }
   }
@@ -189,6 +195,10 @@ export class ModalComponent implements OnDestroy {
       this.detachFromBody();
       this.portalOutlet?.dispose();
       this.portalOutlet = null;
+      if (this.portalContainer) {
+        this.portalContainer.remove();
+        this.portalContainer = null;
+      }
       this.document.body.style.overflow = '';
     }
   }

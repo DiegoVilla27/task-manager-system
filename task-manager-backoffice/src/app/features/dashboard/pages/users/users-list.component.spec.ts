@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { UsersListComponent, UserMock } from './users-list.component';
+import { UsersListComponent } from './users-list.component';
+import { UserMock } from './models/user.model';
 
 describe('UsersListComponent', () => {
   let component: UsersListComponent;
@@ -69,5 +70,93 @@ describe('UsersListComponent', () => {
     component.closeDeleteModal();
     expect(component.isDeleteModalOpen()).toBeFalse();
     expect(component.selectedUser()).toBeNull();
+  });
+
+  it('should handle creating a new user', () => {
+    const initialCount = component.users().length;
+    component.openCreateModal();
+    component.handleCreateUser({
+      name: 'Nuevo Usuario Test',
+      email: 'nuevo@taskmanager.io',
+      role: 'DEVELOPER',
+      department: 'Mobile App',
+      status: 'ACTIVE',
+    });
+
+    expect(component.users().length).toBe(initialCount + 1);
+    expect(component.users()[0].name).toBe('Nuevo Usuario Test');
+    expect(component.isCreateModalOpen()).toBeFalse();
+  });
+
+  it('should handle saving an edited user', () => {
+    const userToEdit = component.users()[0];
+    component.openEditModal(userToEdit);
+
+    const updated: UserMock = {
+      ...userToEdit,
+      name: 'Nombre Actualizado Test',
+      department: 'Core Architecture',
+    };
+
+    component.handleSaveUser(updated);
+    expect(component.users()[0].name).toBe('Nombre Actualizado Test');
+    expect(component.users()[0].department).toBe('Core Architecture');
+    expect(component.isEditModalOpen()).toBeFalse();
+  });
+
+  it('should handle deleting a user', () => {
+    const userToDelete = component.users()[0];
+    const initialCount = component.users().length;
+    component.openDeleteModal(userToDelete);
+
+    component.handleDeleteUser(userToDelete.id);
+    expect(component.users().length).toBe(initialCount - 1);
+    expect(
+      component.users().find((u) => u.id === userToDelete.id),
+    ).toBeUndefined();
+    expect(component.isDeleteModalOpen()).toBeFalse();
+  });
+
+  it('should filter users by search query', () => {
+    component.handleSearchChange('Diego');
+    const filtered = component.filteredUsers();
+    expect(
+      filtered.every(
+        (u) =>
+          u.name.toLowerCase().includes('diego') ||
+          u.email.toLowerCase().includes('diego'),
+      ),
+    ).toBeTrue();
+  });
+
+  it('should filter users by role and status', () => {
+    component.handleRoleChange('DEVELOPER');
+    component.handleStatusChange('ACTIVE');
+    const filtered = component.filteredUsers();
+    expect(
+      filtered.every((u) => u.role === 'DEVELOPER' && u.status === 'ACTIVE'),
+    ).toBeTrue();
+  });
+
+  it('should clear all filters', () => {
+    component.handleSearchChange('Query');
+    component.handleRoleChange('ADMIN');
+    component.handleStatusChange('INACTIVE');
+
+    component.handleClearFilters();
+    expect(component.searchQuery()).toBe('');
+    expect(component.roleFilter()).toBe('');
+    expect(component.statusFilter()).toBe('');
+  });
+
+  it('should change page on handlePageChange', () => {
+    component.handlePageChange(2);
+    expect(component.currentPage()).toBe(2);
+  });
+
+  it('should trigger exportCsv', () => {
+    spyOn(console, 'log');
+    component.exportCsv();
+    expect(console.log).toHaveBeenCalledWith('Exporting users CSV...');
   });
 });
