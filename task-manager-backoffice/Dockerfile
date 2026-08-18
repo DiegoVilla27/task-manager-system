@@ -7,11 +7,11 @@ WORKDIR /app
 # Instalar pnpm globalmente
 RUN npm install -g pnpm@latest
 
-# Copiar archivos de dependencias para aprovechar la caché
-COPY package.json pnpm-lock.yaml ./
+# Copiar archivos de dependencias
+COPY package.json pnpm-lock.yaml .npmrc* ./
 
 # Instalar dependencias del proyecto
-RUN pnpm install
+RUN pnpm config set ignore-scripts true && pnpm install
 
 # Copiar todo el código fuente del proyecto
 COPY . .
