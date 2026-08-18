@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="text-center mb-8">
       <div
-        class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 shadow-xl shadow-indigo-500/25 mb-4 ring-4 ring-indigo-500/10"
+        class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-tr from-indigo-600 via-indigo-500 to-cyan-400 shadow-xl shadow-indigo-500/25 mb-4 ring-4 ring-indigo-500/10"
       >
         <svg
           class="w-7 h-7 text-white"

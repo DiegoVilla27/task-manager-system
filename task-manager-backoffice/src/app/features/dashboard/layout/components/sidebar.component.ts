@@ -25,44 +25,6 @@ import { AvatarComponent } from '@shared/components/ui';
             </p>
           }
           <nav class="space-y-1.5" aria-label="Navegación principal">
-            <!-- Tasks Link -->
-            <a
-              routerLink="/dashboard/tasks"
-              routerLinkActive="bg-indigo-600/15 text-indigo-400 border-indigo-500 font-semibold shadow-xs"
-              [routerLinkActiveOptions]="{ exact: false }"
-              class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent transition-all group"
-              [title]="isCollapsed() ? 'Gestión de Tareas' : ''"
-            >
-              <div
-                class="p-1 rounded-lg text-slate-400 group-hover:text-indigo-400 transition-colors"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                  />
-                </svg>
-              </div>
-              @if (!isCollapsed()) {
-                <div class="flex-1 flex items-center justify-between">
-                  <span class="text-sm">Gestión de Tareas</span>
-                  <span
-                    class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-medium"
-                  >
-                    CRUD
-                  </span>
-                </div>
-              }
-            </a>
-
             <!-- Users Link -->
             <a
               routerLink="/dashboard/users"
@@ -94,6 +56,44 @@ import { AvatarComponent } from '@shared/components/ui';
                   <span class="text-sm">Gestión de Usuarios</span>
                   <span
                     class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-medium"
+                  >
+                    CRUD
+                  </span>
+                </div>
+              }
+            </a>
+
+            <!-- Tasks Link -->
+            <a
+              routerLink="/dashboard/tasks"
+              routerLinkActive="bg-indigo-600/15 text-indigo-400 border-indigo-500 font-semibold shadow-xs"
+              [routerLinkActiveOptions]="{ exact: false }"
+              class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent transition-all group"
+              [title]="isCollapsed() ? 'Gestión de Tareas' : ''"
+            >
+              <div
+                class="p-1 rounded-lg text-slate-400 group-hover:text-indigo-400 transition-colors"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                  />
+                </svg>
+              </div>
+              @if (!isCollapsed()) {
+                <div class="flex-1 flex items-center justify-between">
+                  <span class="text-sm">Gestión de Tareas</span>
+                  <span
+                    class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-medium"
                   >
                     CRUD
                   </span>
