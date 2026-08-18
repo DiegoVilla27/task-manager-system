@@ -25,11 +25,23 @@ describe('BackofficeLayoutComponent', () => {
     expect(component.isSidebarCollapsed()).toBeFalse();
     component.toggleSidebar();
     expect(component.isSidebarCollapsed()).toBeTrue();
+    component.toggleSidebar();
+    expect(component.isSidebarCollapsed()).toBeFalse();
   });
 
   it('should toggle user menu', () => {
     expect(component.isUserMenuOpen()).toBeFalse();
     component.toggleUserMenu();
     expect(component.isUserMenuOpen()).toBeTrue();
+    component.toggleUserMenu();
+    expect(component.isUserMenuOpen()).toBeFalse();
+  });
+
+  it('should toggle notifications dropdown', () => {
+    expect(component.isNotificationsOpen()).toBeFalse();
+    component.toggleNotifications();
+    expect(component.isNotificationsOpen()).toBeTrue();
+    component.toggleNotifications();
+    expect(component.isNotificationsOpen()).toBeFalse();
   });
 });

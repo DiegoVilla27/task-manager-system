@@ -16,6 +16,7 @@
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               stroke-linecap="round"
@@ -44,8 +45,9 @@
       <button
         type="button"
         (click)="toggleSidebar()"
-        class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-2"
+        class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-2 cursor-pointer"
         title="Alternar barra lateral (300px / colapsada)"
+        aria-label="Alternar barra lateral"
       >
         <svg
           class="w-5 h-5 transition-transform"
@@ -53,6 +55,7 @@
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"
@@ -72,6 +75,7 @@
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"
@@ -109,14 +113,16 @@
         <button
           type="button"
           (click)="toggleNotifications()"
-          class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors relative"
+          class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors relative cursor-pointer"
           title="Notificaciones"
+          aria-label="Ver notificaciones del sistema"
         >
           <svg
             class="w-5 h-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               stroke-linecap="round"
@@ -140,10 +146,12 @@
               <span class="text-xs font-semibold text-white"
                 >Notificaciones del Sistema</span
               >
-              <span
-                class="text-[11px] text-indigo-400 hover:underline cursor-pointer"
-                >Marcar leídas</span
+              <button
+                type="button"
+                class="text-[11px] text-indigo-400 hover:underline bg-transparent border-0 p-0 cursor-pointer"
               >
+                Marcar leídas
+              </button>
             </div>
             <div class="py-3 space-y-2.5 text-xs">
               <div
@@ -172,7 +180,8 @@
         <button
           type="button"
           (click)="toggleUserMenu()"
-          class="flex items-center gap-2.5 p-1.5 pr-2.5 rounded-xl hover:bg-slate-800 transition-colors"
+          class="flex items-center gap-2.5 p-1.5 pr-2.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+          aria-label="Abrir menú de usuario"
         >
           <div
             class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-xs font-bold text-white shadow-md"
@@ -190,6 +199,7 @@
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               stroke-linecap="round"
@@ -217,6 +227,7 @@
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -236,6 +247,7 @@
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -256,6 +268,7 @@
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -291,7 +304,7 @@
               Módulos del Sistema
             </p>
           }
-          <nav class="space-y-1.5">
+          <nav class="space-y-1.5" aria-label="Navegación principal">
             <!-- Tasks Link -->
             <a
               routerLink="/dashboard/tasks"
@@ -308,6 +321,7 @@
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -344,6 +358,7 @@
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -375,7 +390,7 @@
               Acceso
             </p>
           }
-          <nav class="space-y-1">
+          <nav class="space-y-1" aria-label="Navegación de acceso">
             <a
               routerLink="/auth/login"
               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-slate-800/60 border border-transparent transition-all group"
@@ -389,6 +404,7 @@
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -457,12 +473,14 @@
               routerLink="/auth/login"
               class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
               title="Cerrar sesión"
+              aria-label="Cerrar sesión"
             >
               <svg
                 class="w-4 h-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
