@@ -64,23 +64,28 @@ describe('TasksListComponent', () => {
   });
 
   it('should open and close create modal', () => {
-    expect(component.isCreateModalOpen()).toBeFalse();
-    component.isCreateModalOpen.set(true);
-    expect(component.isCreateModalOpen()).toBeTrue();
+    expect(component.isFormModalOpen()).toBeFalse();
+    expect(component.selectedTask()).toBeNull();
+
+    component.openCreateModal();
+    expect(component.isFormModalOpen()).toBeTrue();
+    expect(component.selectedTask()).toBeNull();
+
     component.closeModal();
-    expect(component.isCreateModalOpen()).toBeFalse();
+    expect(component.isFormModalOpen()).toBeFalse();
+    expect(component.selectedTask()).toBeNull();
   });
 
   it('should open and close edit modal', () => {
-    expect(component.isEditModalOpen()).toBeFalse();
+    expect(component.isFormModalOpen()).toBeFalse();
     expect(component.selectedTask()).toBeNull();
 
     component.openEditModal(mockTask);
-    expect(component.isEditModalOpen()).toBeTrue();
+    expect(component.isFormModalOpen()).toBeTrue();
     expect(component.selectedTask()).toEqual(mockTask);
 
     component.closeModal();
-    expect(component.isEditModalOpen()).toBeFalse();
+    expect(component.isFormModalOpen()).toBeFalse();
     expect(component.selectedTask()).toBeNull();
   });
 

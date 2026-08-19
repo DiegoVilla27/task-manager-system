@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -21,18 +22,19 @@ import {
   SelectComponent,
   TextareaComponent,
 } from '@shared/components/ui';
-import { CreateTaskRequest } from '../interfaces/request';
+import { TaskResponse } from '../interfaces/response';
+import { TaskService } from '../services/task.service';
+import { UserService } from '../../users/services/user.service';
 import {
   injectMutation,
   injectQuery,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
-import { TaskService } from '../services/task.service';
 import { firstValueFrom } from 'rxjs';
-import { UserService } from '../../users/services/user.service';
+import { CreateTaskRequest, EditTaskRequest } from '../interfaces/request';
 
 @Component({
-  selector: 'app-task-create-modal',
+  selector: 'app-task-form-modal',
   standalone: true,
   imports: [
     CommonModule,
@@ -47,8 +49,8 @@ import { UserService } from '../../users/services/user.service';
   template: `
     <app-modal
       [isOpen]="isOpen()"
-      title="Crear Nueva Tarea"
-      subtitle="Asigna y planifica una nueva actividad para el equipo"
+      [title]="modalTitle()"
+      [subtitle]="modalSubtitle()"
       size="xl"
       (closed)="handleClose()"
     >
@@ -60,11 +62,11 @@ import { UserService } from '../../users/services/user.service';
         <!-- Title -->
         <app-form-field
           label="Título de la Tarea"
-          forId="create-task-title"
+          forId="task-form-title"
           [required]="true"
         >
           <app-input
-            id="create-task-title"
+            id="task-form-title"
             placeholder="Ej. Implementar integración OAuth2 con Google"
             formControlName="title"
           />
@@ -73,24 +75,25 @@ import { UserService } from '../../users/services/user.service';
         <!-- Description -->
         <app-form-field
           label="Descripción Detallada"
-          forId="create-task-desc"
+          forId="task-form-desc"
           [required]="true"
         >
           <app-textarea
-            id="create-task-desc"
+            id="task-form-desc"
             [rows]="3"
             placeholder="Detalla los requerimientos, endpoints necesarios o criterios de aceptación..."
             formControlName="description"
           />
         </app-form-field>
 
+        <!-- Assignee -->
         <app-form-field
-          label="Asignar usuario"
-          forId="create-task-desc"
+          label="Usuario Responsable"
+          forId="task-form-assignee"
           [required]="true"
         >
           <app-select
-            id="create-task-assignee"
+            id="task-form-assignee"
             [options]="usersOptions()"
             formControlName="userId"
           />
@@ -111,7 +114,7 @@ import { UserService } from '../../users/services/user.service';
           </app-button>
 
           <app-button type="submit" variant="primary" size="md">
-            Guardar Tarea
+            {{ submitButtonLabel() }}
           </app-button>
         </div>
       </form>
@@ -119,14 +122,33 @@ import { UserService } from '../../users/services/user.service';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TaskCreateModalComponent {
+export class TaskFormModalComponent {
   private readonly fb = inject(FormBuilder).nonNullable;
   private readonly tasksSvc = inject(TaskService);
   private readonly usersSvc = inject(UserService);
   private readonly queryClient = inject(QueryClient);
 
   readonly isOpen = input.required<boolean>();
+  readonly task = input<TaskResponse | null>(null);
   readonly close = output<void>();
+
+  readonly isEdit = computed(() => !!this.task());
+
+  readonly modalTitle = computed(() =>
+    this.isEdit()
+      ? `Editar Tarea: ${this.task()?.id ?? ''}`
+      : 'Crear Nueva Tarea',
+  );
+
+  readonly modalSubtitle = computed(() =>
+    this.isEdit()
+      ? 'Actualiza la información de la tarea asignada'
+      : 'Asigna y planifica una nueva actividad para el equipo',
+  );
+
+  readonly submitButtonLabel = computed(() =>
+    this.isEdit() ? 'Guardar Cambios' : 'Guardar Tarea',
+  );
 
   readonly form: FormGroup = this.fb.group({
     title: [
@@ -149,13 +171,23 @@ export class TaskCreateModalComponent {
   }));
 
   readonly usersOptions = computed(() => {
-    this.users.data();
-    return (
-      this.users.data()?.content.map((u) => ({
+    const list = this.users.data()?.content;
+    if (list && list.length > 0) {
+      return list.map((u) => ({
         label: `${u.name} ${u.lastname}`,
         value: u.id,
-      })) ?? [{ value: '', label: '' }]
-    );
+      }));
+    }
+    const currentAssignee = this.task()?.user;
+    if (currentAssignee) {
+      return [
+        {
+          label: `${currentAssignee.name} ${currentAssignee.lastname}`,
+          value: currentAssignee.id,
+        },
+      ];
+    }
+    return [{ value: '', label: 'Seleccionar usuario...' }];
   });
 
   private readonly createTaskMutation = injectMutation(() => ({
@@ -165,14 +197,64 @@ export class TaskCreateModalComponent {
       this.queryClient.invalidateQueries({ queryKey: ['/tasks'] }),
   }));
 
+  private readonly editTaskMutation = injectMutation(() => ({
+    mutationFn: ({
+      taskId,
+      payload,
+    }: {
+      taskId: string;
+      payload: EditTaskRequest;
+    }) => firstValueFrom(this.tasksSvc.updateTask(taskId, payload)),
+    onSuccess: () =>
+      this.queryClient.invalidateQueries({ queryKey: ['/tasks'] }),
+  }));
+
+  constructor() {
+    effect(() => {
+      const current = this.task();
+      if (current) {
+        this.form.patchValue({
+          title: current.title,
+          description: current.description,
+          userId: current.user.id,
+        });
+        this.form.get('userId')?.disable();
+      } else {
+        this.form.get('userId')?.enable();
+        this.form.reset({
+          title: '',
+          description: '',
+          userId: '',
+        });
+      }
+    });
+  }
+
   async handleSubmit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const payload = this.form.getRawValue() as CreateTaskRequest;
-    await this.createTaskMutation.mutate(payload);
+    const raw = this.form.getRawValue();
+
+    if (this.isEdit()) {
+      const editPayload: EditTaskRequest = {
+        title: raw.title,
+        description: raw.description,
+      };
+      await this.editTaskMutation.mutate({
+        taskId: this.task()!.id,
+        payload: editPayload,
+      });
+    } else {
+      const createPayload: CreateTaskRequest = {
+        title: raw.title,
+        description: raw.description,
+        userId: raw.userId,
+      };
+      await this.createTaskMutation.mutate(createPayload);
+    }
 
     this.handleClose();
   }

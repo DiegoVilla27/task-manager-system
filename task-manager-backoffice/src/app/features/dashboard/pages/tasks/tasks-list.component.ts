@@ -7,9 +7,8 @@ import {
 } from '@angular/core';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 import { firstValueFrom } from 'rxjs';
-import { TaskCreateModalComponent } from './components/task-create-modal.component';
+import { TaskFormModalComponent } from './components/task-form-modal.component';
 import { TaskDeleteModalComponent } from './components/task-delete-modal.component';
-import { TaskEditModalComponent } from './components/task-edit-modal.component';
 import { TasksFiltersComponent } from './components/tasks-filters.component';
 import { TasksHeaderComponent } from './components/tasks-header.component';
 import { TasksStatsComponent } from './components/tasks-stats.component';
@@ -26,8 +25,7 @@ import { TaskService } from './services/task.service';
     TasksStatsComponent,
     TasksFiltersComponent,
     TasksTableComponent,
-    TaskCreateModalComponent,
-    TaskEditModalComponent,
+    TaskFormModalComponent,
     TaskDeleteModalComponent,
   ],
   templateUrl: './tasks-list.component.html',
@@ -35,8 +33,7 @@ import { TaskService } from './services/task.service';
 })
 export class TasksListComponent {
   // Modal states
-  readonly isCreateModalOpen = signal<boolean>(false);
-  readonly isEditModalOpen = signal<boolean>(false);
+  readonly isFormModalOpen = signal<boolean>(false);
   readonly isDeleteModalOpen = signal<boolean>(false);
   readonly selectedTask = signal<TaskResponse | null>(null);
 
@@ -69,9 +66,14 @@ export class TasksListComponent {
       ),
   }));
 
+  openCreateModal(): void {
+    this.selectedTask.set(null);
+    this.isFormModalOpen.set(true);
+  }
+
   openEditModal(task: TaskResponse): void {
     this.selectedTask.set(task);
-    this.isEditModalOpen.set(true);
+    this.isFormModalOpen.set(true);
   }
 
   openDeleteModal(task: TaskResponse): void {
@@ -85,8 +87,7 @@ export class TasksListComponent {
   }
 
   closeModal(): void {
-    this.isCreateModalOpen.set(false);
-    this.isEditModalOpen.set(false);
+    this.isFormModalOpen.set(false);
     this.isDeleteModalOpen.set(false);
     this.selectedTask.set(null);
   }

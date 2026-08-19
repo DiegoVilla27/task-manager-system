@@ -1,6 +1,6 @@
 <div class="space-y-6">
   <!-- Header & Actions -->
-  <app-tasks-header (newTaskClicked)="isCreateModalOpen.set(true)" />
+  <app-tasks-header (newTaskClicked)="openCreateModal()" />
 
   <div class="flex flex-col gap-4">
     <!-- Stats Grid -->
@@ -24,15 +24,9 @@
     />
   </div>
 
-  <!-- Create Task Modal -->
-  <app-task-create-modal
-    [isOpen]="isCreateModalOpen()"
-    (close)="closeModal()"
-  />
-
-  <!-- Edit Task Modal -->
-  <app-task-edit-modal
-    [isOpen]="isEditModalOpen()"
+  <!-- Create/Edit Task Modal -->
+  <app-task-form-modal
+    [isOpen]="isFormModalOpen()"
     [task]="selectedTask()"
     (close)="closeModal()"
   />
