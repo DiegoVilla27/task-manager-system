@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { UsersHeaderComponent } from './users-header.component';
+import { TasksHeaderComponent } from './tasks-header.component';
 
-describe('UsersHeaderComponent', () => {
-  let component: UsersHeaderComponent;
-  let fixture: ComponentFixture<UsersHeaderComponent>;
+describe('TasksHeaderComponent', () => {
+  let component: TasksHeaderComponent;
+  let fixture: ComponentFixture<TasksHeaderComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UsersHeaderComponent],
+      imports: [TasksHeaderComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(UsersHeaderComponent);
+    fixture = TestBed.createComponent(TasksHeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -19,9 +19,9 @@ describe('UsersHeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit newUserClicked when Nuevo Usuario button is clicked', () => {
+  it('should emit newTaskClicked when Nueva Tarea button is clicked', () => {
     let clicked = false;
-    component.newUserClicked.subscribe(() => {
+    component.newTaskClicked.subscribe(() => {
       clicked = true;
     });
 

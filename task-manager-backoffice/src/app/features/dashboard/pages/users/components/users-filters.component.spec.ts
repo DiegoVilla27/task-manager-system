@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { UsersFiltersComponent } from './users-filters.component';
 
 describe('UsersFiltersComponent', () => {
@@ -19,7 +24,7 @@ describe('UsersFiltersComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit searchChange event when input changes', () => {
+  it('should emit searchChange event when input changes with debounce', fakeAsync(() => {
     let emitted = '';
     component.searchChange.subscribe((val) => {
       emitted = val;
@@ -32,8 +37,10 @@ describe('UsersFiltersComponent', () => {
     searchInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
+    expect(emitted).toBe('');
+    tick(400);
     expect(emitted).toBe('Diego');
-  });
+  }));
 
   it('should emit clearFilters event when clear button is clicked', () => {
     let cleared = false;

@@ -1,30 +1,70 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  provideTanStackQuery,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
+import { of } from 'rxjs';
 import { TaskEditModalComponent } from './task-edit-modal.component';
-import { TaskMock } from '../models/task.model';
+import { TaskService } from '../services/task.service';
+import { UserService } from '../../users/services/user.service';
+import { TaskResponse, TaskStatus } from '../interfaces/response';
+import { UsersPagination } from '../../users/interfaces/response';
 
 describe('TaskEditModalComponent', () => {
   let component: TaskEditModalComponent;
   let fixture: ComponentFixture<TaskEditModalComponent>;
+  let taskService: jasmine.SpyObj<TaskService>;
+  let userService: jasmine.SpyObj<UserService>;
+  let queryClient: QueryClient;
 
-  const mockTask: TaskMock = {
+  const mockUser = {
+    id: 'usr-1',
+    name: 'Diego',
+    lastname: 'Villa',
+    email: 'diego@example.com',
+  };
+
+  const mockTask: TaskResponse = {
     id: 'task-1',
-    code: 'TSK-101',
     title: 'Migración a Signals',
     description: 'Refactorizar componentes a Signals',
-    status: 'IN_PROGRESS',
-    progress: 75,
-    dueDate: '25 Feb 2026',
-    assignee: {
-      name: 'Diego Villa',
-      initials: 'DV',
-      avatarBg: 'from-indigo-600 to-cyan-500',
-    },
-    tags: ['Frontend', 'Angular'],
+    status: TaskStatus.IN_PROGRESS,
+    user: mockUser,
+    createdAt: '2026-01-01',
+  };
+
+  const mockUsersPagination: UsersPagination = {
+    content: [
+      {
+        ...mockUser,
+        countTasks: 1,
+        createdAt: '2026-01-01',
+      },
+    ],
+    totalElements: 1,
+    totalPages: 1,
+    size: 10,
   };
 
   beforeEach(async () => {
+    queryClient = new QueryClient();
+    taskService = jasmine.createSpyObj('TaskService', ['updateTask']);
+    taskService.updateTask.and.returnValue(of(mockTask));
+
+    userService = jasmine.createSpyObj('UserService', ['getUsers']);
+    userService.getUsers.and.returnValue(of(mockUsersPagination));
+
     await TestBed.configureTestingModule({
       imports: [TaskEditModalComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTanStackQuery(queryClient),
+        { provide: TaskService, useValue: taskService },
+        { provide: UserService, useValue: userService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TaskEditModalComponent);
@@ -39,58 +79,39 @@ describe('TaskEditModalComponent', () => {
   });
 
   it('should populate form with task data', () => {
-    expect(component.form.value.title).toBe('Migración a Signals');
-    expect(component.form.value.status).toBe('IN_PROGRESS');
-    expect(component.form.value.progress).toBe(75);
+    expect(component.form.getRawValue().title).toBe('Migración a Signals');
+    expect(component.form.getRawValue().description).toBe(
+      'Refactorizar componentes a Signals',
+    );
+    expect(component.form.getRawValue().userId).toBe('usr-1');
   });
 
-  it('should emit closed event on handleClose', () => {
+  it('should emit close event on handleClose and reset form', () => {
     let closed = false;
-    component.closed.subscribe(() => {
+    component.close.subscribe(() => {
       closed = true;
     });
 
     component.handleClose();
     expect(closed).toBeTrue();
+    expect(component.form.value.title).toBe('');
   });
 
-  it('should return correct title error messages', () => {
-    const titleCtrl = component.form.get('title');
-    expect(component['titleError']()).toBeNull();
-
-    titleCtrl?.markAsTouched();
-    titleCtrl?.setValue('');
-    expect(component['titleError']()).toBe('El título es obligatorio');
-
-    titleCtrl?.setValue('Valid Title');
-    expect(component['titleError']()).toBeNull();
+  it('should not submit if form is invalid or task is null', async () => {
+    component.form.get('title')?.setValue('a'); // minLength 3 -> invalid
+    await component.handleSubmit();
+    expect(taskService.updateTask).not.toHaveBeenCalled();
   });
 
-  it('should not emit saved when form is invalid', () => {
-    let saved = false;
-    component.saved.subscribe(() => {
-      saved = true;
-    });
-
-    component.form.get('title')?.setValue('');
-    component.handleSubmit();
-    expect(saved).toBeFalse();
-  });
-
-  it('should emit saved event with updated task on valid submit', () => {
-    let savedTask: TaskMock | undefined;
-    component.saved.subscribe((task: TaskMock) => {
-      savedTask = task;
-    });
+  it('should submit valid form and trigger editTask mutation', async () => {
+    spyOn(component, 'handleClose').and.callThrough();
 
     component.form.patchValue({
       title: 'Migración a Signals V2',
-      progress: 90,
+      description: 'Refactorizar componentes a Signals V2',
     });
 
-    component.handleSubmit();
-    expect(savedTask).toBeDefined();
-    expect(savedTask?.title).toBe('Migración a Signals V2');
-    expect(savedTask?.progress).toBe(90);
+    await component.handleSubmit();
+    expect(component.handleClose).toHaveBeenCalled();
   });
 });

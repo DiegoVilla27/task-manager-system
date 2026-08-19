@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { SearchInputComponent } from './search-input.component';
 
 describe('SearchInputComponent', () => {
@@ -19,7 +24,7 @@ describe('SearchInputComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit searchChange on input', () => {
+  it('should emit searchChange with debounce on input', fakeAsync(() => {
     let emittedQuery = '';
     component.searchChange.subscribe((q) => {
       emittedQuery = q;
@@ -30,11 +35,18 @@ describe('SearchInputComponent', () => {
     ) as HTMLInputElement;
     input.value = 'Angular';
     input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
 
+    expect(emittedQuery).toBe('');
+
+    tick(399);
+    expect(emittedQuery).toBe('');
+
+    tick(1);
     expect(emittedQuery).toBe('Angular');
-  });
+  }));
 
-  it('should clear value and emit cleared and searchChange when clear button is clicked', () => {
+  it('should clear value and immediately emit cleared and searchChange when clear button is clicked', () => {
     let clearedCalled = false;
     let emittedQuery = 'initial';
 

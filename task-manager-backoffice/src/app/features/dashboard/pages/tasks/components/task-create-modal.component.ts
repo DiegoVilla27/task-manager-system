@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   output,
@@ -18,10 +19,17 @@ import {
   InputComponent,
   ModalComponent,
   SelectComponent,
-  SelectOption,
   TextareaComponent,
 } from '@shared/components/ui';
-import { TaskMock } from '../models/task.model';
+import { CreateTaskRequest } from '../interfaces/request';
+import {
+  injectMutation,
+  injectQuery,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
+import { TaskService } from '../services/task.service';
+import { firstValueFrom } from 'rxjs';
+import { UserService } from '../../users/services/user.service';
 
 @Component({
   selector: 'app-task-create-modal',
@@ -44,19 +52,21 @@ import { TaskMock } from '../models/task.model';
       size="xl"
       (closed)="handleClose()"
     >
-      <form [formGroup]="form" (ngSubmit)="handleSubmit()" class="space-y-4">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="handleSubmit()"
+        class="space-y-4 flex flex-col gap-4"
+      >
         <!-- Title -->
         <app-form-field
           label="Título de la Tarea"
           forId="create-task-title"
           [required]="true"
-          [error]="titleError()"
         >
           <app-input
             id="create-task-title"
             placeholder="Ej. Implementar integración OAuth2 con Google"
             formControlName="title"
-            [error]="!!titleError()"
           />
         </app-form-field>
 
@@ -65,61 +75,26 @@ import { TaskMock } from '../models/task.model';
           label="Descripción Detallada"
           forId="create-task-desc"
           [required]="true"
-          [error]="descError()"
         >
           <app-textarea
             id="create-task-desc"
             [rows]="3"
             placeholder="Detalla los requerimientos, endpoints necesarios o criterios de aceptación..."
             formControlName="description"
-            [error]="!!descError()"
           />
         </app-form-field>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Initial Status -->
-          <app-form-field label="Estado Inicial" forId="create-task-status">
-            <app-select
-              id="create-task-status"
-              [options]="statusOptions"
-              formControlName="status"
-            />
-          </app-form-field>
-
-          <!-- Due Date -->
-          <app-form-field label="Fecha Límite" forId="create-task-due">
-            <app-input
-              id="create-task-due"
-              type="text"
-              placeholder="Ej. 28 Feb 2026"
-              formControlName="dueDate"
-            />
-          </app-form-field>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Assignee -->
-          <app-form-field label="Asignar a" forId="create-task-assignee">
-            <app-select
-              id="create-task-assignee"
-              [options]="assigneeOptions"
-              formControlName="assignee"
-            />
-          </app-form-field>
-
-          <!-- Tags -->
-          <app-form-field
-            label="Etiquetas (separadas por coma)"
-            forId="create-task-tags"
-          >
-            <app-input
-              id="create-task-tags"
-              type="text"
-              placeholder="Backend, API, Urgent"
-              formControlName="tags"
-            />
-          </app-form-field>
-        </div>
+        <app-form-field
+          label="Asignar usuario"
+          forId="create-task-desc"
+          [required]="true"
+        >
+          <app-select
+            id="create-task-assignee"
+            [options]="usersOptions()"
+            formControlName="userId"
+          />
+        </app-form-field>
 
         <!-- Action Buttons in Modal Footer -->
         <div
@@ -146,95 +121,68 @@ import { TaskMock } from '../models/task.model';
 })
 export class TaskCreateModalComponent {
   private readonly fb = inject(FormBuilder).nonNullable;
+  private readonly tasksSvc = inject(TaskService);
+  private readonly usersSvc = inject(UserService);
+  private readonly queryClient = inject(QueryClient);
 
   readonly isOpen = input.required<boolean>();
-
-  readonly closed = output<void>();
-  readonly created = output<Partial<TaskMock>>();
-
-  readonly statusOptions: SelectOption[] = [
-    { label: 'Por Hacer (TODO)', value: 'TODO' },
-    { label: 'En Progreso (IN_PROGRESS)', value: 'IN_PROGRESS' },
-    { label: 'Completada (COMPLETED)', value: 'COMPLETED' },
-  ];
-
-  readonly assigneeOptions: SelectOption[] = [
-    { label: 'Diego Villa (Super Admin)', value: 'Diego Villa' },
-    { label: 'Alejandro Morales (Frontend)', value: 'Alejandro Morales' },
-    { label: 'Camila Rodriguez (Product)', value: 'Camila Rodriguez' },
-    { label: 'Sofia Hernandez (Backend)', value: 'Sofia Hernandez' },
-    { label: 'Carlos Mendoza (QA)', value: 'Carlos Mendoza' },
-  ];
+  readonly close = output<void>();
 
   readonly form: FormGroup = this.fb.group({
-    title: ['', [Validators.required, Validators.minLength(3)]],
-    description: ['', [Validators.required]],
-    status: ['TODO'],
-    dueDate: ['28 Feb 2026'],
-    assignee: ['Diego Villa'],
-    tags: ['Backend, API'],
+    title: [
+      '',
+      [Validators.required, Validators.minLength(3), Validators.maxLength(100)],
+    ],
+    description: [
+      '',
+      [Validators.required, Validators.minLength(3), Validators.maxLength(400)],
+    ],
+    userId: ['', [Validators.required]],
   });
 
-  protected titleError(): string | null {
-    const ctrl = this.form.get('title');
-    if (ctrl?.touched && ctrl?.invalid) {
-      return 'El título es obligatorio (mínimo 3 caracteres)';
-    }
-    return null;
-  }
+  private readonly users = injectQuery(() => ({
+    queryKey: ['/users'],
+    queryFn: () =>
+      firstValueFrom(
+        this.usersSvc.getUsers({ page: 1, limit: 100, search: '' }),
+      ),
+  }));
 
-  protected descError(): string | null {
-    const ctrl = this.form.get('description');
-    if (ctrl?.touched && ctrl?.invalid) {
-      return 'La descripción es obligatoria';
+  readonly usersOptions = computed(() => {
+    this.users.data();
+    return (
+      this.users.data()?.content.map((u) => ({
+        label: `${u.name} ${u.lastname}`,
+        value: u.id,
+      })) ?? [{ value: '', label: '' }]
+    );
+  });
+
+  private readonly createTaskMutation = injectMutation(() => ({
+    mutationFn: (payload: CreateTaskRequest) =>
+      firstValueFrom(this.tasksSvc.createTask(payload)),
+    onSuccess: () =>
+      this.queryClient.invalidateQueries({ queryKey: ['/tasks'] }),
+  }));
+
+  async handleSubmit(): Promise<void> {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
-    return null;
+
+    const payload = this.form.getRawValue() as CreateTaskRequest;
+    await this.createTaskMutation.mutate(payload);
+
+    this.handleClose();
   }
 
   handleClose(): void {
     this.form.reset({
       title: '',
       description: '',
-      status: 'TODO',
-      dueDate: '28 Feb 2026',
-      assignee: 'Diego Villa',
-      tags: 'Backend, API',
+      userId: '',
     });
-    this.closed.emit();
-  }
-
-  handleSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    const val = this.form.getRawValue();
-    const tagArray = val.tags
-      ? val.tags
-          .split(',')
-          .map((t: string) => t.trim())
-          .filter(Boolean)
-      : ['Task'];
-
-    this.created.emit({
-      title: val.title,
-      description: val.description,
-      status: val.status,
-      dueDate: val.dueDate,
-      assignee: {
-        name: val.assignee,
-        avatarBg: 'from-indigo-600 to-purple-600',
-        initials: val.assignee
-          .split(' ')
-          .map((n: string) => n[0])
-          .join('')
-          .substring(0, 2),
-      },
-      tags: tagArray,
-      progress: 0,
-    });
-
-    this.handleClose();
+    this.close.emit();
   }
 }

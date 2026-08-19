@@ -1,19 +1,16 @@
 <div class="space-y-6">
-  <!-- 1. Header & Actions -->
-  <app-users-header
-    (newUserClicked)="openCreateModal()"
-    (exportCsvClicked)="exportCsv()"
-  />
+  <!-- Header & Actions -->
+  <app-users-header (newUserClicked)="isCreateModalOpen.set(true)" />
 
   <div class="flex flex-col gap-4">
-    <!-- 3. Filters & Search Toolbar -->
+    <!-- Filters & Search Toolbar -->
     <app-users-filters
       [search]="search()"
       (searchChange)="search.set($event)"
       (clearFilters)="search.set('')"
     />
 
-    <!-- 4. Users Table & Pagination -->
+    <!-- Users Table & Pagination -->
     <app-users-table
       [users]="users.data()"
       [page]="page()"
@@ -23,20 +20,20 @@
     />
   </div>
 
-  <!-- 5. Create User Modal -->
+  <!-- Create User Modal -->
   <app-user-create-modal
     [isOpen]="isCreateModalOpen()"
     (close)="closeModal()"
   />
 
-  <!-- 6. Edit User Modal -->
+  <!-- Edit User Modal -->
   <app-user-edit-modal
     [isOpen]="isEditModalOpen()"
     [user]="selectedUser()"
     (close)="closeModal()"
   />
 
-  <!-- 7. Delete User Modal -->
+  <!-- Delete User Modal -->
   <app-user-delete-modal
     [isOpen]="isDeleteModalOpen()"
     [user]="selectedUser()"

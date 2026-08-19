@@ -8,7 +8,7 @@ import { ButtonComponent } from '@shared/components/ui';
   imports: [CommonModule, ButtonComponent],
   template: `
     <div
-      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
     >
       <div>
         <div

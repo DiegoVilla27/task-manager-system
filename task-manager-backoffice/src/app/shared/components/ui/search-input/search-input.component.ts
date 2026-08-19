@@ -2,12 +2,17 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
+  inject,
   input,
+  OnInit,
   output,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 export type SearchInputSize = 'sm' | 'md' | 'lg';
 
@@ -73,12 +78,16 @@ export type SearchInputSize = 'sm' | 'md' | 'lg';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchInputComponent {
+export class SearchInputComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly searchSubject$ = new Subject<string>();
+
   readonly placeholder = input<string>('Buscar...');
   readonly value = input<string>('');
   readonly id = input<string>('search-input');
   readonly ariaLabel = input<string>('Buscar');
   readonly size = input<SearchInputSize>('md');
+  readonly debounceTime = input<number>(400);
   readonly customClass = input<string>('');
 
   readonly searchChange = output<string>();
@@ -105,10 +114,22 @@ export class SearchInputComponent {
     });
   }
 
+  ngOnInit(): void {
+    this.searchSubject$
+      .pipe(
+        debounceTime(this.debounceTime()),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((val) => {
+        this.searchChange.emit(val);
+      });
+  }
+
   protected handleInput(event: Event): void {
     const val = (event.target as HTMLInputElement).value;
     this.query.set(val);
-    this.searchChange.emit(val);
+    this.searchSubject$.next(val);
   }
 
   protected clearSearch(): void {
