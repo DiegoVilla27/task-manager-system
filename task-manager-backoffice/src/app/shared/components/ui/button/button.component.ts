@@ -80,11 +80,11 @@ export class ButtonComponent {
     const width = this.fullWidth() ? 'w-full' : '';
 
     const sizes: Record<ButtonSize, string> = {
-      sm: 'text-xs px-3 py-1.5 gap-1.5',
-      md: 'text-xs sm:text-sm px-4 py-2.5 gap-2',
-      lg: 'text-sm sm:text-base px-5 py-3 gap-2.5',
-      icon: 'p-2 rounded-xl text-slate-400',
-      'icon-sm': 'p-1.5 rounded-lg text-slate-400',
+      sm: 'h-9 text-xs px-3 gap-1.5',
+      md: 'h-10 text-xs sm:text-sm px-4 gap-2',
+      lg: 'h-12 text-sm sm:text-base px-5 gap-2.5',
+      icon: 'h-10 w-10 p-0 rounded-xl text-slate-400',
+      'icon-sm': 'h-9 w-9 p-0 rounded-lg text-slate-400',
     };
 
     const variants: Record<ButtonVariant, string> = {

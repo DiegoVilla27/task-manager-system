@@ -8,6 +8,11 @@ import {
 } from '@angular/core';
 import { AuthService } from '@features/auth/services/auth.service';
 import {
+  LucideChevronDown,
+  LucideChevronsLeft,
+  LucideClipboardPen,
+} from '@lucide/angular';
+import {
   AvatarComponent,
   BadgeComponent,
   ButtonComponent,
@@ -16,7 +21,15 @@ import {
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule, AvatarComponent, BadgeComponent, ButtonComponent],
+  imports: [
+    CommonModule,
+    AvatarComponent,
+    BadgeComponent,
+    ButtonComponent,
+    LucideClipboardPen,
+    LucideChevronsLeft,
+    LucideChevronDown,
+  ],
   template: `
     <header
       class="h-16 w-full shrink-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between z-30"
@@ -27,20 +40,7 @@ import {
           <div
             class="w-9 h-9 rounded-xl bg-linear-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0"
           >
-            <svg
-              class="w-5 h-5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-              />
-            </svg>
+            <svg class="w-5 h-5 text-white" lucideClipboardPen></svg>
           </div>
           <div class="flex flex-col">
             <span
@@ -65,46 +65,9 @@ import {
           <svg
             class="w-5 h-5 transition-transform duration-200"
             [class.rotate-180]="isSidebarCollapsed()"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-            />
-          </svg>
+            lucideChevronsLeft
+          ></svg>
         </button>
-
-        <!-- Global Search -->
-        <div
-          class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-400 w-64 lg:w-72"
-        >
-          <svg
-            class="w-3.5 h-3.5 text-slate-500 shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <span class="flex-1 text-slate-500 select-none"
-            >Buscar en backoffice...</span
-          >
-          <kbd
-            class="px-1.5 py-0.5 text-[9px] font-mono bg-slate-800 text-slate-400 rounded border border-slate-700"
-            >⌘K</kbd
-          >
-        </div>
       </div>
 
       <!-- Right Actions -->
@@ -131,20 +94,7 @@ import {
                 Super Admin
               </p>
             </div>
-            <svg
-              class="w-4 h-4 text-slate-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
+            <svg class="w-4 h-4 text-slate-400" lucideChevronDown></svg>
           </button>
 
           @if (isUserMenuOpen()) {

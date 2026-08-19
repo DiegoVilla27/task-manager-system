@@ -3,7 +3,17 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
 import { StorageUtils } from '@shared/utils/storage.utils';
 import { Observable, tap } from 'rxjs';
-import { UserMeResponse } from '../interfaces/response';
+import {
+  UserMeResponse,
+  UserResponse,
+  UsersPagination,
+} from '../interfaces/response';
+import {
+  CreateUserRequest,
+  EditUserRequest,
+  UsersPaginationRequest,
+} from '../interfaces/request';
+import { cleanParams } from '@shared/utils/clean-params.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +32,31 @@ export class UserService {
         this._user$.set(res);
       }),
     );
+  }
+
+  public getUsers(
+    payload: UsersPaginationRequest,
+  ): Observable<UsersPagination> {
+    const params = cleanParams(payload);
+    return this.http.get<UsersPagination>(this.BASE_USERS, { params });
+  }
+
+  public createUser(payload: CreateUserRequest): Observable<UserResponse> {
+    return this.http.post<UserResponse>(this.BASE_USERS, payload);
+  }
+
+  public updateUser(
+    userId: string,
+    payload: EditUserRequest,
+  ): Observable<UserResponse> {
+    return this.http.patch<UserResponse>(
+      `${this.BASE_USERS}/${userId}`,
+      payload,
+    );
+  }
+
+  public deleteUser(userId: string): Observable<void> {
+    return this.http.delete<void>(`${this.BASE_USERS}/${userId}`);
   }
 
   public saveMe(userMe: UserMeResponse): void {

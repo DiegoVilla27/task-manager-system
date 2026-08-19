@@ -65,7 +65,7 @@ import { CommonModule } from '@angular/common';
 export class PaginationComponent {
   readonly currentPage = input<number>(1);
   readonly totalItems = input<number>(0);
-  readonly itemsPerPage = input<number>(5);
+  readonly itemsPerPage = input<number>(10);
   readonly itemLabel = input<string>('elementos');
 
   readonly pageChange = output<number>();

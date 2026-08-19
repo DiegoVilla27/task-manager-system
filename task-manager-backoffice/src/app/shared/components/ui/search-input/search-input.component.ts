@@ -1,12 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   input,
   output,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
+export type SearchInputSize = 'sm' | 'md' | 'lg';
 
 @Component({
   selector: 'app-search-input',
@@ -40,7 +43,7 @@ import { CommonModule } from '@angular/common';
         [placeholder]="placeholder()"
         [value]="query()"
         (input)="handleInput($event)"
-        class="w-full pl-10 pr-9 py-2 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all"
+        [class]="inputClasses()"
       />
 
       @if (query()) {
@@ -75,12 +78,26 @@ export class SearchInputComponent {
   readonly value = input<string>('');
   readonly id = input<string>('search-input');
   readonly ariaLabel = input<string>('Buscar');
+  readonly size = input<SearchInputSize>('md');
   readonly customClass = input<string>('');
 
   readonly searchChange = output<string>();
   readonly cleared = output<void>();
 
   protected readonly query = signal<string>('');
+
+  protected readonly inputClasses = computed(() => {
+    const base =
+      'w-full pl-10 pr-9 bg-slate-950/70 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all';
+
+    const sizes: Record<SearchInputSize, string> = {
+      sm: 'h-9 text-xs',
+      md: 'h-10 text-xs sm:text-sm',
+      lg: 'h-12 text-sm sm:text-base',
+    };
+
+    return `${base} ${sizes[this.size()]}`.trim();
+  });
 
   constructor() {
     effect(() => {

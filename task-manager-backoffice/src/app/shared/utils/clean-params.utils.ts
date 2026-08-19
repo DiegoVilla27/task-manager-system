@@ -16,9 +16,7 @@ import { HttpParams } from '@angular/common/http';
  * // Resulting params: search=Diego&page=1
  * ```
  */
-export function cleanParams(
-  payload: Record<string, string | number | boolean | null | undefined>,
-): HttpParams {
+export function cleanParams<T extends object>(payload: T): HttpParams {
   let params = new HttpParams();
 
   if (!payload) return params;

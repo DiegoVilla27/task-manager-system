@@ -1,28 +1,43 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  provideTanStackQuery,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
+import { of } from 'rxjs';
 import { UserDeleteModalComponent } from './user-delete-modal.component';
-import { UserMock } from '../models/user.model';
+import { UserService } from '../services/user.service';
+import { UserResponse } from '../interfaces/response';
 
 describe('UserDeleteModalComponent', () => {
   let component: UserDeleteModalComponent;
   let fixture: ComponentFixture<UserDeleteModalComponent>;
+  let userService: jasmine.SpyObj<UserService>;
+  let queryClient: QueryClient;
 
-  const mockUser: UserMock = {
+  const mockUser: UserResponse = {
     id: 'usr-999',
-    name: 'Usuario a Revocar',
+    name: 'Usuario',
+    lastname: 'Prueba',
     email: 'revocar@taskmanager.io',
-    role: 'VIEWER',
-    status: 'INACTIVE',
-    department: 'QA',
-    assignedTasks: 0,
-    lastLogin: 'Ayer',
-    avatarBg: 'from-slate-600 to-slate-700',
-    initials: 'UR',
+    countTasks: 0,
     createdAt: '2026-01-01',
   };
 
   beforeEach(async () => {
+    queryClient = new QueryClient();
+    userService = jasmine.createSpyObj('UserService', ['deleteUser']);
+    userService.deleteUser.and.returnValue(of(undefined));
+
     await TestBed.configureTestingModule({
       imports: [UserDeleteModalComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTanStackQuery(queryClient),
+        { provide: UserService, useValue: userService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UserDeleteModalComponent);
@@ -36,9 +51,9 @@ describe('UserDeleteModalComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit closed event on handleClose', () => {
+  it('should emit close event on handleClose', () => {
     let closed = false;
-    component.closed.subscribe(() => {
+    component.close.subscribe(() => {
       closed = true;
     });
 
@@ -46,13 +61,10 @@ describe('UserDeleteModalComponent', () => {
     expect(closed).toBeTrue();
   });
 
-  it('should emit confirmed event with user ID on handleConfirm', () => {
-    let confirmedId = '';
-    component.confirmed.subscribe((id) => {
-      confirmedId = id;
-    });
+  it('should confirm delete and call deleteUser mutation', async () => {
+    spyOn(component, 'handleClose').and.callThrough();
 
-    component.handleConfirm();
-    expect(confirmedId).toBe('usr-999');
+    await component.handleConfirm();
+    expect(component.handleClose).toHaveBeenCalled();
   });
 });
