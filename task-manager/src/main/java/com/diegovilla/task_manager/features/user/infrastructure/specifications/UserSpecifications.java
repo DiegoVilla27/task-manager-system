@@ -40,7 +40,7 @@ public final class UserSpecifications {
                 String searchPattern = "%" + filters.search().toLowerCase() + "%";
                 Predicate idMatch =
                         criteriaBuilder.like(
-                                criteriaBuilder.lower(root.get("id").as(String.class)),
+                                criteriaBuilder.lower(criteriaBuilder.toString(root.get("id"))),
                                 searchPattern);
                 Predicate nameMatch =
                         criteriaBuilder.like(
