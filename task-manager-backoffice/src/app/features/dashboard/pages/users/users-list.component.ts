@@ -64,10 +64,6 @@ export class UsersListComponent {
       ),
   }));
 
-  openCreateModal(): void {
-    this.isCreateModalOpen.set(true);
-  }
-
   openEditModal(user: UserResponse): void {
     this.selectedUser.set(user);
     this.isEditModalOpen.set(true);
@@ -83,9 +79,5 @@ export class UsersListComponent {
     this.isEditModalOpen.set(false);
     this.isDeleteModalOpen.set(false);
     this.selectedUser.set(null);
-  }
-
-  exportCsv(): void {
-    console.log('Excel...');
   }
 }

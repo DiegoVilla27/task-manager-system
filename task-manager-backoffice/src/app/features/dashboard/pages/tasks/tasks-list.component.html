@@ -1,50 +1,40 @@
 <div class="space-y-6">
-  <!-- 1. Header & Actions -->
+  <!-- Header & Actions -->
   <app-tasks-header (newTaskClicked)="openCreateModal()" />
 
-  <!-- 2. Stats Grid -->
-  <app-tasks-stats [tasks]="tasks()" [totalRegistered]="38" />
+  <div class="flex flex-col gap-4">
+    <!-- Stats Grid -->
+    <app-tasks-stats [tasks]="tasks.data()" />
 
-  <!-- 3. Filters & Search Toolbar -->
-  <app-tasks-filters
-    [searchQuery]="searchQuery()"
-    [statusFilter]="statusFilter()"
-    (searchChange)="handleSearchChange($event)"
-    (statusChange)="handleStatusChange($event)"
-    (clearFilters)="handleClearFilters()"
-  />
+    <!-- Filters & Search Toolbar -->
+    <app-tasks-filters
+      [search]="search()"
+      (searchChange)="search.set($event)"
+      (statusChange)="status.set($event)"
+      (clearFilters)="handleClearFilters()"
+    />
 
-  <!-- 4. Tasks Table & Pagination -->
-  <app-tasks-table
-    [tasks]="filteredTasks()"
-    [totalTasks]="tasks().length"
-    [currentPage]="currentPage()"
-    [itemsPerPage]="pageSize()"
-    (edit)="openEditModal($event)"
-    (delete)="openDeleteModal($event)"
-    (pageChange)="handlePageChange($event)"
-  />
+    <!-- Tasks Table & Pagination -->
+    <app-tasks-table
+      [tasks]="tasks.data()"
+      [page]="page()"
+      (edit)="openEditModal($event)"
+      (delete)="openDeleteModal($event)"
+      (pageChange)="page.set($event)"
+    />
+  </div>
 
-  <!-- 5. Create Task Modal -->
-  <app-task-create-modal
-    [isOpen]="isCreateModalOpen()"
-    (closed)="closeCreateModal()"
-    (created)="handleCreateTask($event)"
-  />
-
-  <!-- 6. Edit Task Modal -->
-  <app-task-edit-modal
-    [isOpen]="isEditModalOpen()"
+  <!-- Create/Edit Task Modal -->
+  <app-task-form-modal
+    [isOpen]="isFormModalOpen()"
     [task]="selectedTask()"
-    (closed)="closeEditModal()"
-    (saved)="handleSaveTask($event)"
+    (close)="closeModal()"
   />
 
-  <!-- 7. Delete Task Modal -->
+  <!-- Delete Task Modal -->
   <app-task-delete-modal
     [isOpen]="isDeleteModalOpen()"
     [task]="selectedTask()"
-    (closed)="closeDeleteModal()"
-    (confirmed)="handleDeleteTask($event)"
+    (close)="closeModal()"
   />
 </div>

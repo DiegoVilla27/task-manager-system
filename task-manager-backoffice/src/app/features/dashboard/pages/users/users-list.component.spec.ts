@@ -56,7 +56,7 @@ describe('UsersListComponent', () => {
 
   it('should open and close create modal', () => {
     expect(component.isCreateModalOpen()).toBeFalse();
-    component.openCreateModal();
+    component.isCreateModalOpen.set(true);
     expect(component.isCreateModalOpen()).toBeTrue();
     component.closeModal();
     expect(component.isCreateModalOpen()).toBeFalse();
@@ -86,11 +86,5 @@ describe('UsersListComponent', () => {
     component.closeModal();
     expect(component.isDeleteModalOpen()).toBeFalse();
     expect(component.selectedUser()).toBeNull();
-  });
-
-  it('should trigger exportCsv', () => {
-    spyOn(console, 'log');
-    component.exportCsv();
-    expect(console.log).toHaveBeenCalledWith('Excel...');
   });
 });

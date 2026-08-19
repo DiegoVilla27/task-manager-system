@@ -11,6 +11,7 @@ import {
   SelectComponent,
   SelectOption,
 } from '@shared/components/ui';
+import { TaskStatus } from '../interfaces/response';
 
 @Component({
   selector: 'app-tasks-filters',
@@ -31,7 +32,7 @@ import {
           <app-search-input
             id="tasks-search-input"
             placeholder="Buscar tarea por título, código o tag..."
-            [value]="searchQuery()"
+            [value]="search()"
             (searchChange)="searchChange.emit($event)"
             (cleared)="searchChange.emit('')"
           />
@@ -63,17 +64,16 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TasksFiltersComponent {
-  readonly searchQuery = input<string>('');
-  readonly statusFilter = input<string>('');
-
+  readonly search = input<string>('');
   readonly searchChange = output<string>();
   readonly statusChange = output<string>();
+
   readonly clearFilters = output<void>();
 
   readonly statusOptions: SelectOption[] = [
     { label: 'Todos los Estados', value: '' },
-    { label: 'Por Hacer', value: 'TODO' },
-    { label: 'En Progreso', value: 'IN_PROGRESS' },
-    { label: 'Completada', value: 'COMPLETED' },
+    { label: TaskStatus.PENDING, value: TaskStatus.PENDING },
+    { label: TaskStatus.IN_PROGRESS, value: TaskStatus.IN_PROGRESS },
+    { label: TaskStatus.COMPLETED, value: TaskStatus.COMPLETED },
   ];
 }

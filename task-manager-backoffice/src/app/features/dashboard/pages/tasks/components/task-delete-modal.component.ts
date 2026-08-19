@@ -1,12 +1,19 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   input,
   output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent, ModalComponent } from '@shared/components/ui';
-import { TaskMock } from '../models/task.model';
+import { TaskResponse } from '../interfaces/response';
+import {
+  injectMutation,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
+import { TaskService } from '../services/task.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-task-delete-modal',
@@ -48,7 +55,7 @@ import { TaskMock } from '../models/task.model';
               Esta acción no se puede deshacer. Se eliminará permanentemente la
               tarea
               <strong class="text-slate-200">"{{ task()?.title }}"</strong> ({{
-                task()?.code
+                task()?.id
               }}).
             </p>
           </div>
@@ -83,21 +90,25 @@ import { TaskMock } from '../models/task.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskDeleteModalComponent {
+  private readonly tasksSvc = inject(TaskService);
+  private readonly queryClient = inject(QueryClient);
   readonly isOpen = input.required<boolean>();
-  readonly task = input<TaskMock | null>(null);
+  readonly task = input<TaskResponse | null>(null);
+  readonly close = output<void>();
 
-  readonly closed = output<void>();
-  readonly confirmed = output<string>();
+  readonly deleteTaskConfirm = injectMutation(() => ({
+    mutationFn: (taskId: string) =>
+      firstValueFrom(this.tasksSvc.deleteTask(taskId)),
+    onSuccess: () =>
+      this.queryClient.invalidateQueries({ queryKey: ['/tasks'] }),
+  }));
 
   handleClose(): void {
-    this.closed.emit();
+    this.close.emit();
   }
 
-  handleConfirm(): void {
-    const current = this.task();
-    if (current) {
-      this.confirmed.emit(current.id);
-      this.handleClose();
-    }
+  async handleConfirm(): Promise<void> {
+    await this.deleteTaskConfirm.mutate(this.task()!.id);
+    this.handleClose();
   }
 }

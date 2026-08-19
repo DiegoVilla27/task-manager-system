@@ -1,30 +1,48 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  provideTanStackQuery,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
+import { of } from 'rxjs';
 import { TaskDeleteModalComponent } from './task-delete-modal.component';
-import { TaskMock } from '../models/task.model';
+import { TaskService } from '../services/task.service';
+import { TaskResponse, TaskStatus } from '../interfaces/response';
 
 describe('TaskDeleteModalComponent', () => {
   let component: TaskDeleteModalComponent;
   let fixture: ComponentFixture<TaskDeleteModalComponent>;
+  let taskService: jasmine.SpyObj<TaskService>;
+  let queryClient: QueryClient;
 
-  const mockTask: TaskMock = {
+  const mockTask: TaskResponse = {
     id: 'task-123',
-    code: 'TSK-123',
     title: 'Tarea a eliminar',
     description: 'Descripción',
-    status: 'TODO',
-    progress: 0,
-    dueDate: '28 Feb 2026',
-    assignee: {
-      name: 'Diego Villa',
-      initials: 'DV',
-      avatarBg: 'from-indigo-600 to-cyan-500',
+    status: TaskStatus.PENDING,
+    user: {
+      id: 'usr-1',
+      name: 'Diego',
+      lastname: 'Villa',
+      email: 'diego@example.com',
     },
-    tags: ['Test'],
+    createdAt: '2026-01-01',
   };
 
   beforeEach(async () => {
+    queryClient = new QueryClient();
+    taskService = jasmine.createSpyObj('TaskService', ['deleteTask']);
+    taskService.deleteTask.and.returnValue(of(undefined));
+
     await TestBed.configureTestingModule({
       imports: [TaskDeleteModalComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTanStackQuery(queryClient),
+        { provide: TaskService, useValue: taskService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TaskDeleteModalComponent);
@@ -38,9 +56,9 @@ describe('TaskDeleteModalComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit closed event on handleClose', () => {
+  it('should emit close event on handleClose', () => {
     let closed = false;
-    component.closed.subscribe(() => {
+    component.close.subscribe(() => {
       closed = true;
     });
 
@@ -48,13 +66,10 @@ describe('TaskDeleteModalComponent', () => {
     expect(closed).toBeTrue();
   });
 
-  it('should emit confirmed event with task ID on handleConfirm', () => {
-    let confirmedId = '';
-    component.confirmed.subscribe((id) => {
-      confirmedId = id;
-    });
+  it('should call deleteTask mutation on handleConfirm', async () => {
+    spyOn(component, 'handleClose').and.callThrough();
 
-    component.handleConfirm();
-    expect(confirmedId).toBe('task-123');
+    await component.handleConfirm();
+    expect(component.handleClose).toHaveBeenCalled();
   });
 });

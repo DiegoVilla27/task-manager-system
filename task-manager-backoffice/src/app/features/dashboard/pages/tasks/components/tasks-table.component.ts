@@ -1,17 +1,16 @@
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   input,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   AvatarComponent,
   BadgeComponent,
   PaginationComponent,
-  ProgressBarComponent,
 } from '@shared/components/ui';
-import { TaskMock } from '../models/task.model';
+import { TaskResponse, TasksPagination } from '../interfaces/response';
 
 @Component({
   selector: 'app-tasks-table',
@@ -20,8 +19,8 @@ import { TaskMock } from '../models/task.model';
     CommonModule,
     AvatarComponent,
     BadgeComponent,
-    ProgressBarComponent,
     PaginationComponent,
+    DatePipe,
   ],
   template: `
     <div
@@ -36,34 +35,29 @@ import { TaskMock } from '../models/task.model';
             class="bg-slate-950/60 border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400"
           >
             <tr>
-              <th scope="col" class="px-6 py-4">Código & Tarea</th>
+              <th scope="col" class="px-6 py-4">Código</th>
+              <th scope="col" class="px-6 py-4">Tarea</th>
               <th scope="col" class="px-6 py-4">Asignado a</th>
               <th scope="col" class="px-6 py-4">Estado</th>
-              <th scope="col" class="px-6 py-4">Progreso</th>
-              <th scope="col" class="px-6 py-4">Fecha Límite</th>
+              <th scope="col" class="px-6 py-4">Fecha Creación</th>
               <th scope="col" class="px-6 py-4 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/80">
-            @for (task of tasks(); track task.id) {
+            @for (task of tasks()?.content; track task.id) {
               <tr class="hover:bg-slate-800/40 transition-colors">
+                <!-- Task ID -->
+                <td class="px-6 py-4">
+                  <span
+                    class="px-2 py-0.5 rounded-md bg-slate-800 text-indigo-400 font-mono text-[11px] font-bold border border-slate-700"
+                  >
+                    {{ task.id.slice(0, 5) + '...' }}
+                  </span>
+                </td>
+
                 <!-- Task Details -->
                 <td class="px-6 py-4">
                   <div class="max-w-md">
-                    <div class="flex items-center gap-2 mb-1">
-                      <span
-                        class="px-2 py-0.5 rounded-md bg-slate-800 text-indigo-400 font-mono text-[11px] font-bold border border-slate-700"
-                      >
-                        {{ task.code }}
-                      </span>
-                      @for (tag of task.tags; track tag) {
-                        <span
-                          class="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 text-slate-400 border border-slate-800"
-                        >
-                          {{ tag }}
-                        </span>
-                      }
-                    </div>
                     <p class="font-semibold text-white text-sm leading-snug">
                       {{ task.title }}
                     </p>
@@ -77,14 +71,15 @@ import { TaskMock } from '../models/task.model';
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-2.5">
                     <app-avatar
-                      [name]="task.assignee.name"
-                      [initials]="task.assignee.initials"
-                      [avatarBg]="task.assignee.avatarBg"
+                      [name]="task.user.name"
+                      [initials]="
+                        task.user.name[0] + ' ' + task.user.lastname[0]
+                      "
                       size="md"
                     />
                     <div>
                       <p class="font-medium text-slate-200">
-                        {{ task.assignee.name }}
+                        {{ task.user.name }}
                       </p>
                     </div>
                   </div>
@@ -92,7 +87,7 @@ import { TaskMock } from '../models/task.model';
 
                 <!-- Status -->
                 <td class="px-6 py-4 whitespace-nowrap">
-                  @if (task.status === 'TODO') {
+                  @if (task.status === 'PENDING') {
                     <app-badge variant="neutral" [dot]="true">
                       Por Hacer
                     </app-badge>
@@ -105,17 +100,6 @@ import { TaskMock } from '../models/task.model';
                       Completada
                     </app-badge>
                   }
-                </td>
-
-                <!-- Progress Bar -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="w-32">
-                    <app-progress-bar
-                      [value]="task.progress"
-                      [showLabel]="true"
-                      label="Avance"
-                    />
-                  </div>
                 </td>
 
                 <!-- Due Date -->
@@ -135,7 +119,7 @@ import { TaskMock } from '../models/task.model';
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    <span>{{ task.dueDate }}</span>
+                    <span>{{ task.createdAt | date }}</span>
                   </div>
                 </td>
 
@@ -203,9 +187,8 @@ import { TaskMock } from '../models/task.model';
 
       <!-- Pagination Footer -->
       <app-pagination
-        [currentPage]="currentPage()"
-        [totalItems]="totalTasks()"
-        [itemsPerPage]="itemsPerPage()"
+        [currentPage]="page()"
+        [totalItems]="tasks()?.totalElements ?? 0"
         itemLabel="tareas"
         (pageChange)="pageChange.emit($event)"
       />
@@ -214,12 +197,10 @@ import { TaskMock } from '../models/task.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TasksTableComponent {
-  readonly tasks = input.required<TaskMock[]>();
-  readonly totalTasks = input<number>(38);
-  readonly currentPage = input<number>(1);
-  readonly itemsPerPage = input<number>(5);
+  readonly tasks = input.required<TasksPagination | undefined>();
+  readonly page = input.required<number>();
 
-  readonly edit = output<TaskMock>();
-  readonly delete = output<TaskMock>();
+  readonly edit = output<TaskResponse>();
+  readonly delete = output<TaskResponse>();
   readonly pageChange = output<number>();
 }
