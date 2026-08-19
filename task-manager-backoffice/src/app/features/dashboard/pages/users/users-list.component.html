@@ -5,51 +5,41 @@
     (exportCsvClicked)="exportCsv()"
   />
 
-  <!-- 2. Stats Grid -->
-  <app-users-stats [users]="users()" [totalRegistered]="24" />
+  <div class="flex flex-col gap-4">
+    <!-- 3. Filters & Search Toolbar -->
+    <app-users-filters
+      [search]="search()"
+      (searchChange)="search.set($event)"
+      (clearFilters)="search.set('')"
+    />
 
-  <!-- 3. Filters & Search Toolbar -->
-  <app-users-filters
-    [searchQuery]="searchQuery()"
-    [roleFilter]="roleFilter()"
-    [statusFilter]="statusFilter()"
-    (searchChange)="handleSearchChange($event)"
-    (roleChange)="handleRoleChange($event)"
-    (statusChange)="handleStatusChange($event)"
-    (clearFilters)="handleClearFilters()"
-  />
-
-  <!-- 4. Users Table & Pagination -->
-  <app-users-table
-    [users]="filteredUsers()"
-    [totalUsers]="users().length"
-    [currentPage]="currentPage()"
-    [itemsPerPage]="pageSize()"
-    (edit)="openEditModal($event)"
-    (delete)="openDeleteModal($event)"
-    (pageChange)="handlePageChange($event)"
-  />
+    <!-- 4. Users Table & Pagination -->
+    <app-users-table
+      [users]="users.data()"
+      [page]="page()"
+      (edit)="openEditModal($event)"
+      (delete)="openDeleteModal($event)"
+      (pageChange)="page.set($event)"
+    />
+  </div>
 
   <!-- 5. Create User Modal -->
   <app-user-create-modal
     [isOpen]="isCreateModalOpen()"
-    (closed)="closeCreateModal()"
-    (created)="handleCreateUser($event)"
+    (close)="closeModal()"
   />
 
   <!-- 6. Edit User Modal -->
   <app-user-edit-modal
     [isOpen]="isEditModalOpen()"
     [user]="selectedUser()"
-    (closed)="closeEditModal()"
-    (saved)="handleSaveUser($event)"
+    (close)="closeModal()"
   />
 
   <!-- 7. Delete User Modal -->
   <app-user-delete-modal
     [isOpen]="isDeleteModalOpen()"
     [user]="selectedUser()"
-    (closed)="closeDeleteModal()"
-    (confirmed)="handleDeleteUser($event)"
+    (close)="closeModal()"
   />
 </div>

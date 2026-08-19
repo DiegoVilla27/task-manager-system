@@ -11,6 +11,7 @@ import { routes } from './core/router/app.routes';
 import tanstackConfig from '@core/tanstack';
 import { jwtInterceptor } from '@core/interceptors/jwt.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
+import { provideLucideIcons } from '@lucide/angular';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,5 +19,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor])),
     provideTanStackQuery(tanstackConfig()),
+    provideLucideIcons(),
   ],
 };

@@ -44,6 +44,8 @@ export type InputSize = 'sm' | 'md' | 'lg';
         (input)="handleInput($event)"
         (focus)="handleFocus($event)"
         (blur)="handleBlur($event)"
+        autocorrect="off"
+        spellcheck="false"
       />
 
       <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center">
@@ -87,9 +89,9 @@ export class InputComponent implements ControlValueAccessor {
       'w-full bg-slate-950/70 border rounded-xl text-slate-100 placeholder-slate-500 transition-all focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed';
 
     const sizes: Record<InputSize, string> = {
-      sm: 'py-1.5 text-xs',
-      md: 'py-2.5 text-xs sm:text-sm',
-      lg: 'py-3 text-sm sm:text-base',
+      sm: 'h-9 text-xs',
+      md: 'h-10 text-xs sm:text-sm',
+      lg: 'h-12 text-sm sm:text-base',
     };
 
     const pl = this.hasPrefix() ? 'pl-10' : 'pl-3.5';

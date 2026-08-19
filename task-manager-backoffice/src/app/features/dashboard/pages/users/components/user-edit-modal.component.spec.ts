@@ -1,28 +1,34 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  provideTanStackQuery,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
 import { UserEditModalComponent } from './user-edit-modal.component';
-import { UserMock } from '../models/user.model';
+import { UserResponse } from '../interfaces/response';
 
 describe('UserEditModalComponent', () => {
   let component: UserEditModalComponent;
   let fixture: ComponentFixture<UserEditModalComponent>;
 
-  const mockUser: UserMock = {
+  const mockUser: UserResponse = {
     id: 'usr-1',
-    name: 'Camila Rodriguez',
+    name: 'Camila',
+    lastname: 'Rodriguez',
     email: 'camila.rodriguez@company.com',
-    role: 'MANAGER',
-    status: 'ACTIVE',
-    department: 'Product & Design',
-    assignedTasks: 14,
-    lastLogin: 'Hace 5 min',
-    avatarBg: 'from-purple-600 to-pink-500',
-    initials: 'CR',
+    countTasks: 14,
     createdAt: '2026-01-01',
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [UserEditModalComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTanStackQuery(new QueryClient()),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UserEditModalComponent);
@@ -37,72 +43,18 @@ describe('UserEditModalComponent', () => {
   });
 
   it('should populate form with user data', () => {
-    expect(component.form.value.name).toBe('Camila Rodriguez');
-    expect(component.form.value.role).toBe('MANAGER');
-    expect(component.form.value.department).toBe('Product & Design');
+    expect(component.form.value.name).toBe('Camila');
+    expect(component.form.value.lastname).toBe('Rodriguez');
+    expect(component.form.value.email).toBe('camila.rodriguez@company.com');
   });
 
-  it('should emit closed event on handleClose', () => {
+  it('should emit close event on handleClose', () => {
     let closed = false;
-    component.closed.subscribe(() => {
+    component.close.subscribe(() => {
       closed = true;
     });
 
     component.handleClose();
     expect(closed).toBeTrue();
-  });
-
-  it('should return correct name error messages', () => {
-    const nameCtrl = component.form.get('name');
-    expect(component['nameError']()).toBeNull();
-
-    nameCtrl?.markAsTouched();
-    nameCtrl?.setValue('');
-    expect(component['nameError']()).toBe('El nombre es obligatorio');
-
-    nameCtrl?.setValue('Camila');
-    expect(component['nameError']()).toBeNull();
-  });
-
-  it('should return correct email error messages', () => {
-    const emailCtrl = component.form.get('email');
-    expect(component['emailError']()).toBeNull();
-
-    emailCtrl?.markAsTouched();
-    emailCtrl?.setValue('invalid');
-    expect(component['emailError']()).toBe(
-      'Ingresa un correo electrónico válido',
-    );
-
-    emailCtrl?.setValue('valid@company.com');
-    expect(component['emailError']()).toBeNull();
-  });
-
-  it('should not emit saved when form is invalid', () => {
-    let saved = false;
-    component.saved.subscribe(() => {
-      saved = true;
-    });
-
-    component.form.get('name')?.setValue('');
-    component.handleSubmit();
-    expect(saved).toBeFalse();
-  });
-
-  it('should emit saved event with updated user on valid submit', () => {
-    let savedUser: UserMock | undefined;
-    component.saved.subscribe((user: UserMock) => {
-      savedUser = user;
-    });
-
-    component.form.patchValue({
-      name: 'Camila Rodriguez Morales',
-      role: 'ADMIN',
-    });
-
-    component.handleSubmit();
-    expect(savedUser).toBeDefined();
-    expect(savedUser?.name).toBe('Camila Rodriguez Morales');
-    expect(savedUser?.role).toBe('ADMIN');
   });
 });

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,7 +6,6 @@ import {
   input,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -17,10 +17,14 @@ import {
   FormFieldComponent,
   InputComponent,
   ModalComponent,
-  SelectComponent,
-  SelectOption,
 } from '@shared/components/ui';
-import { UserMock } from '../models/user.model';
+import {
+  injectMutation,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
+import { firstValueFrom } from 'rxjs';
+import { CreateUserRequest } from '../interfaces/request';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-user-create-modal',
@@ -31,79 +35,64 @@ import { UserMock } from '../models/user.model';
     ModalComponent,
     FormFieldComponent,
     InputComponent,
-    SelectComponent,
     ButtonComponent,
   ],
   template: `
     <app-modal
       [isOpen]="isOpen()"
       title="Nuevo Usuario"
-      subtitle="Otorga acceso al panel administrativo y asigna un rol inicial"
+      subtitle="Otorga acceso al sistema"
       size="xl"
       (closed)="handleClose()"
     >
-      <form [formGroup]="form" (ngSubmit)="handleSubmit()" class="space-y-4">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="handleSubmit()"
+        class="space-y-4"
+        novalidate
+        autocomplete="off"
+      >
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <!-- Full Name -->
-          <app-form-field
-            label="Nombre Completo"
-            forId="create-user-name"
-            [required]="true"
-            [error]="nameError()"
-          >
+          <app-form-field label="Nombre" forId="create-user-name">
             <app-input
               id="create-user-name"
-              placeholder="Ej. Valeria Santana"
+              placeholder="John"
+              type="text"
               formControlName="name"
-              [error]="!!nameError()"
             />
           </app-form-field>
 
           <!-- Email -->
-          <app-form-field
-            label="Correo Electrónico"
-            forId="create-user-email"
-            [required]="true"
-            [error]="emailError()"
-          >
+          <app-form-field label="Apellido" forId="create-user-lastname">
             <app-input
-              id="create-user-email"
-              type="email"
-              placeholder="valeria@taskmanager.io"
-              formControlName="email"
-              [error]="!!emailError()"
+              id="create-user-lastname"
+              type="text"
+              placeholder="Doe"
+              formControlName="lastname"
             />
           </app-form-field>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Role -->
-          <app-form-field label="Rol de Acceso" forId="create-user-role">
-            <app-select
-              id="create-user-role"
-              [options]="roleOptions"
-              formControlName="role"
+          <app-form-field label="Correo electrónico" forId="create-user-email">
+            <app-input
+              id="create-user-email"
+              placeholder="user@example.com"
+              type="email"
+              formControlName="email"
             />
           </app-form-field>
-
-          <!-- Department -->
-          <app-form-field label="Departamento / Área" forId="create-user-dept">
+          <app-form-field label="Contraseña" forId="create-user-password">
             <app-input
-              id="create-user-dept"
-              placeholder="Ej. DevOps & Cloud"
-              formControlName="department"
+              id="create-user-password"
+              placeholder="*******"
+              type="password"
+              formControlName="password"
+              autocomplete="new-password"
             />
           </app-form-field>
         </div>
-
-        <!-- Initial Status -->
-        <app-form-field label="Estado Inicial" forId="create-user-status">
-          <app-select
-            id="create-user-status"
-            [options]="statusOptions"
-            formControlName="status"
-          />
-        </app-form-field>
 
         <!-- Action Buttons in Modal Footer -->
         <div
@@ -130,87 +119,56 @@ import { UserMock } from '../models/user.model';
 })
 export class UserCreateModalComponent {
   private readonly fb = inject(FormBuilder).nonNullable;
+  private readonly usersSvc = inject(UserService);
+  private readonly queryClient = inject(QueryClient);
 
   readonly isOpen = input.required<boolean>();
-
-  readonly closed = output<void>();
-  readonly created = output<Partial<UserMock>>();
-
-  readonly roleOptions: SelectOption[] = [
-    { label: 'Super Admin (Acceso Total)', value: 'SUPER_ADMIN' },
-    { label: 'Admin (Operador General)', value: 'ADMIN' },
-    { label: 'Manager (Gestión & Reportes)', value: 'MANAGER' },
-    { label: 'Developer (Ejecución de Tareas)', value: 'DEVELOPER' },
-    { label: 'Viewer (Solo Lectura)', value: 'VIEWER' },
-  ];
-
-  readonly statusOptions: SelectOption[] = [
-    { label: 'Activo (Acceso Inmediato)', value: 'ACTIVE' },
-    { label: 'Pendiente (Enviar Invitación)', value: 'PENDING' },
-    { label: 'Inactivo', value: 'INACTIVE' },
-  ];
+  readonly close = output<void>();
 
   readonly form: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(3)]],
-    email: ['', [Validators.required, Validators.email]],
-    role: ['DEVELOPER'],
-    department: ['Frontend Engineering'],
-    status: ['ACTIVE'],
+    name: [
+      '',
+      [Validators.required, Validators.minLength(3), Validators.maxLength(100)],
+    ],
+    lastname: [
+      '',
+      [Validators.required, Validators.minLength(3), Validators.maxLength(100)],
+    ],
+    email: [
+      '',
+      [Validators.required, Validators.email, Validators.maxLength(150)],
+    ],
+    password: [
+      '',
+      [Validators.required, Validators.minLength(8), Validators.maxLength(20)],
+    ],
   });
 
-  protected nameError(): string | null {
-    const ctrl = this.form.get('name');
-    if (ctrl?.touched && ctrl?.invalid) {
-      return 'El nombre es obligatorio (mínimo 3 caracteres)';
-    }
-    return null;
-  }
-
-  protected emailError(): string | null {
-    const ctrl = this.form.get('email');
-    if (ctrl?.touched && ctrl?.invalid) {
-      return 'Ingresa un correo electrónico corporativo válido';
-    }
-    return null;
-  }
+  readonly createUserMutation = injectMutation(() => ({
+    mutationFn: (payload: CreateUserRequest) =>
+      firstValueFrom(this.usersSvc.createUser(payload)),
+    onSuccess: () =>
+      this.queryClient.invalidateQueries({ queryKey: ['/users'] }),
+  }));
 
   handleClose(): void {
     this.form.reset({
       name: '',
+      lastname: '',
       email: '',
-      role: 'DEVELOPER',
-      department: 'Frontend Engineering',
-      status: 'ACTIVE',
+      password: '',
     });
-    this.closed.emit();
+    this.close.emit();
   }
 
-  handleSubmit(): void {
+  async handleSubmit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const val = this.form.getRawValue();
-    const initials = val.name
-      .split(' ')
-      .map((n: string) => n[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
-
-    this.created.emit({
-      name: val.name,
-      email: val.email,
-      role: val.role,
-      department: val.department,
-      status: val.status,
-      avatarBg: 'from-cyan-500 to-blue-600',
-      initials,
-      assignedTasks: 0,
-      lastLogin: 'Nunca',
-      createdAt: 'Hoy',
-    });
+    const payload = this.form.getRawValue() as CreateUserRequest;
+    await this.createUserMutation.mutate(payload);
 
     this.handleClose();
   }

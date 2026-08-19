@@ -107,9 +107,9 @@ export class SelectComponent implements ControlValueAccessor {
       'w-full appearance-none bg-slate-950/70 border rounded-xl text-slate-200 pr-10 pl-3.5 transition-all focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
 
     const sizes: Record<SelectSize, string> = {
-      sm: 'py-1.5 text-xs',
-      md: 'py-2.5 text-xs sm:text-sm',
-      lg: 'py-3 text-sm sm:text-base',
+      sm: 'h-9 text-xs',
+      md: 'h-10 text-xs sm:text-sm',
+      lg: 'h-12 text-sm sm:text-base',
     };
 
     const stateBorder = this.error()

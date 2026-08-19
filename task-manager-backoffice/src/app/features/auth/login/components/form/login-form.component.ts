@@ -21,6 +21,13 @@ import {
 } from '@shared/components/ui';
 import { injectMutation } from '@tanstack/angular-query-experimental';
 import { firstValueFrom } from 'rxjs';
+import {
+  LucideAtSign,
+  LucideEye,
+  LucideEyeClosed,
+  LucideKeyRound,
+  LucideArrowRight,
+} from '@lucide/angular';
 
 @Component({
   selector: 'app-login-form',
@@ -31,6 +38,11 @@ import { firstValueFrom } from 'rxjs';
     FormFieldComponent,
     InputComponent,
     ButtonComponent,
+    LucideAtSign,
+    LucideKeyRound,
+    LucideEye,
+    LucideEyeClosed,
+    LucideArrowRight,
   ],
   templateUrl: 'login-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

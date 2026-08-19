@@ -1,12 +1,19 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   input,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ButtonComponent, ModalComponent } from '@shared/components/ui';
-import { UserMock } from '../models/user.model';
+import {
+  injectMutation,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
+import { firstValueFrom } from 'rxjs';
+import { UserResponse } from '../interfaces/response';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-user-delete-modal',
@@ -82,21 +89,25 @@ import { UserMock } from '../models/user.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserDeleteModalComponent {
+  private readonly usersSvc = inject(UserService);
+  private readonly queryClient = inject(QueryClient);
   readonly isOpen = input.required<boolean>();
-  readonly user = input<UserMock | null>(null);
+  readonly user = input<UserResponse | null>(null);
+  readonly close = output<void>();
 
-  readonly closed = output<void>();
-  readonly confirmed = output<string>();
+  readonly deleteUserConfirm = injectMutation(() => ({
+    mutationFn: (userId: string) =>
+      firstValueFrom(this.usersSvc.deleteUser(userId)),
+    onSuccess: () =>
+      this.queryClient.invalidateQueries({ queryKey: ['/users'] }),
+  }));
 
   handleClose(): void {
-    this.closed.emit();
+    this.close.emit();
   }
 
-  handleConfirm(): void {
-    const current = this.user();
-    if (current) {
-      this.confirmed.emit(current.id);
-      this.handleClose();
-    }
+  async handleConfirm(): Promise<void> {
+    await this.deleteUserConfirm.mutate(this.user()!.id);
+    this.handleClose();
   }
 }

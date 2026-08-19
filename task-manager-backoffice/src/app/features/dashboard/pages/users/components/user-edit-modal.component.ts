@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,7 +7,6 @@ import {
   input,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -18,10 +18,15 @@ import {
   FormFieldComponent,
   InputComponent,
   ModalComponent,
-  SelectComponent,
-  SelectOption,
 } from '@shared/components/ui';
-import { UserMock } from '../models/user.model';
+import {
+  injectMutation,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
+import { firstValueFrom } from 'rxjs';
+import { EditUserRequest } from '../interfaces/request';
+import { UserResponse } from '../interfaces/response';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-user-edit-modal',
@@ -32,74 +37,68 @@ import { UserMock } from '../models/user.model';
     ModalComponent,
     FormFieldComponent,
     InputComponent,
-    SelectComponent,
     ButtonComponent,
   ],
   template: `
     <app-modal
       [isOpen]="isOpen()"
       [title]="'Editar Usuario: ' + (user()?.name || '')"
-      subtitle="Modifica el rol, departamento y estado de la cuenta"
+      subtitle="Modifica el usuario del sistema"
       size="xl"
       (closed)="handleClose()"
     >
       @if (user()) {
-        <form [formGroup]="form" (ngSubmit)="handleSubmit()" class="space-y-4">
+        <form
+          [formGroup]="form"
+          (ngSubmit)="handleSubmit()"
+          class="space-y-4"
+          novalidate
+          autocomplete="off"
+        >
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Full Name -->
-            <app-form-field
-              label="Nombre Completo"
-              forId="edit-user-name"
-              [required]="true"
-              [error]="nameError()"
-            >
+            <app-form-field label="Nombre" forId="create-user-name">
               <app-input
-                id="edit-user-name"
+                id="create-user-name"
+                placeholder="John"
+                type="text"
                 formControlName="name"
-                [error]="!!nameError()"
               />
             </app-form-field>
 
             <!-- Email -->
-            <app-form-field
-              label="Correo Electrónico"
-              forId="edit-user-email"
-              [required]="true"
-              [error]="emailError()"
-            >
+            <app-form-field label="Apellido" forId="create-user-lastname">
               <app-input
-                id="edit-user-email"
-                type="email"
-                formControlName="email"
-                [error]="!!emailError()"
+                id="create-user-lastname"
+                type="text"
+                placeholder="Doe"
+                formControlName="lastname"
               />
             </app-form-field>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Role -->
-            <app-form-field label="Rol de Acceso" forId="edit-user-role">
-              <app-select
-                id="edit-user-role"
-                [options]="roleOptions"
-                formControlName="role"
+            <app-form-field
+              label="Correo electrónico"
+              forId="create-user-email"
+            >
+              <app-input
+                id="create-user-email"
+                placeholder="user@example.com"
+                type="email"
+                formControlName="email"
               />
             </app-form-field>
-
-            <!-- Department -->
-            <app-form-field label="Departamento / Área" forId="edit-user-dept">
-              <app-input id="edit-user-dept" formControlName="department" />
+            <app-form-field label="Contraseña" forId="create-user-password">
+              <app-input
+                id="create-user-password"
+                placeholder="*******"
+                type="password"
+                formControlName="password"
+                autocomplete="new-password"
+              />
             </app-form-field>
           </div>
-
-          <!-- Status -->
-          <app-form-field label="Estado de Cuenta" forId="edit-user-status">
-            <app-select
-              id="edit-user-status"
-              [options]="statusOptions"
-              formControlName="status"
-            />
-          </app-form-field>
 
           <!-- Action Buttons in Modal Footer -->
           <div
@@ -127,34 +126,31 @@ import { UserMock } from '../models/user.model';
 })
 export class UserEditModalComponent {
   private readonly fb = inject(FormBuilder).nonNullable;
+  private readonly usersSvc = inject(UserService);
+  private readonly queryClient = inject(QueryClient);
 
   readonly isOpen = input.required<boolean>();
-  readonly user = input<UserMock | null>(null);
-
-  readonly closed = output<void>();
-  readonly saved = output<UserMock>();
-
-  readonly roleOptions: SelectOption[] = [
-    { label: 'Super Admin (Acceso Total)', value: 'SUPER_ADMIN' },
-    { label: 'Admin (Operador General)', value: 'ADMIN' },
-    { label: 'Manager (Gestión & Reportes)', value: 'MANAGER' },
-    { label: 'Developer (Ejecución de Tareas)', value: 'DEVELOPER' },
-    { label: 'Viewer (Solo Lectura)', value: 'VIEWER' },
-  ];
-
-  readonly statusOptions: SelectOption[] = [
-    { label: 'Activo', value: 'ACTIVE' },
-    { label: 'Pendiente', value: 'PENDING' },
-    { label: 'Inactivo', value: 'INACTIVE' },
-  ];
+  readonly user = input<UserResponse | null>(null);
+  readonly close = output<void>();
 
   readonly form: FormGroup = this.fb.group({
-    name: ['', [Validators.required]],
-    email: ['', [Validators.required, Validators.email]],
-    role: ['DEVELOPER'],
-    department: [''],
-    status: ['ACTIVE'],
+    name: ['', [Validators.minLength(3), Validators.maxLength(100)]],
+    lastname: ['', [Validators.minLength(3), Validators.maxLength(100)]],
+    email: ['', [Validators.email, Validators.maxLength(150)]],
+    password: ['', [Validators.minLength(8), Validators.maxLength(20)]],
   });
+
+  readonly editUserMutation = injectMutation(() => ({
+    mutationFn: ({
+      userId,
+      payload,
+    }: {
+      userId: string;
+      payload: EditUserRequest;
+    }) => firstValueFrom(this.usersSvc.updateUser(userId, payload)),
+    onSuccess: () =>
+      this.queryClient.invalidateQueries({ queryKey: ['/users'] }),
+  }));
 
   constructor() {
     effect(() => {
@@ -162,51 +158,35 @@ export class UserEditModalComponent {
       if (current) {
         this.form.patchValue({
           name: current.name,
+          lastname: current.lastname,
           email: current.email,
-          role: current.role,
-          department: current.department,
-          status: current.status,
+          password: '',
         });
       }
     });
   }
 
-  protected nameError(): string | null {
-    const ctrl = this.form.get('name');
-    if (ctrl?.touched && ctrl?.invalid) {
-      return 'El nombre es obligatorio';
-    }
-    return null;
-  }
-
-  protected emailError(): string | null {
-    const ctrl = this.form.get('email');
-    if (ctrl?.touched && ctrl?.invalid) {
-      return 'Ingresa un correo electrónico válido';
-    }
-    return null;
-  }
-
   handleClose(): void {
-    this.closed.emit();
+    this.form.patchValue({
+      name: '',
+      lastname: '',
+      email: '',
+      password: '',
+    });
+    this.close.emit();
   }
 
-  handleSubmit(): void {
+  async handleSubmit(): Promise<void> {
     if (this.form.invalid || !this.user()) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const val = this.form.getRawValue();
-    const current = this.user()!;
+    const payload = this.form.getRawValue() as EditUserRequest;
 
-    this.saved.emit({
-      ...current,
-      name: val.name,
-      email: val.email,
-      role: val.role,
-      department: val.department,
-      status: val.status,
+    await this.editUserMutation.mutate({
+      userId: this.user()!.id,
+      payload,
     });
 
     this.handleClose();

@@ -1,21 +1,17 @@
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   input,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  AvatarComponent,
-  BadgeComponent,
-  PaginationComponent,
-} from '@shared/components/ui';
-import { UserMock } from '../models/user.model';
+import { AvatarComponent, PaginationComponent } from '@shared/components/ui';
+import { UserResponse, UsersPagination } from '../interfaces/response';
 
 @Component({
   selector: 'app-users-table',
   standalone: true,
-  imports: [CommonModule, AvatarComponent, BadgeComponent, PaginationComponent],
+  imports: [CommonModule, AvatarComponent, PaginationComponent, DatePipe],
   template: `
     <div
       class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl"
@@ -30,37 +26,27 @@ import { UserMock } from '../models/user.model';
           >
             <tr>
               <th scope="col" class="px-6 py-4">Usuario & Email</th>
-              <th scope="col" class="px-6 py-4">Rol & Departamento</th>
-              <th scope="col" class="px-6 py-4">Estado</th>
               <th scope="col" class="px-6 py-4">Tareas Asignadas</th>
-              <th scope="col" class="px-6 py-4">Último Acceso</th>
+              <th scope="col" class="px-6 py-4">Creado</th>
               <th scope="col" class="px-6 py-4 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/80">
-            @for (user of users(); track user.id) {
+            @for (user of users()?.content; track user.id) {
               <tr class="hover:bg-slate-800/40 transition-colors">
                 <!-- User Info -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-3">
                     <app-avatar
                       [name]="user.name"
-                      [initials]="user.initials"
-                      [avatarBg]="user.avatarBg"
+                      [initials]="user.name[0] + '' + user.lastname[0]"
                       size="md"
                     />
                     <div>
                       <div class="flex items-center gap-1.5">
                         <span class="font-semibold text-white text-sm">
-                          {{ user.name }}
+                          {{ user.name }} {{ user.lastname }}
                         </span>
-                        @if (user.role === 'SUPER_ADMIN') {
-                          <span
-                            class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-mono font-bold"
-                          >
-                            Root
-                          </span>
-                        }
                       </div>
                       <span class="text-slate-400 text-xs mt-0.5 block">
                         {{ user.email }}
@@ -69,52 +55,11 @@ import { UserMock } from '../models/user.model';
                   </div>
                 </td>
 
-                <!-- Role & Department -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div>
-                    @if (user.role === 'SUPER_ADMIN') {
-                      <app-badge variant="purple" size="sm"
-                        >Super Admin</app-badge
-                      >
-                    } @else if (user.role === 'ADMIN') {
-                      <app-badge variant="primary" size="sm">Admin</app-badge>
-                    } @else if (user.role === 'MANAGER') {
-                      <app-badge variant="info" size="sm">Manager</app-badge>
-                    } @else if (user.role === 'DEVELOPER') {
-                      <app-badge variant="default" size="sm"
-                        >Developer</app-badge
-                      >
-                    } @else {
-                      <app-badge variant="neutral" size="sm">Viewer</app-badge>
-                    }
-                    <p class="text-[11px] text-slate-400 mt-1">
-                      {{ user.department }}
-                    </p>
-                  </div>
-                </td>
-
-                <!-- Status -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  @if (user.status === 'ACTIVE') {
-                    <app-badge variant="success" [dot]="true" [pulse]="true">
-                      Activo
-                    </app-badge>
-                  } @else if (user.status === 'PENDING') {
-                    <app-badge variant="warning" [dot]="true">
-                      Pendiente
-                    </app-badge>
-                  } @else {
-                    <app-badge variant="neutral" [dot]="true">
-                      Inactivo
-                    </app-badge>
-                  }
-                </td>
-
                 <!-- Assigned Tasks -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <span class="font-bold text-white font-mono text-sm">
-                      {{ user.assignedTasks }}
+                      {{ user.countTasks }}
                     </span>
                     <span class="text-[11px] text-slate-500">activas</span>
                   </div>
@@ -123,10 +68,7 @@ import { UserMock } from '../models/user.model';
                 <!-- Last Login -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-slate-300 text-xs">
-                    <p>{{ user.lastLogin }}</p>
-                    <p class="text-[11px] text-slate-500">
-                      Creado: {{ user.createdAt }}
-                    </p>
+                    <p>{{ user.createdAt | date }}</p>
                   </div>
                 </td>
 
@@ -194,9 +136,8 @@ import { UserMock } from '../models/user.model';
 
       <!-- Pagination -->
       <app-pagination
-        [currentPage]="currentPage()"
-        [totalItems]="totalUsers()"
-        [itemsPerPage]="itemsPerPage()"
+        [currentPage]="page()"
+        [totalItems]="users()?.totalElements ?? 0"
         itemLabel="usuarios"
         (pageChange)="pageChange.emit($event)"
       />
@@ -205,12 +146,10 @@ import { UserMock } from '../models/user.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsersTableComponent {
-  readonly users = input.required<UserMock[]>();
-  readonly totalUsers = input<number>(24);
-  readonly currentPage = input<number>(1);
-  readonly itemsPerPage = input<number>(5);
+  readonly users = input.required<UsersPagination | undefined>();
+  readonly page = input.required<number>();
 
-  readonly edit = output<UserMock>();
-  readonly delete = output<UserMock>();
+  readonly edit = output<UserResponse>();
+  readonly delete = output<UserResponse>();
   readonly pageChange = output<number>();
 }

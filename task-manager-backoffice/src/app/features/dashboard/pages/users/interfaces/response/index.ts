@@ -1,3 +1,5 @@
+import { Pagination } from '@shared/interfaces';
+
 interface UserResponse {
   id: string;
   name: string;
@@ -9,4 +11,6 @@ interface UserResponse {
 
 type UserMeResponse = Omit<UserResponse, 'countTasks' | 'createdAt'>;
 
-export { type UserResponse, type UserMeResponse };
+type UsersPagination = Pagination<UserResponse>;
+
+export { type UserResponse, type UserMeResponse, type UsersPagination };

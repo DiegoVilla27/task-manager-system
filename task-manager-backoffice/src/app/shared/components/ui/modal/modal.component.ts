@@ -30,7 +30,7 @@ export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   template: `
     <ng-template #modalTemplate>
       <div
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        class="fixed inset-0 z-100 flex items-center justify-center p-4"
         role="dialog"
         [attr.aria-modal]="true"
         [attr.aria-labelledby]="title() ? 'modal-title' : null"
