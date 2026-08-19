@@ -5,12 +5,15 @@ import {
   provideTanStackQuery,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
+import { of } from 'rxjs';
 import { UsersListComponent } from './users-list.component';
-import { UserResponse } from './interfaces/response';
+import { UserResponse, UsersPagination } from './interfaces/response';
+import { UserService } from './services/user.service';
 
 describe('UsersListComponent', () => {
   let component: UsersListComponent;
   let fixture: ComponentFixture<UsersListComponent>;
+  let userService: jasmine.SpyObj<UserService>;
 
   const mockUser: UserResponse = {
     id: 'USR-TEST-01',
@@ -21,13 +24,24 @@ describe('UsersListComponent', () => {
     createdAt: '2026-01-01',
   };
 
+  const mockPagination: UsersPagination = {
+    content: [mockUser],
+    totalElements: 1,
+    totalPages: 1,
+    size: 10,
+  };
+
   beforeEach(async () => {
+    userService = jasmine.createSpyObj('UserService', ['getUsers']);
+    userService.getUsers.and.returnValue(of(mockPagination));
+
     await TestBed.configureTestingModule({
       imports: [UsersListComponent],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         provideTanStackQuery(new QueryClient()),
+        { provide: UserService, useValue: userService },
       ],
     }).compileComponents();
 

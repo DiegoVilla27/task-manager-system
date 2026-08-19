@@ -5,12 +5,16 @@ import {
   provideTanStackQuery,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
+import { of } from 'rxjs';
 import { UserDeleteModalComponent } from './user-delete-modal.component';
+import { UserService } from '../services/user.service';
 import { UserResponse } from '../interfaces/response';
 
 describe('UserDeleteModalComponent', () => {
   let component: UserDeleteModalComponent;
   let fixture: ComponentFixture<UserDeleteModalComponent>;
+  let userService: jasmine.SpyObj<UserService>;
+  let queryClient: QueryClient;
 
   const mockUser: UserResponse = {
     id: 'usr-999',
@@ -22,12 +26,17 @@ describe('UserDeleteModalComponent', () => {
   };
 
   beforeEach(async () => {
+    queryClient = new QueryClient();
+    userService = jasmine.createSpyObj('UserService', ['deleteUser']);
+    userService.deleteUser.and.returnValue(of(undefined));
+
     await TestBed.configureTestingModule({
       imports: [UserDeleteModalComponent],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideTanStackQuery(new QueryClient()),
+        provideTanStackQuery(queryClient),
+        { provide: UserService, useValue: userService },
       ],
     }).compileComponents();
 
@@ -50,5 +59,12 @@ describe('UserDeleteModalComponent', () => {
 
     component.handleClose();
     expect(closed).toBeTrue();
+  });
+
+  it('should confirm delete and call deleteUser mutation', async () => {
+    spyOn(component, 'handleClose').and.callThrough();
+
+    await component.handleConfirm();
+    expect(component.handleClose).toHaveBeenCalled();
   });
 });

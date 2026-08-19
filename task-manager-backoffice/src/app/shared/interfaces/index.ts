@@ -1,8 +1,8 @@
 interface Pagination<T> {
   content: T[];
-  totalElements: 0;
-  totalPages: 0;
-  size: 0;
+  totalElements: number;
+  totalPages: number;
+  size: number;
 }
 
 export { type Pagination };
