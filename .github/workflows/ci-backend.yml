@@ -5,22 +5,43 @@ on:
     branches:
       - dev
       - main
+
   pull_request:
     branches:
       - dev
       - main
 
+# Si haces varios commits rápidamente sobre la misma rama/PR,
+# cancela el CI anterior y ejecuta únicamente el más reciente.
+concurrency:
+  group: ci-backend-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # ============================================================
+  # 1. CHANGE DETECTION
+  # ============================================================
   changes:
     name: 🔍 Check Backend Changes
     runs-on: ubuntu-latest
+
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🔍 Check for backend changes
+      - name: 🛡️ Verify PR source branch
+        if: github.base_ref == 'main' && github.head_ref != 'dev'
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "❌ ERROR: No está permitido hacer Pull Request a 'main' desde '$SOURCE_BRANCH'."
+          echo "👉 Todo cambio hacia 'main' debe provenir obligatoriamente de 'dev'."
+          exit 1
+
+      - name: 🔍 Detect Backend Changes
         uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -29,33 +50,32 @@ jobs:
               - 'task-manager/**'
               - '.github/workflows/ci-backend.yml'
 
+  # ============================================================
+  # 2. FAST-FAIL STATIC QUALITY GATE
+  # ============================================================
   static-checks:
     name: ⚡ Fast-Fail Quality Gate (Spotless & Compile)
+
     needs: changes
+
     if: ${{ needs.changes.outputs.backend == 'true' }}
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./task-manager
-    steps:
-      - name: 🛑 Verify PR source branch is dev (when targeting main)
-        if: github.base_ref == 'main' && github.head_ref != 'dev'
-        env:
-          SOURCE_BRANCH: ${{ github.head_ref }}
-        run: |
-          echo "❌ ERROR: No está permitido hacer Pull Request a 'main' desde '$SOURCE_BRANCH'."
-          echo "👉 Todo cambio hacia 'main' debe provenir obligatoriamente de la rama 'dev'."
-          exit 1
 
+    steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
       - name: ☕ Set up OpenJDK 17
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
@@ -66,14 +86,24 @@ jobs:
       - name: ⚙️ Compile Java Code
         run: ./mvnw clean compile
 
+  # ============================================================
+  # 3. UNIT TESTS
+  # ============================================================
   unit-tests:
     name: 🧪 Unit Tests & JaCoCo Coverage
-    needs: [changes, static-checks]
+
+    needs:
+      - changes
+      - static-checks
+
     if: ${{ needs.changes.outputs.backend == 'true' }}
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./task-manager
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -81,31 +111,43 @@ jobs:
       - name: ☕ Set up OpenJDK 17
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
-      - name: 🧪 Run Tests & JaCoCo Report
-        run: ./mvnw test jacoco:report -Dtest="!TaskManagerApplicationTests,!*IntegrationTest,!*IT"
+      - name: 🧪 Run Unit Tests & Generate JaCoCo Report
+        run: |
+          ./mvnw test jacoco:report \
+            -Dtest="!TaskManagerApplicationTests,!*IntegrationTest,!*IT"
 
-      - name: 📤 Upload JaCoCo Coverage Artifact
+      - name: 📤 Upload JaCoCo Coverage
         uses: actions/upload-artifact@v4
         with:
           name: backend-jacoco
           path: task-manager/target/site/jacoco/jacoco.xml
           retention-days: 1
 
+  # ============================================================
+  # 4. INTEGRATION TESTS
+  # ============================================================
   integration-tests:
     name: 🔗 Integration Tests (Testcontainers / Spring)
-    needs: [changes, static-checks]
+
+    needs:
+      - changes
+      - static-checks
+
     if: ${{ needs.changes.outputs.backend == 'true' }}
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./task-manager
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -113,32 +155,49 @@ jobs:
       - name: ☕ Set up OpenJDK 17
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
-      - name: 🔗 Run Integration Tests (Optional / If exist)
+      - name: 🔗 Run Integration Tests
         run: |
-          IT_FILES=$(find src/test/java -name "*IntegrationTest.java" -o -name "*IT.java" 2>/dev/null || true)
+          IT_FILES=$(find src/test/java \
+            \( -name "*IntegrationTest.java" -o -name "*IT.java" \) \
+            2>/dev/null || true)
+
           if [ -n "$IT_FILES" ]; then
             echo "🧪 Tests de integración encontrados:"
             echo "$IT_FILES"
-            ./mvnw test -Dtest="*IntegrationTest,*IT" -Dsurefire.failIfNoSpecifiedTests=false
+
+            ./mvnw test \
+              -Dtest="*IntegrationTest,*IT" \
+              -Dsurefire.failIfNoSpecifiedTests=false
           else
-            echo "ℹ️ No se encontraron archivos de integración (*IntegrationTest.java, *IT.java). Omitiendo de forma segura."
+            echo "ℹ️ No se encontraron tests de integración."
+            echo "ℹ️ Omitiendo Integration Tests de forma segura."
           fi
 
+  # ============================================================
+  # 5. PRODUCTION BUILD
+  # ============================================================
   build:
     name: 📦 Build Spring Boot JAR
-    needs: [changes, static-checks]
+
+    needs:
+      - changes
+      - static-checks
+
     if: ${{ needs.changes.outputs.backend == 'true' }}
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./task-manager
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -146,26 +205,43 @@ jobs:
       - name: ☕ Set up OpenJDK 17
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
-      - name: 📦 Build JAR Package
+      - name: 📦 Build Production JAR
         run: ./mvnw package -DskipTests
 
+      - name: 📤 Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: task-manager/target/*.jar
+          retention-days: 1
+
+  # ============================================================
+  # 6. SONARCLOUD
+  # ============================================================
   sonar:
-    name: 🔍 SonarCloud Code Analysis & Quality Gate
-    needs: [changes, unit-tests]
+    name: 🔍 SonarCloud Analysis & Quality Gate
+
+    needs:
+      - changes
+      - unit-tests
+
     if: ${{ needs.changes.outputs.backend == 'true' }}
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./task-manager
+
     steps:
-      - name: 📥 Checkout Repository (Full History)
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -173,25 +249,112 @@ jobs:
       - name: ☕ Set up OpenJDK 17
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
-      - name: 📥 Download JaCoCo Artifact
+      - name: 📥 Download JaCoCo Coverage
         uses: actions/download-artifact@v4
         with:
           name: backend-jacoco
           path: task-manager/target/site/jacoco
 
-      - name: 🔍 SonarCloud Scan
+      - name: 🔍 Run SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=DiegoVilla27_task-manager-system \
+            -Dsonar.projectKey=DiegoVilla27_task-manager-backend \
             -Dsonar.organization=diegovilla27 \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.qualitygate.wait=true \
+            -Dsonar.qualitygate.timeout=300
+
+  # ============================================================
+  # 7. FINAL CI QUALITY GATE
+  # ============================================================
+  quality-gate:
+    name: 🛡️ Backend CI Quality Gate
+
+    needs:
+      - changes
+      - static-checks
+      - unit-tests
+      - integration-tests
+      - build
+      - sonar
+
+    if: ${{ always() }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛡️ Evaluate CI Results
+        env:
+          CHANGED: ${{ needs.changes.outputs.backend }}
+          CHANGES_RESULT: ${{ needs.changes.result }}
+
+          STATIC_RESULT: ${{ needs.static-checks.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SONAR_RESULT: ${{ needs.sonar.result }}
+        run: |
+          echo "=========================================="
+          echo "🛡️ Backend CI Quality Gate"
+          echo "=========================================="
+
+          echo "Changes:      $CHANGED"
+          echo "Static:       $STATIC_RESULT"
+          echo "Unit:         $UNIT_RESULT"
+          echo "Integration:  $INTEGRATION_RESULT"
+          echo "Build:        $BUILD_RESULT"
+          echo "Sonar:        $SONAR_RESULT"
+          echo "=========================================="
+
+          # El job de changes debe haber terminado correctamente.
+          if [[ "$CHANGES_RESULT" != "success" ]]; then
+            echo "❌ Change detection / repository policy failed."
+            exit 1
+          fi
+
+          # Si el backend no cambió, este Quality Gate pasa.
+          if [[ "$CHANGED" != "true" ]]; then
+            echo "ℹ️ No Backend changes detected."
+            echo "✅ Backend CI Quality Gate PASSED."
+            exit 0
+          fi
+
+          # Todos los checks deben haber terminado correctamente.
+          if [[ "$STATIC_RESULT" != "success" ]]; then
+            echo "❌ Static checks failed."
+            exit 1
+          fi
+
+          if [[ "$UNIT_RESULT" != "success" ]]; then
+            echo "❌ Unit tests failed."
+            exit 1
+          fi
+
+          if [[ "$INTEGRATION_RESULT" != "success" ]]; then
+            echo "❌ Integration tests failed."
+            exit 1
+          fi
+
+          if [[ "$BUILD_RESULT" != "success" ]]; then
+            echo "❌ Production build failed."
+            exit 1
+          fi
+
+          if [[ "$SONAR_RESULT" != "success" ]]; then
+            echo "❌ SonarCloud Quality Gate failed."
+            exit 1
+          fi
+
+          echo "=========================================="
+          echo "✅ BACKEND CI QUALITY GATE PASSED"
+          echo "=========================================="
