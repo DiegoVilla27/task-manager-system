@@ -26,6 +26,10 @@ describe('TasksStatsComponent', () => {
 
   it('should create and calculate totalCount correctly', () => {
     expect(component).toBeTruthy();
-    expect((component as any).totalCount()).toBe(42);
+    expect(component['totalCount']()).toBe(42);
+
+    fixture.componentRef.setInput('tasks', undefined);
+    fixture.detectChanges();
+    expect(component['totalCount']()).toBe(0);
   });
 });

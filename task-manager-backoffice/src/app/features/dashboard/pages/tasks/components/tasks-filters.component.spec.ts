@@ -1,5 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { TasksFiltersComponent } from './tasks-filters.component';
+import { TaskStatus } from '../interfaces/response';
 
 describe('TasksFiltersComponent', () => {
   let component: TasksFiltersComponent;
@@ -23,5 +29,27 @@ describe('TasksFiltersComponent', () => {
     fixture.detectChanges();
 
     expect(clearFiltersSpy).toHaveBeenCalled();
+  });
+
+  it('should emit searchChange when search input emits', fakeAsync(() => {
+    const searchSpy = spyOn(component.searchChange, 'emit');
+    const input = fixture.nativeElement.querySelector('input');
+    input.value = 'Refactor';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    tick(400);
+
+    expect(searchSpy).toHaveBeenCalledWith('Refactor');
+  }));
+
+  it('should emit statusChange when status select emits', () => {
+    const statusSpy = spyOn(component.statusChange, 'emit');
+    const select = fixture.nativeElement.querySelector('select');
+    select.value = TaskStatus.IN_PROGRESS;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(statusSpy).toHaveBeenCalledWith(TaskStatus.IN_PROGRESS);
   });
 });

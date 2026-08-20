@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { UsersFiltersComponent } from './users-filters.component';
 
 describe('UsersFiltersComponent', () => {
@@ -24,4 +29,16 @@ describe('UsersFiltersComponent', () => {
 
     expect(clearFiltersSpy).toHaveBeenCalled();
   });
+
+  it('should emit searchChange event when input changes with debounce', fakeAsync(() => {
+    const searchSpy = spyOn(component.searchChange, 'emit');
+    const searchInput = fixture.nativeElement.querySelector('input');
+    searchInput.value = 'Diego';
+    searchInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(searchSpy).not.toHaveBeenCalled();
+    tick(400);
+    expect(searchSpy).toHaveBeenCalledWith('Diego');
+  }));
 });
