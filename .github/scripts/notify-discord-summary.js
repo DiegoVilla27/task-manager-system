@@ -8,6 +8,13 @@ if (!webhookUrl) {
 
 const moduleName = process.env.MODULE || 'Task Manager';
 const changed = process.env.CHANGED === 'true';
+
+// Si este módulo no tuvo cambios, no generamos ruido en Discord
+if (!changed) {
+  console.log(`ℹ️ [${moduleName}] Sin cambios detectados. Omitiendo notificación de Discord para evitar spam.`);
+  process.exit(0);
+}
+
 const staticResult = process.env.STATIC_RESULT || 'skipped';
 const unitResult = process.env.UNIT_RESULT || 'skipped';
 const integrationResult = process.env.INTEGRATION_RESULT || 'skipped';
@@ -48,17 +55,14 @@ const allSuccess =
 
 const hasFailure = [staticResult, unitResult, integrationResult, buildResult, sonarResult].includes('failure');
 
-if (!changed) {
-  color = 3447003; // Blue
-  title = `ℹ️ [${moduleName}] CI Omitido (Sin cambios detectados)`;
-} else if (allSuccess) {
-  color = 3066993; // Green
+if (allSuccess) {
+  color = 3066993; // Green (#2ECC71)
   title = `🎉 [${moduleName}] Quality Gate PASSED - Todo Exitoso`;
 } else if (hasFailure) {
-  color = 15158332; // Red
+  color = 15158332; // Red (#E74C3C)
   title = `🚨 [${moduleName}] Quality Gate FAILED - Errores en Pipeline`;
 } else {
-  color = 15965458; // Yellow
+  color = 15965458; // Yellow (#F39C12)
   title = `⚠️ [${moduleName}] Quality Gate Concluido con Avisos`;
 }
 
@@ -90,11 +94,11 @@ fetch(webhookUrl, {
 })
   .then(res => {
     if (!res.ok) {
-      console.warn(`⚠️ Discord responded with status: ${res.status}`);
+      console.warn(`⚠️ Discord respondió con código de estado: ${res.status}`);
     } else {
-      console.log('✅ Discord summary notified successfully.');
+      console.log(`✅ [${moduleName}] Notificación consolidada enviada a Discord exitosamente.`);
     }
   })
   .catch(err => {
-    console.warn(`⚠️ Failed to notify Discord: ${err.message}`);
+    console.warn(`⚠️ Error al enviar notificación a Discord: ${err.message}`);
   });

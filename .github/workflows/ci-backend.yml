@@ -84,16 +84,6 @@ jobs:
       - name: ⚙️ Compile Java Code
         run: ./mvnw clean compile
 
-      - name: 📢 Notify Discord (Static Checks & Compile)
-        if: always()
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          JOB_STATUS: ${{ job.status }}
-          MODULE: "Spring Boot API"
-          JOB_NAME: "Spotless & Compilación"
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: node ${{ github.workspace }}/.github/scripts/notify-discord.js
-
   # ============================================================
   # 3. UNIT TESTS
   # ============================================================
@@ -137,16 +127,6 @@ jobs:
           name: backend-jacoco
           path: task-manager/target/site/jacoco/jacoco.xml
           retention-days: 1
-
-      - name: 📢 Notify Discord (Unit Tests)
-        if: always()
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          JOB_STATUS: ${{ job.status }}
-          MODULE: "Spring Boot API"
-          JOB_NAME: "Unit Tests & JaCoCo"
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: node ${{ github.workspace }}/.github/scripts/notify-discord.js
 
   # ============================================================
   # 4. INTEGRATION TESTS
@@ -198,16 +178,6 @@ jobs:
             echo "ℹ️ Omitiendo Integration Tests de forma segura."
           fi
 
-      - name: 📢 Notify Discord (Integration Tests)
-        if: always()
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          JOB_STATUS: ${{ job.status }}
-          MODULE: "Spring Boot API"
-          JOB_NAME: "Integration Tests"
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: node ${{ github.workspace }}/.github/scripts/notify-discord.js
-
   # ============================================================
   # 5. PRODUCTION BUILD
   # ============================================================
@@ -249,16 +219,6 @@ jobs:
           name: backend-jar
           path: task-manager/target/*.jar
           retention-days: 1
-
-      - name: 📢 Notify Discord (Build)
-        if: always()
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          JOB_STATUS: ${{ job.status }}
-          MODULE: "Spring Boot API"
-          JOB_NAME: "Production Build JAR"
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: node ${{ github.workspace }}/.github/scripts/notify-discord.js
 
   # ============================================================
   # 6. SONARCLOUD
@@ -311,16 +271,6 @@ jobs:
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
             -Dsonar.qualitygate.wait=true \
             -Dsonar.qualitygate.timeout=300
-
-      - name: 📢 Notify Discord (SonarCloud)
-        if: always()
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          JOB_STATUS: ${{ job.status }}
-          MODULE: "Spring Boot API"
-          JOB_NAME: "SonarCloud Quality Gate"
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: node ${{ github.workspace }}/.github/scripts/notify-discord.js
 
   # ============================================================
   # 7. FINAL CI QUALITY GATE
@@ -407,7 +357,7 @@ jobs:
           echo "✅ BACKEND CI QUALITY GATE PASSED"
           echo "=========================================="
 
-      - name: 📢 Notify Discord (Final Quality Gate Report)
+      - name: 📢 Notify Discord (Single Summary Report)
         if: always()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
