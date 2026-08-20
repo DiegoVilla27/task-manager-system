@@ -397,7 +397,6 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-version: latest
-          working-directory: ./task-manager-backoffice
           github-comment: true
 
       - name: 🚀 Deploy to Vercel (Production on Main)
@@ -408,7 +407,6 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-version: latest
-          working-directory: ./task-manager-backoffice
           vercel-args: '--prod'
 
   # ============================================================
