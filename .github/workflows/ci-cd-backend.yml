@@ -1,4 +1,4 @@
-name: CI Backend (Spring Boot)
+name: CI/CD Backend (Spring Boot)
 
 on:
   push:
@@ -11,8 +11,10 @@ on:
       - dev
       - main
 
+  workflow_dispatch:
+
 concurrency:
-  group: ci-backend-${{ github.head_ref || github.ref }}
+  group: ci-cd-backend-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -46,7 +48,7 @@ jobs:
           filters: |
             backend:
               - 'task-manager/**'
-              - '.github/workflows/ci-backend.yml'
+              - '.github/workflows/ci-cd-backend.yml'
 
   # ============================================================
   # 2. FAST-FAIL STATIC QUALITY GATE
@@ -357,8 +359,67 @@ jobs:
           echo "✅ BACKEND CI QUALITY GATE PASSED"
           echo "=========================================="
 
-      - name: 📢 Notify Discord (Single Summary Report)
-        if: always()
+  # ============================================================
+  # 8. CONTINUOUS DEPLOYMENT (CD) - RENDER
+  # ============================================================
+  deploy:
+    name: 🚀 Deploy to Render
+    needs:
+      - changes
+      - quality-gate
+
+    if: |
+      needs.quality-gate.result == 'success' &&
+      needs.changes.outputs.backend == 'true' &&
+      (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚀 Trigger Render DEV Deploy
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "🚀 Triggering Deploy Hook for DEV..."
+          curl -f -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_DEV }}"
+          echo "✅ DEV Deploy triggered successfully on Render."
+
+      - name: 🚀 Trigger Render PROD Deploy
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "🚀 Triggering Deploy Hook for PROD..."
+          curl -f -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_PROD }}"
+          echo "✅ PROD Deploy triggered successfully on Render."
+
+  # ============================================================
+  # 9. DISCORD NOTIFICATION REPORT
+  # ============================================================
+  notify:
+    name: 📢 Discord CI/CD Summary
+    needs:
+      - changes
+      - static-checks
+      - unit-tests
+      - integration-tests
+      - build
+      - sonar
+      - quality-gate
+      - deploy
+
+    if: ${{ always() }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 📢 Notify Discord (Single Consolidated Report)
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           MODULE: "Spring Boot API"
@@ -368,5 +429,6 @@ jobs:
           INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
           BUILD_RESULT: ${{ needs.build.result }}
           SONAR_RESULT: ${{ needs.sonar.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: node ${{ github.workspace }}/.github/scripts/notify-discord-summary.js

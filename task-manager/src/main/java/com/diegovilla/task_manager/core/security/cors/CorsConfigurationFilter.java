@@ -29,11 +29,12 @@ public class CorsConfigurationFilter {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 1. Orígenes permitidos (URL de tu Frontend en dev/prod)
-        configuration.setAllowedOrigins(
+        // 1. Orígenes permitidos (Localhost, Vercel y Render)
+        configuration.setAllowedOriginPatterns(
                 List.of(
-                        "http://localhost:4200", // Angular
-                        "http://localhost:3000" // React
+                        "http://localhost:[*]", // Local dev (React, Angular, etc.)
+                        "https://*.vercel.app", // Vercel (Previews y Prod)
+                        "https://*.onrender.com" // Render
                         ));
 
         // 2. Métodos HTTP permitidos

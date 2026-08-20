@@ -20,6 +20,7 @@ const unitResult = process.env.UNIT_RESULT || 'skipped';
 const integrationResult = process.env.INTEGRATION_RESULT || 'skipped';
 const buildResult = process.env.BUILD_RESULT || 'skipped';
 const sonarResult = process.env.SONAR_RESULT || 'skipped';
+const deployResult = process.env.DEPLOY_RESULT;
 
 const branch = process.env.GITHUB_REF_NAME || process.env.BRANCH || 'unknown';
 const actor = process.env.GITHUB_ACTOR || 'system';
@@ -46,42 +47,47 @@ const formatStatus = (res) => {
 let color;
 let title;
 
-const allSuccess =
-  staticResult === 'success' &&
-  unitResult === 'success' &&
-  integrationResult === 'success' &&
-  buildResult === 'success' &&
-  sonarResult === 'success';
+const checks = [staticResult, unitResult, integrationResult, buildResult, sonarResult];
+if (deployResult) {
+  checks.push(deployResult);
+}
 
-const hasFailure = [staticResult, unitResult, integrationResult, buildResult, sonarResult].includes('failure');
+const allSuccess = checks.every((res) => res === 'success');
+const hasFailure = checks.includes('failure');
 
 if (allSuccess) {
   color = 3066993; // Green (#2ECC71)
-  title = `🎉 [${moduleName}] Quality Gate PASSED - Todo Exitoso`;
+  title = `🎉 [${moduleName}] Quality Gate & CD PASSED - Todo Exitoso`;
 } else if (hasFailure) {
   color = 15158332; // Red (#E74C3C)
-  title = `🚨 [${moduleName}] Quality Gate FAILED - Errores en Pipeline`;
+  title = `🚨 [${moduleName}] Pipeline FAILED - Errores detectados`;
 } else {
   color = 15965458; // Yellow (#F39C12)
-  title = `⚠️ [${moduleName}] Quality Gate Concluido con Avisos`;
+  title = `⚠️ [${moduleName}] Pipeline Concluido con Avisos`;
+}
+
+const fields = [
+  { name: '🎨 Linter & Formato', value: formatStatus(staticResult), inline: true },
+  { name: '🧪 Pruebas Unitarias', value: formatStatus(unitResult), inline: true },
+  { name: '🔗 Pruebas Integración', value: formatStatus(integrationResult), inline: true },
+  { name: '📦 Production Build', value: formatStatus(buildResult), inline: true },
+  { name: '🔍 SonarCloud Gate', value: formatStatus(sonarResult), inline: true },
+];
+
+if (deployResult) {
+  fields.push({ name: '🚀 Despliegue (CD)', value: formatStatus(deployResult), inline: true });
 }
 
 const payload = {
-  username: 'GitHub Actions CI',
+  username: 'GitHub Actions CI/CD',
   avatar_url: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png',
   embeds: [
     {
       title: title,
       color: color,
       description: `**Commit:** \`${commitMsg}\`\n**Rama:** \`${branch}\` • **Autor:** \`${actor}\`\n[🔗 Ver detalles en GitHub Actions](${runUrl})`,
-      fields: [
-        { name: '🎨 Linter & Formato', value: formatStatus(staticResult), inline: true },
-        { name: '🧪 Pruebas Unitarias', value: formatStatus(unitResult), inline: true },
-        { name: '🔗 Pruebas Integración', value: formatStatus(integrationResult), inline: true },
-        { name: '📦 Production Build', value: formatStatus(buildResult), inline: true },
-        { name: '🔍 SonarCloud Gate', value: formatStatus(sonarResult), inline: true }
-      ],
-      footer: { text: `Task Manager • Reporte Final de CI` },
+      fields: fields,
+      footer: { text: `Task Manager • Reporte Final de CI/CD` },
       timestamp: new Date().toISOString()
     }
   ]
