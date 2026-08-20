@@ -1,4 +1,4 @@
-name: CI Frontend (React Client)
+name: CI Frontend (React)
 
 on:
   push:
@@ -300,6 +300,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
       - name: 🛡️ Evaluate CI Results
         env:
           CHANGED: ${{ needs.changes.outputs.frontend }}
@@ -362,3 +365,17 @@ jobs:
           echo "=========================================="
           echo "✅ FRONTEND CI QUALITY GATE PASSED"
           echo "=========================================="
+
+      - name: 📢 Notify Discord (Single Summary Report)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          MODULE: "React Client"
+          CHANGED: ${{ needs.changes.outputs.frontend }}
+          STATIC_RESULT: ${{ needs.static-checks.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SONAR_RESULT: ${{ needs.sonar.result }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: node ${{ github.workspace }}/.github/scripts/notify-discord-summary.js

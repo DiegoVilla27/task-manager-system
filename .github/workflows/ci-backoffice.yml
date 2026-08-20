@@ -302,6 +302,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
       - name: 🛡️ Evaluate CI Results
         env:
           CHANGED: ${{ needs.changes.outputs.backoffice }}
@@ -364,3 +367,17 @@ jobs:
           echo "=========================================="
           echo "✅ BACKOFFICE CI QUALITY GATE PASSED"
           echo "=========================================="
+
+      - name: 📢 Notify Discord (Single Summary Report)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          MODULE: "Angular Backoffice"
+          CHANGED: ${{ needs.changes.outputs.backoffice }}
+          STATIC_RESULT: ${{ needs.static-checks.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SONAR_RESULT: ${{ needs.sonar.result }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: node ${{ github.workspace }}/.github/scripts/notify-discord-summary.js

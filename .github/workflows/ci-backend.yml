@@ -11,8 +11,6 @@ on:
       - dev
       - main
 
-# Si haces varios commits rápidamente sobre la misma rama/PR,
-# cancela el CI anterior y ejecuta únicamente el más reciente.
 concurrency:
   group: ci-backend-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -54,7 +52,7 @@ jobs:
   # 2. FAST-FAIL STATIC QUALITY GATE
   # ============================================================
   static-checks:
-    name: ⚡ Fast-Fail Quality Gate (Spotless & Compile)
+    name: ⚡ Fast-Fail Quality Gate (Format & Compile)
 
     needs: changes
 
@@ -293,6 +291,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
       - name: 🛡️ Evaluate CI Results
         env:
           CHANGED: ${{ needs.changes.outputs.backend }}
@@ -316,20 +317,17 @@ jobs:
           echo "Sonar:        $SONAR_RESULT"
           echo "=========================================="
 
-          # El job de changes debe haber terminado correctamente.
           if [[ "$CHANGES_RESULT" != "success" ]]; then
             echo "❌ Change detection / repository policy failed."
             exit 1
           fi
 
-          # Si el backend no cambió, este Quality Gate pasa.
           if [[ "$CHANGED" != "true" ]]; then
             echo "ℹ️ No Backend changes detected."
             echo "✅ Backend CI Quality Gate PASSED."
             exit 0
           fi
 
-          # Todos los checks deben haber terminado correctamente.
           if [[ "$STATIC_RESULT" != "success" ]]; then
             echo "❌ Static checks failed."
             exit 1
@@ -358,3 +356,17 @@ jobs:
           echo "=========================================="
           echo "✅ BACKEND CI QUALITY GATE PASSED"
           echo "=========================================="
+
+      - name: 📢 Notify Discord (Single Summary Report)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          MODULE: "Spring Boot API"
+          CHANGED: ${{ needs.changes.outputs.backend }}
+          STATIC_RESULT: ${{ needs.static-checks.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SONAR_RESULT: ${{ needs.sonar.result }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: node ${{ github.workspace }}/.github/scripts/notify-discord-summary.js
