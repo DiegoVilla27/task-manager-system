@@ -66,13 +66,13 @@ public class OpenApiConfig {
                                 .summary("REST API for task and user management.")
                                 .description(
                                         """
-            Task Manager is a RESTful API built with Spring Boot following
-            a layered and modular architecture.
+                                                                                                Task Manager is a RESTful API built with Spring Boot following
+                                                                                                a layered and modular architecture.
 
-            The API provides endpoints for managing users, tasks and future
-            platform features such as authentication, authorization,
-            permissions and system administration.
-            """)
+                                                                                                The API provides endpoints for managing users, tasks and future
+                                                                                                platform features such as authentication, authorization,
+                                                                                                permissions and system administration.
+                                                                                                """)
                                 .termsOfService("https://example.com/terms")
                                 .contact(
                                         new Contact()
@@ -88,9 +88,14 @@ public class OpenApiConfig {
                         List.of(
                                 new Server()
                                         .url("http://localhost:8080/api/v1")
-                                        .description("Local Development Environment"),
+                                        .description("Local Environment"),
                                 new Server()
-                                        .url("https://api.taskmanager.com")
+                                        .url(
+                                                "https://task-manager-api-dev-cgwm.onrender.com/api/v1")
+                                        .description("Development Environment"),
+                                new Server()
+                                        .url(
+                                                "https://task-manager-api-prod-j45b.onrender.com/api/v1")
                                         .description("Production Environment")))
                 .externalDocs(
                         new ExternalDocumentation()
@@ -106,11 +111,11 @@ public class OpenApiConfig {
                                                 .bearerFormat("JWT")
                                                 .description(
                                                         """
-                JSON Web Token authentication.
+                                                                                                                                JSON Web Token authentication.
 
-                Enter only the JWT value. The 'Bearer' prefix is added
-                automatically by Swagger UI.
-                """)))
+                                                                                                                                Enter only the JWT value. The 'Bearer' prefix is added
+                                                                                                                                automatically by Swagger UI.
+                                                                                                                                """)))
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"));
     }
 }
