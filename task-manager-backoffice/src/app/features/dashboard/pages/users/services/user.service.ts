@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
-import { StorageUtils } from '@shared/utils/storage.utils';
 import { Observable, tap } from 'rxjs';
 import {
   UserMeResponse,
@@ -14,6 +13,7 @@ import {
   UsersPaginationRequest,
 } from '../interfaces/request';
 import { cleanParams } from '@shared/utils/clean-params.utils';
+import { StorageService } from '@shared/services/storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +21,7 @@ import { cleanParams } from '@shared/utils/clean-params.utils';
 export class UserService {
   private readonly BASE_USERS = `${environment.API_URL}/users`;
   private readonly http = inject(HttpClient);
+  private readonly storageSvc = inject(StorageService);
 
   private readonly _user$ = signal<UserMeResponse | null>(null);
   public readonly user$ = this._user$.asReadonly();
@@ -60,6 +61,6 @@ export class UserService {
   }
 
   public saveMe(userMe: UserMeResponse): void {
-    StorageUtils.set('me', userMe);
+    this.storageSvc.set('me', userMe);
   }
 }

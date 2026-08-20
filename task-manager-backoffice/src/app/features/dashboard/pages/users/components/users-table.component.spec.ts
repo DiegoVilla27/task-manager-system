@@ -1,74 +1,64 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UsersTableComponent } from './users-table.component';
 import { UserResponse, UsersPagination } from '../interfaces/response';
+import { By } from '@angular/platform-browser';
 
 describe('UsersTableComponent', () => {
   let component: UsersTableComponent;
   let fixture: ComponentFixture<UsersTableComponent>;
 
   const mockUser: UserResponse = {
-    id: 'usr-1',
-    name: 'Camila',
-    lastname: 'Rodriguez',
-    email: 'camila@example.com',
+    id: 'user-1',
+    name: 'Diego',
+    lastname: 'Villa',
+    email: 'diego@taskmanager.com',
     countTasks: 3,
-    createdAt: '2026-01-01',
+    createdAt: '2026-08-20',
   };
 
-  const mockPagination: UsersPagination = {
+  const mockUsersPagination: UsersPagination = {
     content: [mockUser],
     totalElements: 1,
     totalPages: 1,
     size: 10,
   };
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [UsersTableComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(UsersTableComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('users', mockPagination);
+    fixture.componentRef.setInput('users', mockUsersPagination);
     fixture.componentRef.setInput('page', 1);
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and render user row', () => {
     expect(component).toBeTruthy();
+    const nameEl = fixture.debugElement.query(
+      By.css('.font-semibold.text-white'),
+    );
+    expect(nameEl.nativeElement.textContent).toContain('Diego Villa');
   });
 
-  it('should emit edit event when edit button is clicked', () => {
-    let editedUser: UserResponse | undefined;
-    component.edit.subscribe((u) => {
-      editedUser = u;
-    });
+  it('should emit edit and delete outputs when action buttons are clicked', () => {
+    const editSpy = spyOn(component.edit, 'emit');
+    const deleteSpy = spyOn(component.delete, 'emit');
 
-    const editBtn = fixture.nativeElement.querySelector(
-      'button[aria-label^="Editar"]',
-    );
-    editBtn.click();
+    const buttons = fixture.debugElement.queryAll(By.css('tbody button'));
+    expect(buttons.length).toBe(2);
+
+    buttons[0].nativeElement.click();
+    buttons[1].nativeElement.click();
     fixture.detectChanges();
 
-    expect(editedUser).toEqual(mockUser);
+    expect(editSpy).toHaveBeenCalledWith(mockUser);
+    expect(deleteSpy).toHaveBeenCalledWith(mockUser);
   });
 
-  it('should emit delete event when delete button is clicked', () => {
-    let deletedUser: UserResponse | undefined;
-    component.delete.subscribe((u) => {
-      deletedUser = u;
-    });
-
-    const deleteBtn = fixture.nativeElement.querySelector(
-      'button[aria-label^="Eliminar"]',
-    );
-    deleteBtn.click();
-    fixture.detectChanges();
-
-    expect(deletedUser).toEqual(mockUser);
-  });
-
-  it('should render empty state when users content is empty', () => {
+  it('should render empty state message if no users found', () => {
     fixture.componentRef.setInput('users', {
       content: [],
       totalElements: 0,
@@ -77,7 +67,10 @@ describe('UsersTableComponent', () => {
     });
     fixture.detectChanges();
 
-    const emptyTd = fixture.nativeElement.querySelector('td.text-center');
-    expect(emptyTd.textContent).toContain('No se encontraron usuarios');
+    const emptyCell = fixture.debugElement.query(By.css('td[colspan="6"]'));
+    expect(emptyCell).toBeTruthy();
+    expect(emptyCell.nativeElement.textContent).toContain(
+      'No se encontraron usuarios',
+    );
   });
 });

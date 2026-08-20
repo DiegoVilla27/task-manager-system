@@ -1,29 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
 import { TopbarComponent } from './topbar.component';
 import { AuthService } from '@features/auth/services/auth.service';
+import { By } from '@angular/platform-browser';
 
 describe('TopbarComponent', () => {
   let component: TopbarComponent;
   let fixture: ComponentFixture<TopbarComponent>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
 
-  beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', [
-      'logout',
-    ]);
+  beforeEach(() => {
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['logout']);
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [TopbarComponent],
-      providers: [
-        provideRouter([]),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: AuthService, useValue: authServiceSpy },
-      ],
-    }).compileComponents();
+      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+    });
 
     fixture = TestBed.createComponent(TopbarComponent);
     component = fixture.componentInstance;
@@ -34,41 +25,40 @@ describe('TopbarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit toggleSidebar output on button click', () => {
-    let emitted = false;
-    component.toggleSidebar.subscribe(() => {
-      emitted = true;
-    });
-
-    const toggleBtn = fixture.nativeElement.querySelector(
-      'button[aria-label="Alternar barra lateral"]',
+  it('should emit toggleSidebar when sidebar toggle button is clicked', () => {
+    const toggleSidebarSpy = spyOn(component.toggleSidebar, 'emit');
+    const toggleBtn = fixture.debugElement.query(
+      By.css('button[aria-label="Alternar barra lateral"]'),
     );
-    toggleBtn?.click();
-    expect(emitted).toBeTrue();
+
+    toggleBtn.nativeElement.click();
+    fixture.detectChanges();
+
+    expect(toggleSidebarSpy).toHaveBeenCalled();
   });
 
-  it('should emit toggleUserMenu output on user menu click', () => {
-    let emitted = false;
-    component.toggleUserMenu.subscribe(() => {
-      emitted = true;
-    });
-
-    const userMenuBtn = fixture.nativeElement.querySelector(
-      'button[aria-label="Abrir menú de usuario"]',
+  it('should emit toggleUserMenu when user profile dropdown button is clicked', () => {
+    const toggleUserMenuSpy = spyOn(component.toggleUserMenu, 'emit');
+    const userBtn = fixture.debugElement.query(
+      By.css('button[aria-label="Abrir menú de usuario"]'),
     );
-    userMenuBtn?.click();
-    expect(emitted).toBeTrue();
+
+    userBtn.nativeElement.click();
+    fixture.detectChanges();
+
+    expect(toggleUserMenuSpy).toHaveBeenCalled();
   });
 
-  it('should render logout button and trigger authService.logout when isUserMenuOpen is true', () => {
+  it('should show user menu dropdown when isUserMenuOpen is true and call authService.logout', () => {
     fixture.componentRef.setInput('isUserMenuOpen', true);
     fixture.detectChanges();
 
-    const logoutBtn = fixture.nativeElement.querySelector(
-      'button[title="Cerrar sesión"]',
+    const logoutBtn = fixture.debugElement.query(
+      By.css('button[aria-label="Cerrar sesión"]'),
     );
     expect(logoutBtn).toBeTruthy();
-    logoutBtn?.click();
+
+    logoutBtn.nativeElement.click();
     expect(authServiceSpy.logout).toHaveBeenCalled();
   });
 });

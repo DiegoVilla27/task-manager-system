@@ -1,80 +1,77 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { LoginFormComponent } from './login-form.component';
+import { AuthService } from '@features/auth/services/auth.service';
+import { Router } from '@angular/router';
 import {
   provideTanStackQuery,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
-import { LoginFormComponent } from './login-form.component';
-import { AuthService } from '@features/auth/services/auth.service';
+import { of } from 'rxjs';
 import { UserMeResponse } from '@features/dashboard/pages/users/interfaces/response';
 
 describe('LoginFormComponent', () => {
   let component: LoginFormComponent;
   let fixture: ComponentFixture<LoginFormComponent>;
-  let router: Router;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let routerSpy: jasmine.SpyObj<Router>;
 
   const mockUserMe: UserMeResponse = {
-    id: '123',
+    id: '1',
+    email: 'admin@taskmanager.com',
     name: 'Admin',
     lastname: 'User',
-    email: 'admin@taskmanager.com',
   };
 
-  beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', [
-      'login',
-    ]);
+  beforeEach(() => {
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['login']);
+    routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
     authServiceSpy.login.and.returnValue(of(mockUserMe));
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [LoginFormComponent],
       providers: [
-        provideRouter([]),
         provideTanStackQuery(new QueryClient()),
         { provide: AuthService, useValue: authServiceSpy },
+        { provide: Router, useValue: routerSpy },
       ],
-    }).compileComponents();
-
-    router = TestBed.inject(Router);
-    spyOn(router, 'navigateByUrl');
+    });
 
     fixture = TestBed.createComponent(LoginFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and initialize default form values', () => {
     expect(component).toBeTruthy();
+    expect(component.form.valid).toBeTrue();
   });
 
-  it('should toggle password visibility', () => {
+  it('should toggle password visibility signal', () => {
     expect(component.showPassword()).toBeFalse();
     component.togglePasswordVisibility();
     expect(component.showPassword()).toBeTrue();
-    component.togglePasswordVisibility();
-    expect(component.showPassword()).toBeFalse();
   });
 
   it('should not submit if form is invalid', async () => {
-    component.form.get('email')?.setValue('');
+    component.form.setValue({ email: '', password: '' });
     await component.handleSubmit();
+
+    expect(component.form.invalid).toBeTrue();
     expect(authServiceSpy.login).not.toHaveBeenCalled();
   });
 
-  it('should submit valid form data, trigger login mutation and navigate to users on success', async () => {
-    component.form.patchValue({
+  it('should submit form, call authService.login and navigate to /dashboard/users', async () => {
+    component.form.setValue({
       email: 'admin@taskmanager.com',
-      password: 'validPassword123',
+      password: 'password123',
     });
 
     await component.handleSubmit();
 
     expect(authServiceSpy.login).toHaveBeenCalledWith({
       email: 'admin@taskmanager.com',
-      password: 'validPassword123',
+      password: 'password123',
     });
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard/users');
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/dashboard/users');
   });
 });

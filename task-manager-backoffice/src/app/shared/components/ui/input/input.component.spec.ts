@@ -1,84 +1,86 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
 import { InputComponent } from './input.component';
+import { By } from '@angular/platform-browser';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 describe('InputComponent', () => {
   let component: InputComponent;
   let fixture: ComponentFixture<InputComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [InputComponent, ReactiveFormsModule],
-    }).compileComponents();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [InputComponent],
+    });
 
     fixture = TestBed.createComponent(InputComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and register ControlValueAccessor', () => {
     expect(component).toBeTruthy();
+    const accessors = fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
+    expect(accessors).toBeDefined();
+    expect(accessors).toContain(component);
   });
 
-  it('should handle CVA writeValue, registerOnChange, registerOnTouched, setDisabledState', () => {
-    let changedValue = '';
-    let touched = false;
+  it('should update input value and emit valueChange on input event', () => {
+    const valueChangeSpy = spyOn(component.valueChange, 'emit');
+    const onChangeSpy = jasmine.createSpy('onChangeSpy');
+    component.registerOnChange(onChangeSpy);
 
-    component.registerOnChange((val: string) => {
-      changedValue = val;
-    });
-    component.registerOnTouched(() => {
-      touched = true;
-    });
-
-    component.writeValue('Test value');
+    const inputEl = fixture.debugElement.query(By.css('input')).nativeElement;
+    inputEl.value = 'Nuevo texto';
+    inputEl.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    const input = fixture.nativeElement.querySelector(
-      'input',
-    ) as HTMLInputElement;
-    expect(input.value).toBe('Test value');
+    expect(onChangeSpy).toHaveBeenCalledWith('Nuevo texto');
+    expect(valueChangeSpy).toHaveBeenCalledWith('Nuevo texto');
+  });
 
-    input.value = 'Updated value';
-    input.dispatchEvent(new Event('input'));
-    expect(changedValue).toBe('Updated value');
-
-    input.dispatchEvent(new FocusEvent('blur'));
-    expect(touched).toBeTrue();
-
-    component.setDisabledState(true);
+  it('should write value correctly via ControlValueAccessor', () => {
+    component.writeValue('Valor inicial');
     fixture.detectChanges();
-    expect(input.disabled).toBeTrue();
+
+    const inputEl = fixture.debugElement.query(By.css('input')).nativeElement;
+    expect(inputEl.value).toBe('Valor inicial');
   });
 
   it('should emit focused and blurred events', () => {
-    let focusEmitted = false;
-    let blurEmitted = false;
+    const focusSpy = spyOn(component.focused, 'emit');
+    const blurSpy = spyOn(component.blurred, 'emit');
+    const onTouchedSpy = jasmine.createSpy('onTouched');
+    component.registerOnTouched(onTouchedSpy);
 
-    component.focused.subscribe(() => {
-      focusEmitted = true;
-    });
-    component.blurred.subscribe(() => {
-      blurEmitted = true;
-    });
-
-    const input = fixture.nativeElement.querySelector(
-      'input',
-    ) as HTMLInputElement;
-    input.dispatchEvent(new FocusEvent('focus'));
-    input.dispatchEvent(new FocusEvent('blur'));
-
-    expect(focusEmitted).toBeTrue();
-    expect(blurEmitted).toBeTrue();
-  });
-
-  it('should apply error classes when error input is true', () => {
-    fixture.componentRef.setInput('error', true);
+    const inputDebug = fixture.debugElement.query(By.css('input'));
+    inputDebug.triggerEventHandler('focus', new FocusEvent('focus'));
+    inputDebug.triggerEventHandler('blur', new FocusEvent('blur'));
     fixture.detectChanges();
 
-    const input = fixture.nativeElement.querySelector(
-      'input',
-    ) as HTMLInputElement;
-    expect(input.className).toContain('border-rose-500');
+    expect(focusSpy).toHaveBeenCalledTimes(1);
+    expect(blurSpy).toHaveBeenCalledTimes(1);
+    expect(onTouchedSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should handle disabled state via input and CVA setDisabledState', () => {
+    component.setDisabledState(true);
+    fixture.detectChanges();
+
+    const inputEl = fixture.debugElement.query(By.css('input')).nativeElement;
+    expect(inputEl.disabled).toBeTrue();
+  });
+
+  it('should apply error and size classes properly', () => {
+    fixture.componentRef.setInput('size', 'lg');
+    fixture.componentRef.setInput('error', 'Error en el campo');
+    fixture.componentRef.setInput('hasPrefix', true);
+    fixture.componentRef.setInput('hasSuffix', true);
+    fixture.detectChanges();
+
+    const inputEl = fixture.debugElement.query(By.css('input')).nativeElement;
+    expect(inputEl.className).toContain('h-12');
+    expect(inputEl.className).toContain('border-rose-500');
+    expect(inputEl.className).toContain('pl-10');
+    expect(inputEl.className).toContain('pr-11');
   });
 });

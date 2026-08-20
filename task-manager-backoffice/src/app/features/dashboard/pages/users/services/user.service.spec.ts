@@ -5,7 +5,7 @@ import {
 } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { UserService } from './user.service';
-import { StorageUtils } from '@shared/utils/storage.utils';
+import { StorageService } from '@shared/services/storage.service';
 import { environment } from '@environments/environment';
 import {
   UserMeResponse,
@@ -21,24 +21,25 @@ import {
 describe('UserService', () => {
   let service: UserService;
   let httpMock: HttpTestingController;
+  let storageServiceSpy: jasmine.SpyObj<StorageService>;
 
   const mockUserMe: UserMeResponse = {
-    id: 'usr-100',
-    name: 'Camila',
-    lastname: 'Rodriguez',
-    email: 'camila@taskmanager.com',
+    id: 'user-123',
+    email: 'admin@taskmanager.com',
+    name: 'Admin',
+    lastname: 'User',
   };
 
   const mockUserResponse: UserResponse = {
-    id: 'usr-100',
-    name: 'Camila',
-    lastname: 'Rodriguez',
-    email: 'camila@taskmanager.com',
-    countTasks: 3,
-    createdAt: '2026-01-01',
+    id: 'user-1',
+    name: 'Diego',
+    lastname: 'Villa',
+    email: 'diego@taskmanager.com',
+    countTasks: 5,
+    createdAt: '2026-08-20',
   };
 
-  const mockPagination: UsersPagination = {
+  const mockUsersPagination: UsersPagination = {
     content: [mockUserResponse],
     totalElements: 1,
     totalPages: 1,
@@ -46,8 +47,20 @@ describe('UserService', () => {
   };
 
   beforeEach(() => {
+    storageServiceSpy = jasmine.createSpyObj('StorageService', [
+      'get',
+      'set',
+      'remove',
+      'clear',
+    ]);
+
     TestBed.configureTestingModule({
-      providers: [UserService, provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        UserService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: StorageService, useValue: storageServiceSpy },
+      ],
     });
 
     service = TestBed.inject(UserService);
@@ -56,18 +69,17 @@ describe('UserService', () => {
 
   afterEach(() => {
     httpMock.verify();
-    StorageUtils.clear();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should fetch user me profile, save to storage and update user$ signal', (done) => {
+  it('should fetch me profile, update signal, and save to storage', (done) => {
     service.me().subscribe((res) => {
       expect(res).toEqual(mockUserMe);
       expect(service.user$()).toEqual(mockUserMe);
-      expect(StorageUtils.get('me')).toEqual(mockUserMe);
+      expect(storageServiceSpy.set).toHaveBeenCalledWith('me', mockUserMe);
       done();
     });
 
@@ -76,34 +88,34 @@ describe('UserService', () => {
     req.flush(mockUserMe);
   });
 
-  it('should get users pagination with cleanParams', (done) => {
+  it('should fetch users with pagination and clean params', (done) => {
     const payload: UsersPaginationRequest = {
       page: 1,
       limit: 10,
-      search: 'Camila',
+      search: 'Diego',
     };
 
     service.getUsers(payload).subscribe((res) => {
-      expect(res).toEqual(mockPagination);
+      expect(res).toEqual(mockUsersPagination);
       done();
     });
 
     const req = httpMock.expectOne(
-      (r) =>
-        r.url === `${environment.API_URL}/users` &&
-        r.params.get('page') === '1' &&
-        r.params.get('limit') === '10' &&
-        r.params.get('search') === 'Camila',
+      (request) =>
+        request.url === `${environment.API_URL}/users` &&
+        request.params.get('page') === '1' &&
+        request.params.get('limit') === '10' &&
+        request.params.get('search') === 'Diego',
     );
     expect(req.request.method).toBe('GET');
-    req.flush(mockPagination);
+    req.flush(mockUsersPagination);
   });
 
-  it('should create a user', (done) => {
+  it('should create user', (done) => {
     const payload: CreateUserRequest = {
-      name: 'John',
-      lastname: 'Doe',
-      email: 'john@example.com',
+      name: 'Diego',
+      lastname: 'Villa',
+      email: 'diego@taskmanager.com',
       password: 'password123',
     };
 
@@ -118,34 +130,29 @@ describe('UserService', () => {
     req.flush(mockUserResponse);
   });
 
-  it('should update a user', (done) => {
+  it('should update user', (done) => {
     const payload: EditUserRequest = {
-      name: 'Jane',
+      name: 'Diego Updated',
     };
 
-    service.updateUser('usr-100', payload).subscribe((res) => {
+    service.updateUser('user-1', payload).subscribe((res) => {
       expect(res).toEqual(mockUserResponse);
       done();
     });
 
-    const req = httpMock.expectOne(`${environment.API_URL}/users/usr-100`);
+    const req = httpMock.expectOne(`${environment.API_URL}/users/user-1`);
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual(payload);
     req.flush(mockUserResponse);
   });
 
-  it('should delete a user', (done) => {
-    service.deleteUser('usr-100').subscribe(() => {
+  it('should delete user', (done) => {
+    service.deleteUser('user-1').subscribe(() => {
       done();
     });
 
-    const req = httpMock.expectOne(`${environment.API_URL}/users/usr-100`);
+    const req = httpMock.expectOne(`${environment.API_URL}/users/user-1`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
-  });
-
-  it('should save me to storage with saveMe', () => {
-    service.saveMe(mockUserMe);
-    expect(StorageUtils.get('me')).toEqual(mockUserMe);
   });
 });

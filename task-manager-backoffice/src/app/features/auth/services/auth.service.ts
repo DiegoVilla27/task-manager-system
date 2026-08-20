@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
 import { UserMeResponse } from '@features/dashboard/pages/users/interfaces/response';
 import { UserService } from '@features/dashboard/pages/users/services/user.service';
-import { StorageUtils } from '@shared/utils/storage.utils';
+import { StorageService } from '@shared/services/storage.service';
 import { Observable, switchMap, tap } from 'rxjs';
 import { LoginRequest } from '../interfaces/request';
 import { AuthResponse } from '../interfaces/response';
@@ -17,6 +17,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly usersSvc = inject(UserService);
   private readonly router = inject(Router);
+  private readonly storageSvc = inject(StorageService);
 
   public login(payload: LoginRequest): Observable<UserMeResponse> {
     return this.http
@@ -28,18 +29,18 @@ export class AuthService {
   }
 
   public logout(): void {
-    StorageUtils.remove('access_token');
-    StorageUtils.remove('refresh_token');
-    StorageUtils.remove('me');
+    this.storageSvc.remove('access_token');
+    this.storageSvc.remove('refresh_token');
+    this.storageSvc.remove('me');
     this.router.navigateByUrl('/auth/login');
   }
 
   public isAuthenticated(): boolean {
-    return !!StorageUtils.get('access_token');
+    return !!this.storageSvc.get('access_token');
   }
 
   private saveTokens(token: string, refresh: string): void {
-    StorageUtils.set('access_token', token);
-    StorageUtils.set('refresh_token', refresh);
+    this.storageSvc.set('access_token', token);
+    this.storageSvc.set('refresh_token', refresh);
   }
 }

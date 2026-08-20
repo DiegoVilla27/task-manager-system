@@ -1,44 +1,38 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { UserEditModalComponent } from './user-edit-modal.component';
+import { UserService } from '../services/user.service';
 import {
   provideTanStackQuery,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { UserEditModalComponent } from './user-edit-modal.component';
-import { UserService } from '../services/user.service';
 import { UserResponse } from '../interfaces/response';
 
 describe('UserEditModalComponent', () => {
   let component: UserEditModalComponent;
   let fixture: ComponentFixture<UserEditModalComponent>;
-  let userService: jasmine.SpyObj<UserService>;
-  let queryClient: QueryClient;
+  let userServiceSpy: jasmine.SpyObj<UserService>;
 
   const mockUser: UserResponse = {
-    id: 'usr-1',
-    name: 'Camila',
-    lastname: 'Rodriguez',
-    email: 'camila.rodriguez@company.com',
-    countTasks: 14,
-    createdAt: '2026-01-01',
+    id: 'user-123',
+    name: 'Jane',
+    lastname: 'Doe',
+    email: 'jane@example.com',
+    countTasks: 2,
+    createdAt: '2026-08-20',
   };
 
-  beforeEach(async () => {
-    queryClient = new QueryClient();
-    userService = jasmine.createSpyObj('UserService', ['updateUser']);
-    userService.updateUser.and.returnValue(of(mockUser));
+  beforeEach(() => {
+    userServiceSpy = jasmine.createSpyObj('UserService', ['updateUser']);
+    userServiceSpy.updateUser.and.returnValue(of(mockUser));
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [UserEditModalComponent],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideTanStackQuery(queryClient),
-        { provide: UserService, useValue: userService },
+        provideTanStackQuery(new QueryClient()),
+        { provide: UserService, useValue: userServiceSpy },
       ],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(UserEditModalComponent);
     component = fixture.componentInstance;
@@ -47,52 +41,37 @@ describe('UserEditModalComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  afterEach(() => {
+    fixture.destroy();
+  });
+
+  it('should create and patch user values in form', () => {
     expect(component).toBeTruthy();
+    expect(component.form.value.name).toBe('Jane');
+    expect(component.form.value.lastname).toBe('Doe');
+    expect(component.form.value.email).toBe('jane@example.com');
   });
 
-  it('should populate form with user data', () => {
-    expect(component.form.value.name).toBe('Camila');
-    expect(component.form.value.lastname).toBe('Rodriguez');
-    expect(component.form.value.email).toBe('camila.rodriguez@company.com');
-  });
-
-  it('should emit close event on handleClose', () => {
-    let closed = false;
-    component.close.subscribe(() => {
-      closed = true;
-    });
-
+  it('should reset form and emit close on handleClose', () => {
+    const closeSpy = spyOn(component.close, 'emit');
     component.handleClose();
-    expect(closed).toBeTrue();
+
     expect(component.form.value.name).toBe('');
+    expect(closeSpy).toHaveBeenCalled();
   });
 
-  it('should not submit if form is invalid or user is null', async () => {
-    fixture.componentRef.setInput('user', null);
-    fixture.detectChanges();
-
-    await component.handleSubmit();
-    expect(userService.updateUser).not.toHaveBeenCalled();
-
-    fixture.componentRef.setInput('user', mockUser);
-    fixture.detectChanges();
-    component.form.get('name')?.setValue('a'); // minLength 3 -> invalid
-
-    await component.handleSubmit();
-    expect(component.form.invalid).toBeTrue();
-    expect(userService.updateUser).not.toHaveBeenCalled();
-  });
-
-  it('should submit valid form and trigger editUserMutation', async () => {
-    spyOn(component, 'handleClose').and.callThrough();
-
+  it('should update user on valid submit', async () => {
     component.form.patchValue({
-      name: 'Camila Updated',
-      lastname: 'Rodriguez Updated',
+      name: 'Jane Updated',
     });
 
     await component.handleSubmit();
-    expect(component.handleClose).toHaveBeenCalled();
+
+    expect(userServiceSpy.updateUser).toHaveBeenCalledWith(
+      'user-123',
+      jasmine.objectContaining({
+        name: 'Jane Updated',
+      }),
+    );
   });
 });

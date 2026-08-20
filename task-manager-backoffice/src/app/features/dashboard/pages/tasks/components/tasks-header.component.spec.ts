@@ -1,34 +1,28 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TasksHeaderComponent } from './tasks-header.component';
+import { By } from '@angular/platform-browser';
 
 describe('TasksHeaderComponent', () => {
   let component: TasksHeaderComponent;
   let fixture: ComponentFixture<TasksHeaderComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [TasksHeaderComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(TasksHeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  it('should create and emit newTaskClicked on button click', () => {
+    const newTaskClickedSpy = spyOn(component.newTaskClicked, 'emit');
+    const button = fixture.debugElement.query(By.css('button'));
 
-  it('should emit newTaskClicked when Nueva Tarea button is clicked', () => {
-    let clicked = false;
-    component.newTaskClicked.subscribe(() => {
-      clicked = true;
-    });
-
-    const button = fixture.nativeElement.querySelector('button');
-    button.click();
+    button.nativeElement.click();
     fixture.detectChanges();
 
-    expect(clicked).toBeTrue();
+    expect(newTaskClickedSpy).toHaveBeenCalled();
   });
 });

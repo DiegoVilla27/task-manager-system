@@ -18,6 +18,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "baseUrl": ".",
+    "types": ["jasmine"],
     "paths": {
       "@core/*": ["./src/app/core/*"],
       "@shared/*": ["./src/app/shared/*"],

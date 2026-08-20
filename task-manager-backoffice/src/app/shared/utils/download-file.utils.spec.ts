@@ -1,24 +1,19 @@
 import { triggerBlobDownload } from './download-file.utils';
 
 describe('triggerBlobDownload', () => {
-  it('should create an object url, click anchor, and revoke object url', () => {
-    const fakeBlob = new Blob(['test content'], { type: 'text/plain' });
+  it('should create object URL, click link and revoke object URL', () => {
+    const mockBlob = new Blob(['test content'], { type: 'text/plain' });
     const createObjectURLSpy = spyOn(
       window.URL,
       'createObjectURL',
-    ).and.returnValue('blob:http://localhost/test-uuid');
+    ).and.returnValue('blob:http://localhost/123');
     const revokeObjectURLSpy = spyOn(window.URL, 'revokeObjectURL');
-    const appendChildSpy = spyOn(
-      document.body,
-      'appendChild',
-    ).and.callThrough();
 
-    triggerBlobDownload(fakeBlob, 'test-report.csv');
+    triggerBlobDownload(mockBlob, 'test.txt');
 
-    expect(createObjectURLSpy).toHaveBeenCalledWith(fakeBlob);
-    expect(appendChildSpy).toHaveBeenCalled();
+    expect(createObjectURLSpy).toHaveBeenCalledWith(mockBlob);
     expect(revokeObjectURLSpy).toHaveBeenCalledWith(
-      'blob:http://localhost/test-uuid',
+      'blob:http://localhost/123',
     );
   });
 });

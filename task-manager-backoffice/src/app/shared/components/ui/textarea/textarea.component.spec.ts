@@ -1,68 +1,76 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TextareaComponent } from './textarea.component';
+import { By } from '@angular/platform-browser';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 describe('TextareaComponent', () => {
   let component: TextareaComponent;
   let fixture: ComponentFixture<TextareaComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [TextareaComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(TextareaComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and register ControlValueAccessor', () => {
     expect(component).toBeTruthy();
+    const accessors = fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
+    expect(accessors).toContain(component);
   });
 
-  it('should handle CVA writeValue, input changes, and blur', () => {
-    let changedValue = '';
-    let touched = false;
+  it('should emit valueChange and call onChange on textarea input', () => {
+    const valueChangeSpy = spyOn(component.valueChange, 'emit');
+    const onChangeSpy = jasmine.createSpy('onChangeSpy');
+    component.registerOnChange(onChangeSpy);
 
-    component.registerOnChange((val: string) => {
-      changedValue = val;
-    });
-    component.registerOnTouched(() => {
-      touched = true;
-    });
-
-    component.writeValue('Initial text');
-    fixture.detectChanges();
-
-    const textarea = fixture.nativeElement.querySelector(
-      'textarea',
-    ) as HTMLTextAreaElement;
-    expect(textarea.value).toBe('Initial text');
-
-    textarea.value = 'New text content';
+    const textarea = fixture.debugElement.query(
+      By.css('textarea'),
+    ).nativeElement;
+    textarea.value = 'Texto de descripción';
     textarea.dispatchEvent(new Event('input'));
-    expect(changedValue).toBe('New text content');
-
-    textarea.dispatchEvent(new FocusEvent('blur'));
-    expect(touched).toBeTrue();
-  });
-
-  it('should apply error classes when error is true', () => {
-    fixture.componentRef.setInput('error', true);
     fixture.detectChanges();
 
-    const textarea = fixture.nativeElement.querySelector(
-      'textarea',
-    ) as HTMLTextAreaElement;
-    expect(textarea.className).toContain('border-rose-500');
+    expect(onChangeSpy).toHaveBeenCalledWith('Texto de descripción');
+    expect(valueChangeSpy).toHaveBeenCalledWith('Texto de descripción');
   });
 
-  it('should handle disabled state', () => {
+  it('should write value and handle disabled state', () => {
+    component.writeValue('Contenido inicial');
     component.setDisabledState(true);
     fixture.detectChanges();
 
-    const textarea = fixture.nativeElement.querySelector(
-      'textarea',
-    ) as HTMLTextAreaElement;
+    const textarea = fixture.debugElement.query(
+      By.css('textarea'),
+    ).nativeElement;
+    expect(textarea.value).toBe('Contenido inicial');
     expect(textarea.disabled).toBeTrue();
+  });
+
+  it('should emit blurred on blur event', () => {
+    const blurSpy = spyOn(component.blurred, 'emit');
+    const onTouchedSpy = jasmine.createSpy('onTouchedSpy');
+    component.registerOnTouched(onTouchedSpy);
+
+    const textareaDebug = fixture.debugElement.query(By.css('textarea'));
+    textareaDebug.triggerEventHandler('blur', new FocusEvent('blur'));
+    fixture.detectChanges();
+
+    expect(blurSpy).toHaveBeenCalled();
+    expect(onTouchedSpy).toHaveBeenCalled();
+  });
+
+  it('should apply error class when error input is true', () => {
+    fixture.componentRef.setInput('error', true);
+    fixture.detectChanges();
+
+    const textarea = fixture.debugElement.query(
+      By.css('textarea'),
+    ).nativeElement;
+    expect(textarea.className).toContain('border-rose-500');
   });
 });

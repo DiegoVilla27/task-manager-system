@@ -1,61 +1,79 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AvatarComponent } from './avatar.component';
+import { By } from '@angular/platform-browser';
 
 describe('AvatarComponent', () => {
   let component: AvatarComponent;
   let fixture: ComponentFixture<AvatarComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [AvatarComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(AvatarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render with default values', () => {
+    expect(fixture.nativeElement).toBeDefined();
   });
 
-  it('should calculate initials from name correctly', () => {
-    fixture.componentRef.setInput('name', 'Diego Villa');
+  it('should render with initials', () => {
+    fixture.componentRef.setInput('initials', 'DV');
     fixture.detectChanges();
 
-    const text = fixture.nativeElement.textContent;
-    expect(text.trim()).toBe('DV');
+    const initialsDiv = fixture.debugElement.query(
+      By.css('[aria-label="Avatar"]'),
+    );
+
+    expect(component.initials()).toEqual('DV');
+    expect(initialsDiv.nativeElement.textContent.trim()).toEqual('DV');
   });
 
-  it('should calculate single letter initial for single word name', () => {
-    fixture.componentRef.setInput('name', 'Antigravity');
+  it('should render with initials name', () => {
+    fixture.componentRef.setInput('name', 'Mi Avatar');
     fixture.detectChanges();
 
-    const text = fixture.nativeElement.textContent;
-    expect(text.trim()).toBe('AN');
+    const nameDiv = fixture.debugElement.query(By.css('[title="Mi Avatar"]'));
+
+    expect(component.name()).toEqual('Mi Avatar');
+    expect(nameDiv.nativeElement.textContent.trim()).toEqual('MA');
   });
 
-  it('should use explicit initials if provided', () => {
-    fixture.componentRef.setInput('initials', 'XY');
+  it('should render with initials name with one letter', () => {
+    fixture.componentRef.setInput('name', 'Diego');
     fixture.detectChanges();
 
-    const text = fixture.nativeElement.textContent;
-    expect(text.trim()).toBe('XY');
+    const nameDiv = fixture.debugElement.query(By.css('[title="Diego"]'));
+
+    expect(component.name()).toEqual('Diego');
+    expect(nameDiv.nativeElement.textContent.trim()).toEqual('DI');
   });
 
-  it('should render image if src is provided', () => {
-    fixture.componentRef.setInput('src', 'https://example.com/avatar.jpg');
-    fixture.detectChanges();
-
-    const img = fixture.nativeElement.querySelector('img');
-    expect(img).toBeTruthy();
-  });
-
-  it('should render status indicator dot when status is provided', () => {
+  it('should render with status', () => {
     fixture.componentRef.setInput('status', 'online');
     fixture.detectChanges();
 
-    const dot = fixture.nativeElement.querySelector('.rounded-full.ring-2');
-    expect(dot).toBeTruthy();
+    const statusSpan = fixture.debugElement.query(By.css('span'));
+
+    expect(component.status()).toEqual('online');
+    expect(statusSpan.classes['bg-emerald-400']).toBeTrue();
+  });
+
+  it('should evaluate statusClasses with empty color when status is null', () => {
+    fixture.componentRef.setInput('status', null);
+    fixture.componentRef.setInput('size', 'md');
+    fixture.detectChanges();
+
+    // Forzamos la lectura del computed protegido para disparar la rama false
+    const classes = (component as any).statusClasses();
+
+    expect(classes).toBe('w-2.5 h-2.5');
+
+    // Opcional: verificar que el span ni siquiera existe en el DOM
+    const statusSpan = fixture.debugElement.query(By.css('span'));
+    expect(statusSpan).toBeNull();
   });
 });

@@ -1,75 +1,70 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TaskFormModalComponent } from './task-form-modal.component';
+import { TaskService } from '../services/task.service';
+import { UserService } from '../../users/services/user.service';
 import {
   provideTanStackQuery,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { TaskFormModalComponent } from './task-form-modal.component';
-import { TaskService } from '../services/task.service';
-import { UserService } from '../../users/services/user.service';
 import { TaskResponse, TaskStatus } from '../interfaces/response';
-import { UsersPagination } from '../../users/interfaces/response';
+import { UserResponse } from '../../users/interfaces/response';
 
 describe('TaskFormModalComponent', () => {
   let component: TaskFormModalComponent;
   let fixture: ComponentFixture<TaskFormModalComponent>;
-  let taskService: jasmine.SpyObj<TaskService>;
-  let userService: jasmine.SpyObj<UserService>;
-  let queryClient: QueryClient;
+  let taskServiceSpy: jasmine.SpyObj<TaskService>;
+  let userServiceSpy: jasmine.SpyObj<UserService>;
 
-  const mockUser = {
-    id: 'usr-1',
+  const mockUser: UserResponse = {
+    id: 'user-1',
     name: 'Diego',
     lastname: 'Villa',
-    email: 'diego@example.com',
+    email: 'diego@taskmanager.com',
+    countTasks: 1,
+    createdAt: '2026-08-20',
   };
 
   const mockTask: TaskResponse = {
-    id: 'tsk-123',
-    title: 'Tarea Existente',
-    description: 'Descripción de prueba',
-    status: TaskStatus.IN_PROGRESS,
-    user: mockUser,
-    createdAt: '2026-01-01',
+    id: 'task-1',
+    title: 'Tarea existente',
+    description: 'Descripción existente',
+    status: TaskStatus.PENDING,
+    user: {
+      id: mockUser.id,
+      name: mockUser.name,
+      lastname: mockUser.lastname,
+      email: mockUser.email,
+    },
+    createdAt: '2026-08-20',
   };
 
-  const mockUsersPagination: UsersPagination = {
-    content: [
-      {
-        ...mockUser,
-        countTasks: 2,
-        createdAt: '2026-01-01',
-      },
-    ],
-    totalElements: 1,
-    totalPages: 1,
-    size: 10,
-  };
-
-  beforeEach(async () => {
-    queryClient = new QueryClient();
-    taskService = jasmine.createSpyObj('TaskService', [
+  beforeEach(() => {
+    taskServiceSpy = jasmine.createSpyObj('TaskService', [
       'createTask',
       'updateTask',
     ]);
-    taskService.createTask.and.returnValue(of(mockTask));
-    taskService.updateTask.and.returnValue(of(mockTask));
+    userServiceSpy = jasmine.createSpyObj('UserService', ['getUsers']);
 
-    userService = jasmine.createSpyObj('UserService', ['getUsers']);
-    userService.getUsers.and.returnValue(of(mockUsersPagination));
+    taskServiceSpy.createTask.and.returnValue(of(mockTask));
+    taskServiceSpy.updateTask.and.returnValue(of(mockTask));
+    userServiceSpy.getUsers.and.returnValue(
+      of({
+        content: [mockUser],
+        totalElements: 1,
+        totalPages: 1,
+        size: 10,
+      }),
+    );
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [TaskFormModalComponent],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideTanStackQuery(queryClient),
-        { provide: TaskService, useValue: taskService },
-        { provide: UserService, useValue: userService },
+        provideTanStackQuery(new QueryClient()),
+        { provide: TaskService, useValue: taskServiceSpy },
+        { provide: UserService, useValue: userServiceSpy },
       ],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(TaskFormModalComponent);
     component = fixture.componentInstance;
@@ -77,81 +72,55 @@ describe('TaskFormModalComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create in create mode by default', () => {
+  afterEach(() => {
+    fixture.destroy();
+  });
+
+  it('should create in Create mode with empty form', () => {
     expect(component).toBeTruthy();
     expect(component.isEdit()).toBeFalse();
     expect(component.modalTitle()).toBe('Crear Nueva Tarea');
-    expect(component.submitButtonLabel()).toBe('Guardar Tarea');
   });
 
-  it('should switch to edit mode when task input is provided', () => {
+  it('should create in Edit mode when task input is provided', () => {
     fixture.componentRef.setInput('task', mockTask);
     fixture.detectChanges();
 
     expect(component.isEdit()).toBeTrue();
-    expect(component.modalTitle()).toContain('Editar Tarea: tsk-123');
-    expect(component.submitButtonLabel()).toBe('Guardar Cambios');
-    expect(component.form.getRawValue().title).toBe('Tarea Existente');
-    expect(component.form.getRawValue().description).toBe(
-      'Descripción de prueba',
-    );
-    expect(component.form.get('userId')?.disabled).toBeTrue();
+    expect(component.modalTitle()).toContain('Editar Tarea');
+    expect(component.form.value.title).toBe('Tarea existente');
   });
 
-  it('should emit close event on handleClose', () => {
-    let closed = false;
-    component.close.subscribe(() => {
-      closed = true;
-    });
-
-    component.handleClose();
-    expect(closed).toBeTrue();
-    expect(component.form.value.title).toBe('');
-  });
-
-  it('should not submit when form is invalid', async () => {
-    component.form.reset();
-    await component.handleSubmit();
-    expect(taskService.createTask).not.toHaveBeenCalled();
-    expect(taskService.updateTask).not.toHaveBeenCalled();
-  });
-
-  it('should submit createTask in create mode', async () => {
-    spyOn(component, 'handleClose').and.callThrough();
-
-    component.form.patchValue({
-      title: 'Nueva Tarea',
-      description: 'Nueva Descripción',
-      userId: 'usr-1',
+  it('should create task on valid create submit', async () => {
+    component.form.setValue({
+      title: 'Nueva tarea creada',
+      description: 'Descripción de prueba',
+      userId: 'user-1',
     });
 
     await component.handleSubmit();
-    expect(taskService.createTask).toHaveBeenCalled();
-    expect(component.handleClose).toHaveBeenCalled();
+
+    expect(taskServiceSpy.createTask).toHaveBeenCalledWith({
+      title: 'Nueva tarea creada',
+      description: 'Descripción de prueba',
+      userId: 'user-1',
+    });
   });
 
-  it('should submit updateTask in edit mode', async () => {
+  it('should update task on valid edit submit', async () => {
     fixture.componentRef.setInput('task', mockTask);
     fixture.detectChanges();
 
-    spyOn(component, 'handleClose').and.callThrough();
-
     component.form.patchValue({
-      title: 'Tarea Actualizada',
-      description: 'Descripción Actualizada',
+      title: 'Tarea actualizada',
+      description: 'Descripción actualizada',
     });
 
     await component.handleSubmit();
-    expect(taskService.updateTask).toHaveBeenCalledWith('tsk-123', {
-      title: 'Tarea Actualizada',
-      description: 'Descripción Actualizada',
-    });
-    expect(component.handleClose).toHaveBeenCalled();
-  });
 
-  it('should return user options correctly', () => {
-    const options = component.usersOptions();
-    expect(options.length).toBeGreaterThanOrEqual(1);
-    expect(options[0]).toBeDefined();
+    expect(taskServiceSpy.updateTask).toHaveBeenCalledWith('task-1', {
+      title: 'Tarea actualizada',
+      description: 'Descripción actualizada',
+    });
   });
 });

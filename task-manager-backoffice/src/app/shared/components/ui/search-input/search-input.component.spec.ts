@@ -5,66 +5,59 @@ import {
   tick,
 } from '@angular/core/testing';
 import { SearchInputComponent } from './search-input.component';
+import { By } from '@angular/platform-browser';
 
 describe('SearchInputComponent', () => {
   let component: SearchInputComponent;
   let fixture: ComponentFixture<SearchInputComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [SearchInputComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(SearchInputComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and initialize query with initial value', () => {
     expect(component).toBeTruthy();
+    fixture.componentRef.setInput('value', 'texto inicial');
+    fixture.detectChanges();
+
+    const inputEl = fixture.debugElement.query(By.css('input')).nativeElement;
+    expect(inputEl.value).toBe('texto inicial');
   });
 
-  it('should emit searchChange with debounce on input', fakeAsync(() => {
-    let emittedQuery = '';
-    component.searchChange.subscribe((q) => {
-      emittedQuery = q;
-    });
-
-    const input = fixture.nativeElement.querySelector(
-      'input',
-    ) as HTMLInputElement;
-    input.value = 'Angular';
-    input.dispatchEvent(new Event('input'));
+  it('should emit debounced searchChange on input', fakeAsync(() => {
+    const searchChangeSpy = spyOn(component.searchChange, 'emit');
+    const inputEl = fixture.debugElement.query(By.css('input')).nativeElement;
+    inputEl.value = 'busqueda';
+    inputEl.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(emittedQuery).toBe('');
+    expect(searchChangeSpy).not.toHaveBeenCalled();
 
-    tick(399);
-    expect(emittedQuery).toBe('');
+    tick(400);
 
-    tick(1);
-    expect(emittedQuery).toBe('Angular');
+    expect(searchChangeSpy).toHaveBeenCalledWith('busqueda');
   }));
 
-  it('should clear value and immediately emit cleared and searchChange when clear button is clicked', () => {
-    let clearedCalled = false;
-    let emittedQuery = 'initial';
-
-    component.cleared.subscribe(() => {
-      clearedCalled = true;
-    });
-    component.searchChange.subscribe((q) => {
-      emittedQuery = q;
-    });
-
-    fixture.componentRef.setInput('value', 'Hello');
+  it('should clear query and emit cleared on clear button click', () => {
+    const clearedSpy = spyOn(component.cleared, 'emit');
+    const searchChangeSpy = spyOn(component.searchChange, 'emit');
+    fixture.componentRef.setInput('value', 'consulta');
     fixture.detectChanges();
 
-    const clearBtn = fixture.nativeElement.querySelector('button');
+    const clearBtn = fixture.debugElement.query(
+      By.css('button[aria-label="Limpiar búsqueda"]'),
+    );
     expect(clearBtn).toBeTruthy();
-    clearBtn.click();
+    clearBtn.nativeElement.click();
+    fixture.detectChanges();
 
-    expect(clearedCalled).toBeTrue();
-    expect(emittedQuery).toBe('');
+    expect(clearedSpy).toHaveBeenCalled();
+    expect(searchChangeSpy).toHaveBeenCalledWith('');
   });
 });

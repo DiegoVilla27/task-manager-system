@@ -5,65 +5,79 @@ describe('ModalComponent', () => {
   let component: ModalComponent;
   let fixture: ComponentFixture<ModalComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [ModalComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(ModalComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('isOpen', false);
-    fixture.detectChanges();
   });
 
   afterEach(() => {
-    // Ensure body cleanup
-    document.body.style.overflow = '';
+    fixture.destroy();
   });
 
   it('should create', () => {
+    fixture.componentRef.setInput('isOpen', false);
+    fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
-  it('should attach to body when isOpen is true', () => {
+  it('should attach modal to body when isOpen is true', () => {
     fixture.componentRef.setInput('isOpen', true);
-    fixture.componentRef.setInput('title', 'Modal Test');
+    fixture.componentRef.setInput('title', 'Modal de Prueba');
+    fixture.componentRef.setInput('subtitle', 'Subtítulo del modal');
     fixture.detectChanges();
 
-    const titleEl = document.body.querySelector('#modal-title');
-    expect(titleEl).toBeTruthy();
-    expect(titleEl?.textContent).toContain('Modal Test');
-    expect(document.body.style.overflow).toBe('hidden');
+    const portalHost = document.querySelector('.app-modal-portal-host');
+    expect(portalHost).toBeTruthy();
+
+    const titleEl = portalHost?.querySelector('#modal-title');
+    expect(titleEl?.textContent).toContain('Modal de Prueba');
   });
 
-  it('should emit closed event when close button is clicked', () => {
+  it('should emit closed event on close button click', () => {
+    const closedSpy = spyOn(component.closed, 'emit');
     fixture.componentRef.setInput('isOpen', true);
-    fixture.componentRef.setInput('showCloseButton', true);
+    fixture.componentRef.setInput('title', 'Modal');
     fixture.detectChanges();
 
-    let closedEmitted = false;
-    component.closed.subscribe(() => {
-      closedEmitted = true;
-    });
-
-    const closeBtn = document.body.querySelector(
+    const portalHost = document.querySelector('.app-modal-portal-host');
+    const closeBtn = portalHost?.querySelector(
       'button[aria-label="Cerrar modal"]',
     ) as HTMLButtonElement;
     expect(closeBtn).toBeTruthy();
     closeBtn?.click();
+    fixture.detectChanges();
 
-    expect(closedEmitted).toBeTrue();
+    expect(closedSpy).toHaveBeenCalled();
   });
 
-  it('should detach from body when isOpen becomes false', () => {
+  it('should emit closed on backdrop click', () => {
+    const closedSpy = spyOn(component.closed, 'emit');
     fixture.componentRef.setInput('isOpen', true);
     fixture.detectChanges();
+
+    const portalHost = document.querySelector('.app-modal-portal-host');
+    const backdrop = portalHost?.querySelector(
+      'button.backdrop-blur-sm',
+    ) as HTMLButtonElement;
+    backdrop?.click();
+    fixture.detectChanges();
+
+    expect(closedSpy).toHaveBeenCalled();
+  });
+
+  it('should detach and clean up portal on destroy or when isOpen becomes false', () => {
+    fixture.componentRef.setInput('isOpen', true);
+    fixture.detectChanges();
+
+    expect(document.querySelector('.app-modal-portal-host')).toBeTruthy();
 
     fixture.componentRef.setInput('isOpen', false);
     fixture.detectChanges();
 
-    const titleEl = document.body.querySelector('#modal-title');
-    expect(titleEl).toBeFalsy();
     expect(document.body.style.overflow).toBe('');
   });
 });

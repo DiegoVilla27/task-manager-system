@@ -13,6 +13,7 @@
     "format:write": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
     "test": "ng test",
     "test:unit": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage",
+    "test:unit:watch": "ng test --watch=true --browsers=ChromeHeadlessCI --code-coverage",
     "test:integration": "ng test --watch=false --browsers=ChromeHeadlessCI",
     "test:coverage": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage"

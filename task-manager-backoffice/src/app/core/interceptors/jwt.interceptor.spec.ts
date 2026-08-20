@@ -9,17 +9,27 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { jwtInterceptor } from './jwt.interceptor';
-import { StorageUtils } from '@shared/utils/storage.utils';
+import { StorageService } from '@shared/services/storage.service';
 
 describe('jwtInterceptor', () => {
   let httpClient: HttpClient;
   let httpMock: HttpTestingController;
+  let storageServiceSpy: jasmine.SpyObj<StorageService>;
 
   beforeEach(() => {
+    storageServiceSpy = jasmine.createSpyObj('StorageService', [
+      'get',
+      'set',
+      'remove',
+      'clear',
+      'has',
+    ]);
+
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([jwtInterceptor])),
         provideHttpClientTesting(),
+        { provide: StorageService, useValue: storageServiceSpy },
       ],
     });
 
@@ -29,11 +39,10 @@ describe('jwtInterceptor', () => {
 
   afterEach(() => {
     httpMock.verify();
-    StorageUtils.clear();
   });
 
   it('should attach Authorization Bearer token header if token exists in storage', () => {
-    StorageUtils.set('access_token', 'test-access-token-123');
+    storageServiceSpy.get.and.returnValue('test-access-token-123');
 
     httpClient.get('/api/test').subscribe();
 
@@ -46,7 +55,7 @@ describe('jwtInterceptor', () => {
   });
 
   it('should not attach Authorization header if no token is stored', () => {
-    StorageUtils.remove('access_token');
+    storageServiceSpy.get.and.returnValue(null);
 
     httpClient.get('/api/test').subscribe();
 

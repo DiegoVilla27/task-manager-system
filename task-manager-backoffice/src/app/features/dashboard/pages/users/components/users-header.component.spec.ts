@@ -1,34 +1,28 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UsersHeaderComponent } from './users-header.component';
+import { By } from '@angular/platform-browser';
 
 describe('UsersHeaderComponent', () => {
   let component: UsersHeaderComponent;
   let fixture: ComponentFixture<UsersHeaderComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [UsersHeaderComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(UsersHeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  it('should create and emit newUserClicked on button click', () => {
+    const newUserClickedSpy = spyOn(component.newUserClicked, 'emit');
+    const button = fixture.debugElement.query(By.css('button'));
 
-  it('should emit newUserClicked when Nuevo Usuario button is clicked', () => {
-    let clicked = false;
-    component.newUserClicked.subscribe(() => {
-      clicked = true;
-    });
-
-    const button = fixture.nativeElement.querySelector('button');
-    button.click();
+    button.nativeElement.click();
     fixture.detectChanges();
 
-    expect(clicked).toBeTrue();
+    expect(newUserClickedSpy).toHaveBeenCalled();
   });
 });

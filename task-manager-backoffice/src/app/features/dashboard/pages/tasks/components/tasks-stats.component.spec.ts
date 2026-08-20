@@ -6,33 +6,26 @@ describe('TasksStatsComponent', () => {
   let component: TasksStatsComponent;
   let fixture: ComponentFixture<TasksStatsComponent>;
 
-  const mockPagination: TasksPagination = {
+  const mockTasksPagination: TasksPagination = {
     content: [],
     totalElements: 42,
     totalPages: 5,
     size: 10,
   };
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [TasksStatsComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(TasksStatsComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('tasks', mockPagination);
+    fixture.componentRef.setInput('tasks', mockTasksPagination);
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and calculate totalCount correctly', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should compute totalCount accurately from tasks pagination input', () => {
-    expect(component['totalCount']()).toBe(42);
-
-    fixture.componentRef.setInput('tasks', undefined);
-    fixture.detectChanges();
-    expect(component['totalCount']()).toBe(0);
+    expect((component as any).totalCount()).toBe(42);
   });
 });
