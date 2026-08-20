@@ -1,44 +1,38 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { UserDeleteModalComponent } from './user-delete-modal.component';
+import { UserService } from '../services/user.service';
 import {
   provideTanStackQuery,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { UserDeleteModalComponent } from './user-delete-modal.component';
-import { UserService } from '../services/user.service';
 import { UserResponse } from '../interfaces/response';
 
 describe('UserDeleteModalComponent', () => {
   let component: UserDeleteModalComponent;
   let fixture: ComponentFixture<UserDeleteModalComponent>;
-  let userService: jasmine.SpyObj<UserService>;
-  let queryClient: QueryClient;
+  let userServiceSpy: jasmine.SpyObj<UserService>;
 
   const mockUser: UserResponse = {
-    id: 'usr-999',
-    name: 'Usuario',
-    lastname: 'Prueba',
-    email: 'revocar@taskmanager.io',
+    id: 'user-delete-1',
+    name: 'DeleteMe',
+    lastname: 'User',
+    email: 'del@example.com',
     countTasks: 0,
-    createdAt: '2026-01-01',
+    createdAt: '2026-08-20',
   };
 
-  beforeEach(async () => {
-    queryClient = new QueryClient();
-    userService = jasmine.createSpyObj('UserService', ['deleteUser']);
-    userService.deleteUser.and.returnValue(of(undefined));
+  beforeEach(() => {
+    userServiceSpy = jasmine.createSpyObj('UserService', ['deleteUser']);
+    userServiceSpy.deleteUser.and.returnValue(of(undefined));
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [UserDeleteModalComponent],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideTanStackQuery(queryClient),
-        { provide: UserService, useValue: userService },
+        provideTanStackQuery(new QueryClient()),
+        { provide: UserService, useValue: userServiceSpy },
       ],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(UserDeleteModalComponent);
     component = fixture.componentInstance;
@@ -47,24 +41,25 @@ describe('UserDeleteModalComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  afterEach(() => {
+    fixture.destroy();
+  });
+
+  it('should create and display user confirmation details', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit close event on handleClose', () => {
-    let closed = false;
-    component.close.subscribe(() => {
-      closed = true;
-    });
-
+  it('should emit close on handleClose', () => {
+    const closeSpy = spyOn(component.close, 'emit');
     component.handleClose();
-    expect(closed).toBeTrue();
+    expect(closeSpy).toHaveBeenCalled();
   });
 
-  it('should confirm delete and call deleteUser mutation', async () => {
-    spyOn(component, 'handleClose').and.callThrough();
-
+  it('should call deleteUser and close on confirm', async () => {
+    const closeSpy = spyOn(component.close, 'emit');
     await component.handleConfirm();
-    expect(component.handleClose).toHaveBeenCalled();
+
+    expect(userServiceSpy.deleteUser).toHaveBeenCalledWith('user-delete-1');
+    expect(closeSpy).toHaveBeenCalled();
   });
 });

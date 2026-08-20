@@ -1,43 +1,42 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { environment } from '@environments/environment';
+import { provideHttpClient } from '@angular/common/http';
 import { TaskService } from './task.service';
-import {
-  CreateTaskRequest,
-  EditTaskRequest,
-  TasksPaginationRequest,
-} from '../interfaces/request';
+import { environment } from '@environments/environment';
 import {
   TaskResponse,
   TasksPagination,
   TaskStatus,
 } from '../interfaces/response';
+import {
+  CreateTaskRequest,
+  EditTaskRequest,
+  TasksPaginationRequest,
+} from '../interfaces/request';
 
 describe('TaskService', () => {
   let service: TaskService;
-  let httpTestingController: HttpTestingController;
-  const BASE_TASKS = `${environment.API_URL}/tasks`;
+  let httpMock: HttpTestingController;
 
-  const mockTask: TaskResponse = {
-    id: 'tsk-123',
-    title: 'Nueva Tarea',
-    description: 'Descripción de prueba',
+  const mockTaskResponse: TaskResponse = {
+    id: 'task-1',
+    title: 'Implement feature',
+    description: 'Feature description',
     status: TaskStatus.PENDING,
     user: {
-      id: 'usr-1',
+      id: 'user-1',
       name: 'Diego',
       lastname: 'Villa',
-      email: 'diego@example.com',
+      email: 'diego@taskmanager.com',
     },
-    createdAt: '2026-01-01',
+    createdAt: '2026-08-20',
   };
 
-  const mockPagination: TasksPagination = {
-    content: [mockTask],
+  const mockTasksPagination: TasksPagination = {
+    content: [mockTaskResponse],
     totalElements: 1,
     totalPages: 1,
     size: 10,
@@ -49,84 +48,82 @@ describe('TaskService', () => {
     });
 
     service = TestBed.inject(TaskService);
-    httpTestingController = TestBed.inject(HttpTestingController);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
-    httpTestingController.verify();
+    httpMock.verify();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should fetch tasks with pagination and filters', () => {
-    const requestPayload: TasksPaginationRequest = {
+  it('should fetch tasks with clean params', (done) => {
+    const payload: TasksPaginationRequest = {
       page: 1,
       limit: 10,
-      search: 'Tarea',
+      search: 'test',
       status: TaskStatus.PENDING,
     };
 
-    service.getTasks(requestPayload).subscribe((res) => {
-      expect(res).toEqual(mockPagination);
+    service.getTasks(payload).subscribe((res) => {
+      expect(res).toEqual(mockTasksPagination);
+      done();
     });
 
-    const req = httpTestingController.expectOne((r) => r.url === BASE_TASKS);
+    const req = httpMock.expectOne(
+      (r) =>
+        r.url === `${environment.API_URL}/tasks` &&
+        r.params.get('page') === '1' &&
+        r.params.get('limit') === '10' &&
+        r.params.get('search') === 'test' &&
+        r.params.get('status') === TaskStatus.PENDING,
+    );
     expect(req.request.method).toBe('GET');
-    expect(req.request.params.get('page')).toBe('1');
-    expect(req.request.params.get('limit')).toBe('10');
-    expect(req.request.params.get('search')).toBe('Tarea');
-    expect(req.request.params.get('status')).toBe(TaskStatus.PENDING);
-    req.flush(mockPagination);
+    req.flush(mockTasksPagination);
   });
 
-  it('should create a task', () => {
+  it('should create task', (done) => {
     const payload: CreateTaskRequest = {
-      title: 'Nueva Tarea',
-      description: 'Descripción de prueba',
-      userId: 'usr-1',
+      title: 'New task',
+      description: 'New task description',
+      userId: 'user-1',
     };
 
     service.createTask(payload).subscribe((res) => {
-      expect(res).toEqual(mockTask);
+      expect(res).toEqual(mockTaskResponse);
+      done();
     });
 
-    const req = httpTestingController.expectOne(BASE_TASKS);
+    const req = httpMock.expectOne(`${environment.API_URL}/tasks`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
-    req.flush(mockTask);
+    req.flush(mockTaskResponse);
   });
 
-  it('should update a task', () => {
-    const taskId = 'tsk-123';
+  it('should update task', (done) => {
     const payload: EditTaskRequest = {
-      title: 'Tarea Modificada',
+      title: 'Updated title',
     };
 
-    const updatedTask: TaskResponse = {
-      ...mockTask,
-      title: 'Tarea Modificada',
-    };
-
-    service.updateTask(taskId, payload).subscribe((res) => {
-      expect(res).toEqual(updatedTask);
+    service.updateTask('task-1', payload).subscribe((res) => {
+      expect(res).toEqual(mockTaskResponse);
+      done();
     });
 
-    const req = httpTestingController.expectOne(`${BASE_TASKS}/${taskId}`);
+    const req = httpMock.expectOne(`${environment.API_URL}/tasks/task-1`);
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual(payload);
-    req.flush(updatedTask);
+    req.flush(mockTaskResponse);
   });
 
-  it('should delete a task', () => {
-    const taskId = 'tsk-123';
-
-    service.deleteTask(taskId).subscribe((res) => {
-      expect(res).toBeNull();
+  it('should delete task', (done) => {
+    service.deleteTask('task-1').subscribe(() => {
+      done();
     });
 
-    const req = httpTestingController.expectOne(`${BASE_TASKS}/${taskId}`);
+    const req = httpMock.expectOne(`${environment.API_URL}/tasks/task-1`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });

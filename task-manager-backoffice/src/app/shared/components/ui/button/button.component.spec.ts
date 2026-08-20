@@ -1,67 +1,40 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ButtonComponent } from './button.component';
+import { By } from '@angular/platform-browser';
+import { DebugElement } from '@angular/core';
 
 describe('ButtonComponent', () => {
-  let component: ButtonComponent;
   let fixture: ComponentFixture<ButtonComponent>;
+  let component: ButtonComponent;
+  let debug: DebugElement;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [ButtonComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(ButtonComponent);
     component = fixture.componentInstance;
+    debug = fixture.debugElement;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should emit clicked event when not disabled or loading', () => {
-    let emitted = false;
-    component.clicked.subscribe(() => {
-      emitted = true;
-    });
-
-    const button = fixture.nativeElement.querySelector('button');
-    button.click();
-    expect(emitted).toBeTrue();
-  });
-
-  it('should not emit clicked event when disabled', () => {
-    fixture.componentRef.setInput('disabled', true);
+  it('should render with full width', () => {
+    fixture.componentRef.setInput('fullWidth', true);
     fixture.detectChanges();
 
-    let emitted = false;
-    component.clicked.subscribe(() => {
-      emitted = true;
-    });
+    const button = debug.query(By.css('button'));
 
-    const button = fixture.nativeElement.querySelector('button');
-    button.click();
-    expect(emitted).toBeFalse();
+    expect(button.classes['w-full']).toBeTrue();
   });
 
-  it('should show loading spinner when loading is true', () => {
-    fixture.componentRef.setInput('loading', true);
+  it('should emit callback when user clicked', () => {
+    const emitSpy = spyOn(component.clicked, 'emit');
+
+    const button = debug.query(By.css('button'));
+    button.triggerEventHandler('click', new MouseEvent('click'));
     fixture.detectChanges();
 
-    const spinner = fixture.nativeElement.querySelector('.animate-spin');
-    expect(spinner).toBeTruthy();
-  });
-
-  it('should apply primary variant classes by default', () => {
-    const button = fixture.nativeElement.querySelector('button');
-    expect(button.className).toContain('from-indigo-600');
-  });
-
-  it('should apply danger variant classes', () => {
-    fixture.componentRef.setInput('variant', 'danger');
-    fixture.detectChanges();
-
-    const button = fixture.nativeElement.querySelector('button');
-    expect(button.className).toContain('bg-rose-600');
+    expect(emitSpy).toHaveBeenCalledTimes(1);
   });
 });

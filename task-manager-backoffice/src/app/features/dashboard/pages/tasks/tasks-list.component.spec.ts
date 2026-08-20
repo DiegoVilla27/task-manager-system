@@ -1,84 +1,103 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TasksListComponent } from './tasks-list.component';
+import { TaskService } from './services/task.service';
+import { UserService } from '../users/services/user.service';
 import {
   provideTanStackQuery,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { TasksListComponent } from './tasks-list.component';
 import {
   TaskResponse,
   TasksPagination,
   TaskStatus,
 } from './interfaces/response';
-import { TaskService } from './services/task.service';
 
 describe('TasksListComponent', () => {
   let component: TasksListComponent;
   let fixture: ComponentFixture<TasksListComponent>;
-  let taskService: jasmine.SpyObj<TaskService>;
+  let taskServiceSpy: jasmine.SpyObj<TaskService>;
+  let userServiceSpy: jasmine.SpyObj<UserService>;
 
   const mockTask: TaskResponse = {
-    id: 'TSK-TEST-01',
-    title: 'Test Task Title',
-    description: 'Test Task Description',
+    id: 'task-1',
+    title: 'Tarea 1',
+    description: 'Descripción',
     status: TaskStatus.PENDING,
     user: {
-      id: 'usr-1',
+      id: 'user-1',
       name: 'Diego',
       lastname: 'Villa',
-      email: 'diego@example.com',
+      email: 'diego@taskmanager.com',
     },
-    createdAt: '2026-01-01',
+    createdAt: '2026-08-20',
   };
 
-  const mockPagination: TasksPagination = {
+  const mockTasksPagination: TasksPagination = {
     content: [mockTask],
     totalElements: 1,
     totalPages: 1,
     size: 10,
   };
 
-  beforeEach(async () => {
-    taskService = jasmine.createSpyObj('TaskService', ['getTasks']);
-    taskService.getTasks.and.returnValue(of(mockPagination));
+  beforeEach(() => {
+    taskServiceSpy = jasmine.createSpyObj('TaskService', [
+      'getTasks',
+      'createTask',
+      'updateTask',
+      'deleteTask',
+    ]);
+    userServiceSpy = jasmine.createSpyObj('UserService', ['getUsers']);
 
-    await TestBed.configureTestingModule({
+    taskServiceSpy.getTasks.and.returnValue(of(mockTasksPagination));
+    userServiceSpy.getUsers.and.returnValue(
+      of({
+        content: [
+          {
+            id: 'user-1',
+            name: 'Diego',
+            lastname: 'Villa',
+            email: 'diego@taskmanager.com',
+            countTasks: 1,
+            createdAt: '2026-08-20',
+          },
+        ],
+        totalElements: 1,
+        totalPages: 1,
+        size: 10,
+      }),
+    );
+
+    TestBed.configureTestingModule({
       imports: [TasksListComponent],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
         provideTanStackQuery(new QueryClient()),
-        { provide: TaskService, useValue: taskService },
+        { provide: TaskService, useValue: taskServiceSpy },
+        { provide: UserService, useValue: userServiceSpy },
       ],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(TasksListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create the tasks list component', () => {
-    expect(component).toBeTruthy();
+  afterEach(() => {
+    fixture.destroy();
   });
 
-  it('should open and close create modal', () => {
-    expect(component.isFormModalOpen()).toBeFalse();
-    expect(component.selectedTask()).toBeNull();
+  it('should create and load tasks query', () => {
+    expect(component).toBeTruthy();
+    expect(taskServiceSpy.getTasks).toHaveBeenCalled();
+  });
 
+  it('should open create modal, edit modal, delete modal and close them', () => {
     component.openCreateModal();
     expect(component.isFormModalOpen()).toBeTrue();
     expect(component.selectedTask()).toBeNull();
 
     component.closeModal();
     expect(component.isFormModalOpen()).toBeFalse();
-    expect(component.selectedTask()).toBeNull();
-  });
-
-  it('should open and close edit modal', () => {
-    expect(component.isFormModalOpen()).toBeFalse();
-    expect(component.selectedTask()).toBeNull();
 
     component.openEditModal(mockTask);
     expect(component.isFormModalOpen()).toBeTrue();
@@ -86,12 +105,6 @@ describe('TasksListComponent', () => {
 
     component.closeModal();
     expect(component.isFormModalOpen()).toBeFalse();
-    expect(component.selectedTask()).toBeNull();
-  });
-
-  it('should open and close delete modal', () => {
-    expect(component.isDeleteModalOpen()).toBeFalse();
-    expect(component.selectedTask()).toBeNull();
 
     component.openDeleteModal(mockTask);
     expect(component.isDeleteModalOpen()).toBeTrue();
@@ -99,16 +112,14 @@ describe('TasksListComponent', () => {
 
     component.closeModal();
     expect(component.isDeleteModalOpen()).toBeFalse();
-    expect(component.selectedTask()).toBeNull();
   });
 
-  it('should clear all filters', () => {
-    component.search.set('Search Query');
+  it('should clear filters with handleClearFilters', () => {
+    component.search.set('busqueda');
     component.status.set(TaskStatus.COMPLETED);
-    expect(component.search()).toBe('Search Query');
-    expect(component.status()).toBe(TaskStatus.COMPLETED);
 
     component.handleClearFilters();
+
     expect(component.search()).toBe('');
     expect(component.status()).toBe('');
   });

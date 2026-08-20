@@ -1,54 +1,73 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PaginationComponent } from './pagination.component';
+import { By } from '@angular/platform-browser';
 
 describe('PaginationComponent', () => {
   let component: PaginationComponent;
   let fixture: ComponentFixture<PaginationComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [PaginationComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(PaginationComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('currentPage', 1);
-    fixture.componentRef.setInput('totalItems', 30);
-    fixture.componentRef.setInput('itemsPerPage', 10);
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and calculate total pages correctly', () => {
+    fixture.componentRef.setInput('totalItems', 50);
+    fixture.componentRef.setInput('itemsPerPage', 10);
+    fixture.componentRef.setInput('currentPage', 1);
+    fixture.detectChanges();
+
     expect(component).toBeTruthy();
+    const summary = fixture.debugElement.query(
+      By.css('.text-xs.text-slate-400'),
+    ).nativeElement;
+    expect(summary.textContent).toContain('1 - 10');
+    expect(summary.textContent).toContain('50');
   });
 
-  it('should emit pageChange when a page number button is clicked', () => {
-    let selectedPage = 1;
-    component.pageChange.subscribe((p) => {
-      selectedPage = p;
-    });
+  it('should emit pageChange when clicking next and page buttons', () => {
+    const pageChangeSpy = spyOn(component.pageChange, 'emit');
+    fixture.componentRef.setInput('totalItems', 50);
+    fixture.componentRef.setInput('itemsPerPage', 10);
+    fixture.componentRef.setInput('currentPage', 1);
+    fixture.detectChanges();
 
-    const pageButtons = fixture.nativeElement.querySelectorAll('button');
-    // Click page 2 button
-    const page2Btn = Array.from(pageButtons).find(
-      (btn) => (btn as HTMLElement).textContent?.trim() === '2',
-    ) as HTMLButtonElement;
-    page2Btn?.click();
+    const buttons = fixture.debugElement.queryAll(By.css('button'));
+    // Next button is the last one
+    const nextBtn = buttons[buttons.length - 1];
+    nextBtn.nativeElement.click();
+    fixture.detectChanges();
 
-    expect(selectedPage).toBe(2);
+    expect(pageChangeSpy).toHaveBeenCalledWith(2);
   });
 
-  it('should emit pageChange on next/prev navigation', () => {
-    let selectedPage = 1;
-    component.pageChange.subscribe((p) => {
-      selectedPage = p;
-    });
+  it('should disable previous button on first page and next button on last page', () => {
+    fixture.componentRef.setInput('totalItems', 10);
+    fixture.componentRef.setInput('itemsPerPage', 10);
+    fixture.componentRef.setInput('currentPage', 1);
+    fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('button');
-    const nextBtn = Array.from(buttons).find((b) =>
-      (b as HTMLElement).textContent?.trim().includes('Siguiente'),
-    ) as HTMLButtonElement;
-    nextBtn?.click();
-    expect(selectedPage).toBe(2);
+    const buttons = fixture.debugElement.queryAll(By.css('button'));
+    const prevBtn = buttons[0];
+    const nextBtn = buttons[buttons.length - 1];
+
+    expect(prevBtn.nativeElement.disabled).toBeTrue();
+    expect(nextBtn.nativeElement.disabled).toBeTrue();
+  });
+
+  it('should handle 0 total items gracefully', () => {
+    fixture.componentRef.setInput('totalItems', 0);
+    fixture.componentRef.setInput('currentPage', 1);
+    fixture.detectChanges();
+
+    const summary = fixture.debugElement.query(
+      By.css('.text-xs.text-slate-400'),
+    ).nativeElement;
+    expect(summary.textContent).toContain('0 - 0');
   });
 });

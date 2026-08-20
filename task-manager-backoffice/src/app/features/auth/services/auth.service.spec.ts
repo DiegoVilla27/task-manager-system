@@ -4,11 +4,11 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { Router, provideRouter } from '@angular/router';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { AuthService } from './auth.service';
 import { UserService } from '@features/dashboard/pages/users/services/user.service';
-import { StorageUtils } from '@shared/utils/storage.utils';
+import { StorageService } from '@shared/services/storage.service';
 import { environment } from '@environments/environment';
 import { LoginRequest } from '../interfaces/request';
 import { AuthResponse } from '../interfaces/response';
@@ -17,46 +17,53 @@ import { UserMeResponse } from '@features/dashboard/pages/users/interfaces/respo
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
-  let router: Router;
   let userServiceSpy: jasmine.SpyObj<UserService>;
+  let routerSpy: jasmine.SpyObj<Router>;
+  let storageServiceSpy: jasmine.SpyObj<StorageService>;
 
   const mockUserMe: UserMeResponse = {
-    id: 'user-1',
+    id: 'user-123',
+    email: 'admin@taskmanager.com',
     name: 'Admin',
     lastname: 'User',
-    email: 'admin@taskmanager.com',
   };
 
   beforeEach(() => {
-    userServiceSpy = jasmine.createSpyObj<UserService>('UserService', ['me']);
+    userServiceSpy = jasmine.createSpyObj('UserService', ['me']);
+    routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
+    storageServiceSpy = jasmine.createSpyObj('StorageService', [
+      'get',
+      'set',
+      'remove',
+      'clear',
+    ]);
+
     userServiceSpy.me.and.returnValue(of(mockUserMe));
 
     TestBed.configureTestingModule({
       providers: [
         AuthService,
-        provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: UserService, useValue: userServiceSpy },
+        { provide: Router, useValue: routerSpy },
+        { provide: StorageService, useValue: storageServiceSpy },
       ],
     });
 
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
-    router = TestBed.inject(Router);
-    spyOn(router, 'navigateByUrl');
   });
 
   afterEach(() => {
     httpMock.verify();
-    StorageUtils.clear();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should authenticate user and save tokens on login', (done) => {
+  it('should authenticate user, save tokens in StorageService, and fetch me profile on login', (done) => {
     const payload: LoginRequest = {
       email: 'admin@taskmanager.com',
       password: 'password123',
@@ -70,8 +77,14 @@ describe('AuthService', () => {
 
     service.login(payload).subscribe((user) => {
       expect(user).toEqual(mockUserMe);
-      expect(StorageUtils.get('access_token')).toBe('mock-access-token');
-      expect(StorageUtils.get('refresh_token')).toBe('mock-refresh-token');
+      expect(storageServiceSpy.set).toHaveBeenCalledWith(
+        'access_token',
+        'mock-access-token',
+      );
+      expect(storageServiceSpy.set).toHaveBeenCalledWith(
+        'refresh_token',
+        'mock-refresh-token',
+      );
       expect(userServiceSpy.me).toHaveBeenCalled();
       done();
     });
@@ -82,26 +95,22 @@ describe('AuthService', () => {
     req.flush(mockResponse);
   });
 
-  it('should clear tokens and navigate to login on logout', () => {
-    StorageUtils.set('access_token', 'token');
-    StorageUtils.set('refresh_token', 'refresh');
-    StorageUtils.set('me', mockUserMe);
-
+  it('should remove tokens and navigate to login on logout', () => {
     service.logout();
 
-    expect(StorageUtils.get('access_token')).toBeNull();
-    expect(StorageUtils.get('refresh_token')).toBeNull();
-    expect(StorageUtils.get('me')).toBeNull();
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/auth/login');
+    expect(storageServiceSpy.remove).toHaveBeenCalledWith('access_token');
+    expect(storageServiceSpy.remove).toHaveBeenCalledWith('refresh_token');
+    expect(storageServiceSpy.remove).toHaveBeenCalledWith('me');
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/auth/login');
   });
 
-  it('should return true for isAuthenticated when access_token exists', () => {
-    StorageUtils.set('access_token', 'valid-token');
+  it('should return true for isAuthenticated when access_token exists in storage', () => {
+    storageServiceSpy.get.and.returnValue('token-abc');
     expect(service.isAuthenticated()).toBeTrue();
   });
 
-  it('should return false for isAuthenticated when no token exists', () => {
-    StorageUtils.remove('access_token');
+  it('should return false for isAuthenticated when no token in storage', () => {
+    storageServiceSpy.get.and.returnValue(null);
     expect(service.isAuthenticated()).toBeFalse();
   });
 });

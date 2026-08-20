@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import {
   HttpClient,
-  HttpErrorResponse,
   provideHttpClient,
   withInterceptors,
 } from '@angular/common/http';
@@ -9,7 +8,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { errorInterceptor, ApiErrorResponse } from './error.interceptor';
+import { errorInterceptor } from './error.interceptor';
 import { ToastService } from '@shared/services/toast.service';
 
 describe('errorInterceptor', () => {
@@ -18,9 +17,7 @@ describe('errorInterceptor', () => {
   let toastServiceSpy: jasmine.SpyObj<ToastService>;
 
   beforeEach(() => {
-    toastServiceSpy = jasmine.createSpyObj<ToastService>('ToastService', [
-      'error',
-    ]);
+    toastServiceSpy = jasmine.createSpyObj('ToastService', ['error']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -38,9 +35,10 @@ describe('errorInterceptor', () => {
     httpMock.verify();
   });
 
-  it('should handle status 0 network / CORS errors', () => {
+  it('should handle network/CORS error (status 0)', () => {
     httpClient.get('/api/test').subscribe({
-      error: (err: HttpErrorResponse) => {
+      next: () => fail('Should have failed'),
+      error: (err) => {
         expect(err.status).toBe(0);
       },
     });
@@ -53,17 +51,18 @@ describe('errorInterceptor', () => {
     );
   });
 
-  it('should handle API errors with message and field errors list', () => {
-    const errorBody: ApiErrorResponse = {
-      timestamp: '2026-08-18T10:00:00Z',
+  it('should handle backend error with message and field errors', () => {
+    const errorBody = {
+      timestamp: '2026-08-20',
       status: 400,
       error: 'Bad Request',
-      message: 'Error de validación',
-      errors: [{ field: 'email', value: '', message: 'Email requerido' }],
+      message: 'Validation failed',
+      errors: [{ field: 'email', value: '', message: 'Email inválido' }],
     };
 
     httpClient.get('/api/test').subscribe({
-      error: (err: HttpErrorResponse) => {
+      next: () => fail('Should have failed'),
+      error: (err) => {
         expect(err.status).toBe(400);
       },
     });
@@ -72,21 +71,22 @@ describe('errorInterceptor', () => {
     req.flush(errorBody, { status: 400, statusText: 'Bad Request' });
 
     expect(toastServiceSpy.error).toHaveBeenCalledWith(
-      'Error de validación',
+      'Validation failed',
       errorBody.errors,
     );
   });
 
-  it('should handle API errors with message only', () => {
-    const errorBody: ApiErrorResponse = {
-      timestamp: '2026-08-18T10:00:00Z',
+  it('should handle backend error with only message', () => {
+    const errorBody = {
+      timestamp: '2026-08-20',
       status: 404,
       error: 'Not Found',
       message: 'Recurso no encontrado',
     };
 
     httpClient.get('/api/test').subscribe({
-      error: (err: HttpErrorResponse) => {
+      next: () => fail('Should have failed'),
+      error: (err) => {
         expect(err.status).toBe(404);
       },
     });
@@ -97,18 +97,16 @@ describe('errorInterceptor', () => {
     expect(toastServiceSpy.error).toHaveBeenCalledWith('Recurso no encontrado');
   });
 
-  it('should handle unknown errors with generic message', () => {
+  it('should handle unexpected fallback error', () => {
     httpClient.get('/api/test').subscribe({
-      error: (err: HttpErrorResponse) => {
+      next: () => fail('Should have failed'),
+      error: (err) => {
         expect(err.status).toBe(500);
       },
     });
 
     const req = httpMock.expectOne('/api/test');
-    req.flush('Server error string', {
-      status: 500,
-      statusText: 'Internal Server Error',
-    });
+    req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
     expect(toastServiceSpy.error).toHaveBeenCalledWith(
       'Ha ocurrido un error inesperado.',

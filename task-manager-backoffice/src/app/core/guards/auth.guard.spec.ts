@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Router, Route, UrlSegment } from '@angular/router';
+import { Router } from '@angular/router';
 import { authGuard } from './auth.guard';
 import { AuthService } from '@features/auth/services/auth.service';
 
@@ -7,14 +7,9 @@ describe('authGuard', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
-  const executeGuard = (route: Route = {}, segments: UrlSegment[] = []) =>
-    TestBed.runInInjectionContext(() => authGuard(route, segments));
-
   beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', [
-      'isAuthenticated',
-    ]);
-    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigateByUrl']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated']);
+    routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -24,18 +19,22 @@ describe('authGuard', () => {
     });
   });
 
-  it('should allow matching if user is not authenticated', () => {
+  it('should allow match when user is not authenticated', () => {
     authServiceSpy.isAuthenticated.and.returnValue(false);
 
-    const result = executeGuard();
+    const result = TestBed.runInInjectionContext(() =>
+      authGuard({} as any, []),
+    );
     expect(result).toBeTrue();
     expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
   });
 
-  it('should block matching and redirect to /dashboard/users if user is already authenticated', () => {
+  it('should redirect to dashboard and block match when user is authenticated', () => {
     authServiceSpy.isAuthenticated.and.returnValue(true);
 
-    const result = executeGuard();
+    const result = TestBed.runInInjectionContext(() =>
+      authGuard({} as any, []),
+    );
     expect(result).toBeFalse();
     expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/dashboard/users');
   });

@@ -1,74 +1,79 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SelectComponent, SelectOption } from './select.component';
+import { By } from '@angular/platform-browser';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 describe('SelectComponent', () => {
   let component: SelectComponent;
   let fixture: ComponentFixture<SelectComponent>;
 
-  const options: SelectOption[] = [
-    { label: 'Option A', value: 'a' },
-    { label: 'Option B', value: 'b' },
+  const mockOptions: SelectOption[] = [
+    { label: 'Opción 1', value: '1' },
+    { label: 'Opción 2', value: '2' },
   ];
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [SelectComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(SelectComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('options', options);
+    fixture.componentRef.setInput('options', mockOptions);
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and register ControlValueAccessor', () => {
     expect(component).toBeTruthy();
+    const accessors = fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
+    expect(accessors).toContain(component);
   });
 
-  it('should render options and handle selection changes', () => {
-    let changedValue: unknown = null;
-    let touched = false;
-
-    component.registerOnChange((val: unknown) => {
-      changedValue = val;
-    });
-    component.registerOnTouched(() => {
-      touched = true;
-    });
-
-    component.writeValue('b');
+  it('should render options and placeholder', () => {
+    fixture.componentRef.setInput('placeholder', 'Selecciona uno');
     fixture.detectChanges();
 
-    const select = fixture.nativeElement.querySelector(
-      'select',
-    ) as HTMLSelectElement;
-    expect(select.value).toBe('b');
-
-    select.value = 'a';
-    select.dispatchEvent(new Event('change'));
-    expect(changedValue).toBe('a');
-
-    select.dispatchEvent(new FocusEvent('blur'));
-    expect(touched).toBeTrue();
+    const optionsEl = fixture.debugElement.queryAll(By.css('option'));
+    expect(optionsEl.length).toBe(3); // placeholder + 2 options
+    expect(optionsEl[0].nativeElement.textContent.trim()).toBe(
+      'Selecciona uno',
+    );
   });
 
-  it('should handle placeholder option when provided', () => {
-    fixture.componentRef.setInput('placeholder', 'Selecciona una opción');
+  it('should emit valueChange and update CVA on selection change', () => {
+    const valueChangeSpy = spyOn(component.valueChange, 'emit');
+    const onChangeSpy = jasmine.createSpy('onChangeSpy');
+    component.registerOnChange(onChangeSpy);
+
+    const selectEl = fixture.debugElement.query(By.css('select')).nativeElement;
+    selectEl.value = '2';
+    selectEl.dispatchEvent(new Event('change'));
     fixture.detectChanges();
 
-    const select = fixture.nativeElement.querySelector(
-      'select',
-    ) as HTMLSelectElement;
-    expect(select.options[0].text).toBe('Selecciona una opción');
+    expect(onChangeSpy).toHaveBeenCalledWith('2');
+    expect(valueChangeSpy).toHaveBeenCalledWith('2');
   });
 
-  it('should handle disabled state', () => {
+  it('should write value and set disabled state', () => {
+    component.writeValue('1');
     component.setDisabledState(true);
     fixture.detectChanges();
 
-    const select = fixture.nativeElement.querySelector(
-      'select',
-    ) as HTMLSelectElement;
-    expect(select.disabled).toBeTrue();
+    const selectEl = fixture.debugElement.query(By.css('select')).nativeElement;
+    expect(selectEl.value).toBe('1');
+    expect(selectEl.disabled).toBeTrue();
+  });
+
+  it('should emit blurred on blur event', () => {
+    const blurSpy = spyOn(component.blurred, 'emit');
+    const onTouchedSpy = jasmine.createSpy('onTouchedSpy');
+    component.registerOnTouched(onTouchedSpy);
+
+    const selectDebug = fixture.debugElement.query(By.css('select'));
+    selectDebug.triggerEventHandler('blur', new FocusEvent('blur'));
+    fixture.detectChanges();
+
+    expect(blurSpy).toHaveBeenCalled();
+    expect(onTouchedSpy).toHaveBeenCalled();
   });
 });

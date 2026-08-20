@@ -1,49 +1,43 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TaskDeleteModalComponent } from './task-delete-modal.component';
+import { TaskService } from '../services/task.service';
 import {
   provideTanStackQuery,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { TaskDeleteModalComponent } from './task-delete-modal.component';
-import { TaskService } from '../services/task.service';
 import { TaskResponse, TaskStatus } from '../interfaces/response';
 
 describe('TaskDeleteModalComponent', () => {
   let component: TaskDeleteModalComponent;
   let fixture: ComponentFixture<TaskDeleteModalComponent>;
-  let taskService: jasmine.SpyObj<TaskService>;
-  let queryClient: QueryClient;
+  let taskServiceSpy: jasmine.SpyObj<TaskService>;
 
   const mockTask: TaskResponse = {
-    id: 'task-123',
+    id: 'task-del-1',
     title: 'Tarea a eliminar',
     description: 'Descripción',
     status: TaskStatus.PENDING,
     user: {
-      id: 'usr-1',
+      id: 'user-1',
       name: 'Diego',
       lastname: 'Villa',
-      email: 'diego@example.com',
+      email: 'diego@taskmanager.com',
     },
-    createdAt: '2026-01-01',
+    createdAt: '2026-08-20',
   };
 
-  beforeEach(async () => {
-    queryClient = new QueryClient();
-    taskService = jasmine.createSpyObj('TaskService', ['deleteTask']);
-    taskService.deleteTask.and.returnValue(of(undefined));
+  beforeEach(() => {
+    taskServiceSpy = jasmine.createSpyObj('TaskService', ['deleteTask']);
+    taskServiceSpy.deleteTask.and.returnValue(of(undefined));
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [TaskDeleteModalComponent],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideTanStackQuery(queryClient),
-        { provide: TaskService, useValue: taskService },
+        provideTanStackQuery(new QueryClient()),
+        { provide: TaskService, useValue: taskServiceSpy },
       ],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(TaskDeleteModalComponent);
     component = fixture.componentInstance;
@@ -52,24 +46,25 @@ describe('TaskDeleteModalComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  afterEach(() => {
+    fixture.destroy();
+  });
+
+  it('should create and display confirmation details', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit close event on handleClose', () => {
-    let closed = false;
-    component.close.subscribe(() => {
-      closed = true;
-    });
-
+  it('should emit close on handleClose', () => {
+    const closeSpy = spyOn(component.close, 'emit');
     component.handleClose();
-    expect(closed).toBeTrue();
+    expect(closeSpy).toHaveBeenCalled();
   });
 
-  it('should call deleteTask mutation on handleConfirm', async () => {
-    spyOn(component, 'handleClose').and.callThrough();
-
+  it('should call deleteTask and close on confirm', async () => {
+    const closeSpy = spyOn(component.close, 'emit');
     await component.handleConfirm();
-    expect(component.handleClose).toHaveBeenCalled();
+
+    expect(taskServiceSpy.deleteTask).toHaveBeenCalledWith('task-del-1');
+    expect(closeSpy).toHaveBeenCalled();
   });
 });

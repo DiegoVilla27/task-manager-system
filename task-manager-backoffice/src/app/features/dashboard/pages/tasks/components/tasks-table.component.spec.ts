@@ -5,107 +5,69 @@ import {
   TasksPagination,
   TaskStatus,
 } from '../interfaces/response';
+import { By } from '@angular/platform-browser';
 
 describe('TasksTableComponent', () => {
   let component: TasksTableComponent;
   let fixture: ComponentFixture<TasksTableComponent>;
 
-  const mockTask1: TaskResponse = {
-    id: 'tsk-11111-uuid',
-    title: 'Tarea Pendiente',
-    description: 'Descripción 1',
-    status: TaskStatus.PENDING,
-    user: {
-      id: 'usr-1',
-      name: 'Diego',
-      lastname: 'Villa',
-      email: 'diego@example.com',
-    },
-    createdAt: '2026-01-01',
-  };
-
-  const mockTask2: TaskResponse = {
-    id: 'tsk-22222-uuid',
-    title: 'Tarea En Progreso',
-    description: 'Descripción 2',
+  const mockTask: TaskResponse = {
+    id: 'task-123456',
+    title: 'Nueva funcionalidad',
+    description: 'Descripción de la tarea',
     status: TaskStatus.IN_PROGRESS,
     user: {
-      id: 'usr-2',
-      name: 'Camila',
-      lastname: 'Rodriguez',
-      email: 'camila@example.com',
+      id: 'user-1',
+      name: 'Diego',
+      lastname: 'Villa',
+      email: 'diego@taskmanager.com',
     },
-    createdAt: '2026-01-02',
+    createdAt: '2026-08-20',
   };
 
-  const mockTask3: TaskResponse = {
-    id: 'tsk-33333-uuid',
-    title: 'Tarea Completada',
-    description: 'Descripción 3',
-    status: TaskStatus.COMPLETED,
-    user: {
-      id: 'usr-3',
-      name: 'Alejandro',
-      lastname: 'Morales',
-      email: 'alejandro@example.com',
-    },
-    createdAt: '2026-01-03',
-  };
-
-  const mockPagination: TasksPagination = {
-    content: [mockTask1, mockTask2, mockTask3],
-    totalElements: 3,
+  const mockTasksPagination: TasksPagination = {
+    content: [mockTask],
+    totalElements: 1,
     totalPages: 1,
     size: 10,
   };
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [TasksTableComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(TasksTableComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('tasks', mockPagination);
+    fixture.componentRef.setInput('tasks', mockTasksPagination);
     fixture.componentRef.setInput('page', 1);
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and render task row', () => {
     expect(component).toBeTruthy();
+    const titleEl = fixture.debugElement.query(
+      By.css('.font-semibold.text-white'),
+    );
+    expect(titleEl.nativeElement.textContent).toContain('Nueva funcionalidad');
   });
 
-  it('should emit edit event when edit button is clicked', () => {
-    let editedTask: TaskResponse | undefined;
-    component.edit.subscribe((t) => {
-      editedTask = t;
-    });
+  it('should emit edit and delete outputs when action buttons are clicked', () => {
+    const editSpy = spyOn(component.edit, 'emit');
+    const deleteSpy = spyOn(component.delete, 'emit');
 
-    const editBtn = fixture.nativeElement.querySelector(
-      'button[aria-label^="Editar"]',
-    );
-    editBtn.click();
+    const buttons = fixture.debugElement.queryAll(By.css('tbody button'));
+    expect(buttons.length).toBe(2);
+
+    buttons[0].nativeElement.click();
+    buttons[1].nativeElement.click();
     fixture.detectChanges();
 
-    expect(editedTask).toEqual(mockTask1);
+    expect(editSpy).toHaveBeenCalledWith(mockTask);
+    expect(deleteSpy).toHaveBeenCalledWith(mockTask);
   });
 
-  it('should emit delete event when delete button is clicked', () => {
-    let deletedTask: TaskResponse | undefined;
-    component.delete.subscribe((t) => {
-      deletedTask = t;
-    });
-
-    const deleteBtn = fixture.nativeElement.querySelector(
-      'button[aria-label^="Eliminar"]',
-    );
-    deleteBtn.click();
-    fixture.detectChanges();
-
-    expect(deletedTask).toEqual(mockTask1);
-  });
-
-  it('should render empty state when tasks list is empty', () => {
+  it('should render empty state message if no tasks found', () => {
     fixture.componentRef.setInput('tasks', {
       content: [],
       totalElements: 0,
@@ -114,9 +76,10 @@ describe('TasksTableComponent', () => {
     });
     fixture.detectChanges();
 
-    const emptyTd = fixture.nativeElement.querySelector('td.text-center');
-    expect(emptyTd.textContent).toContain(
-      'No se encontraron tareas registradas',
+    const emptyCell = fixture.debugElement.query(By.css('td[colspan="6"]'));
+    expect(emptyCell).toBeTruthy();
+    expect(emptyCell.nativeElement.textContent).toContain(
+      'No se encontraron tareas',
     );
   });
 });

@@ -1,3 +1,6 @@
+import { inject, Injectable } from '@angular/core';
+import { ToastService } from '@shared/services/toast.service';
+
 /**
  * Strict typing options representing permissible storage keys.
  * Guards against spelling inaccuracies or inconsistent keys in local state lookups.
@@ -8,7 +11,12 @@ export type StorageKey = 'access_token' | 'refresh_token' | 'me';
  * Static client-side utility wrapper for local storage transactions.
  * Automates data serialization, parsing, error handling, and type assertions.
  */
-export class StorageUtils {
+@Injectable({
+  providedIn: 'root',
+})
+export class StorageService {
+  private readonly toastSvc = inject(ToastService);
+
   /**
    * Persists data under the specified key in browser localStorage.
    * Auto-serializes objects, arrays, and primitives.
@@ -23,15 +31,14 @@ export class StorageUtils {
    * StorageService.set('me', { id: '123', name: 'John' });
    * ```
    */
-  static set<T>(key: StorageKey, value: T): void {
+  set<T>(key: StorageKey, value: T): void {
     try {
       const serializedValue =
         typeof value === 'string' ? value : JSON.stringify(value);
       localStorage.setItem(key, serializedValue);
     } catch (error) {
-      console.error(
-        `❌ Error serializando/guardando la llave [${key}] en LocalStorage:`,
-        error,
+      this.toastSvc.error(
+        `❌ Error serializando/guardando la llave [${key}] en LocalStorage: ${error}`,
       );
     }
   }
@@ -49,7 +56,7 @@ export class StorageUtils {
    * const user = StorageService.get<User>('me');
    * ```
    */
-  static get<T>(key: StorageKey): T | null {
+  get<T>(key: StorageKey): T | null {
     try {
       const value = localStorage.getItem(key);
       if (!value) return null;
@@ -62,9 +69,8 @@ export class StorageUtils {
         return value as unknown as T;
       }
     } catch (error) {
-      console.error(
-        `❌ Error leyendo/parseando la llave [${key}] desde LocalStorage:`,
-        error,
+      this.toastSvc.error(
+        `❌ Error leyendo/parseando la llave [${key}] desde LocalStorage: ${error}`,
       );
       return null;
     }
@@ -80,7 +86,7 @@ export class StorageUtils {
    * StorageService.remove('access_token');
    * ```
    */
-  static remove(key: StorageKey): void {
+  remove(key: StorageKey): void {
     localStorage.removeItem(key);
   }
 
@@ -95,7 +101,7 @@ export class StorageUtils {
    * const hasToken = StorageService.has('access_token');
    * ```
    */
-  static has(key: StorageKey): boolean {
+  has(key: StorageKey): boolean {
     return localStorage.getItem(key) !== null;
   }
 
@@ -107,7 +113,7 @@ export class StorageUtils {
    * StorageService.clear();
    * ```
    */
-  static clear(): void {
+  clear(): void {
     localStorage.clear();
   }
 }

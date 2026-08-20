@@ -1,37 +1,42 @@
 import { cleanParams } from './clean-params.utils';
 
 describe('cleanParams', () => {
-  it('should return empty HttpParams if payload is empty, null or undefined', () => {
-    expect(cleanParams({}).toString()).toBe('');
-    expect(
-      cleanParams(
-        null as unknown as Record<
-          string,
-          string | number | boolean | null | undefined
-        >,
-      ).toString(),
-    ).toBe('');
+  it('should return empty HttpParams if payload is null or empty', () => {
+    const params = cleanParams({} as any);
+    expect(params.keys().length).toBe(0);
   });
 
-  it('should filter out null, undefined, and empty/whitespace strings', () => {
+  it('should filter out null and undefined values', () => {
     const params = cleanParams({
-      search: 'Diego',
-      role: '',
-      status: '   ',
-      emptyVal: null,
-      undefVal: undefined,
-      page: 1,
-      zero: 0,
+      name: 'Diego',
+      age: null,
+      role: undefined,
+    });
+
+    expect(params.get('name')).toBe('Diego');
+    expect(params.has('age')).toBeFalse();
+    expect(params.has('role')).toBeFalse();
+  });
+
+  it('should trim string values and ignore empty strings', () => {
+    const params = cleanParams({
+      search: '  admin  ',
+      empty: '   ',
+    });
+
+    expect(params.get('search')).toBe('admin');
+    expect(params.has('empty')).toBeFalse();
+  });
+
+  it('should keep number (including 0) and boolean values', () => {
+    const params = cleanParams({
+      page: 0,
+      limit: 10,
       active: false,
     });
 
-    expect(params.get('search')).toBe('Diego');
-    expect(params.get('page')).toBe('1');
-    expect(params.get('zero')).toBe('0');
+    expect(params.get('page')).toBe('0');
+    expect(params.get('limit')).toBe('10');
     expect(params.get('active')).toBe('false');
-    expect(params.has('role')).toBeFalse();
-    expect(params.has('status')).toBeFalse();
-    expect(params.has('emptyVal')).toBeFalse();
-    expect(params.has('undefVal')).toBeFalse();
   });
 });

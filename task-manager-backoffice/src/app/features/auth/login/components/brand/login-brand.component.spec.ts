@@ -5,22 +5,19 @@ describe('LoginBrandComponent', () => {
   let component: LoginBrandComponent;
   let fixture: ComponentFixture<LoginBrandComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [LoginBrandComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(LoginBrandComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and render brand header title', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should display brand title', () => {
     const title = fixture.nativeElement.querySelector('h1');
-    expect(title.textContent).toContain('TaskManager');
+    expect(title.textContent).toContain('TaskManager Backoffice');
   });
 });
