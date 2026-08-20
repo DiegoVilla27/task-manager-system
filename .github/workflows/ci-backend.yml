@@ -11,8 +11,6 @@ on:
       - dev
       - main
 
-# Si haces varios commits rápidamente sobre la misma rama/PR,
-# cancela el CI anterior y ejecuta únicamente el más reciente.
 concurrency:
   group: ci-backend-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -54,7 +52,7 @@ jobs:
   # 2. FAST-FAIL STATIC QUALITY GATE
   # ============================================================
   static-checks:
-    name: ⚡ Fast-Fail Quality Gate (Spotless & Compile)
+    name: ⚡ Fast-Fail Quality Gate (Format & Compile)
 
     needs: changes
 
@@ -85,6 +83,43 @@ jobs:
 
       - name: ⚙️ Compile Java Code
         run: ./mvnw clean compile
+
+      - name: 📢 Notify Discord (Static Checks & Compile)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then exit 0; fi
+          if [ "$JOB_STATUS" = "success" ]; then
+            COLOR=3066993; STATUS_TXT="PASSED"; EMOJI="✅"
+          elif [ "$JOB_STATUS" = "failure" ]; then
+            COLOR=15158332; STATUS_TXT="FAILED"; EMOJI="❌"
+          else
+            COLOR=15965458; STATUS_TXT="CANCELLED"; EMOJI="⚠️"
+          fi
+          COMMIT_MSG=$(git log -1 --pretty=%s 2>/dev/null || echo "${{ github.event.head_commit.message }}" | head -n 1 | sed 's/"/\\"/g' | cut -c1-100)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(cat <<JSON
+          {
+            "username": "GitHub Actions CI",
+            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+            "embeds": [{
+              "title": "$EMOJI [Backend Spring] Spotless & Compile: $STATUS_TXT",
+              "color": $COLOR,
+              "description": "**Commit:** \`$COMMIT_MSG\`",
+              "fields": [
+                { "name": "🌿 Rama", "value": "\`${{ github.ref_name }}\`", "inline": true },
+                { "name": "👤 Autor", "value": "\`${{ github.actor }}\`", "inline": true },
+                { "name": "🔍 Logs", "value": "[Ver Ejecución]($RUN_URL)", "inline": true }
+              ],
+              "footer": { "text": "Task Manager • Spring Boot API CI" },
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+JSON
+          )
+          curl -s -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK" || true
 
   # ============================================================
   # 3. UNIT TESTS
@@ -129,6 +164,43 @@ jobs:
           name: backend-jacoco
           path: task-manager/target/site/jacoco/jacoco.xml
           retention-days: 1
+
+      - name: 📢 Notify Discord (Unit Tests)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then exit 0; fi
+          if [ "$JOB_STATUS" = "success" ]; then
+            COLOR=3066993; STATUS_TXT="PASSED"; EMOJI="✅"
+          elif [ "$JOB_STATUS" = "failure" ]; then
+            COLOR=15158332; STATUS_TXT="FAILED"; EMOJI="❌"
+          else
+            COLOR=15965458; STATUS_TXT="CANCELLED"; EMOJI="⚠️"
+          fi
+          COMMIT_MSG=$(git log -1 --pretty=%s 2>/dev/null || echo "${{ github.event.head_commit.message }}" | head -n 1 | sed 's/"/\\"/g' | cut -c1-100)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(cat <<JSON
+          {
+            "username": "GitHub Actions CI",
+            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+            "embeds": [{
+              "title": "$EMOJI [Backend Spring] Unit Tests & JaCoCo: $STATUS_TXT",
+              "color": $COLOR,
+              "description": "**Commit:** \`$COMMIT_MSG\`",
+              "fields": [
+                { "name": "🌿 Rama", "value": "\`${{ github.ref_name }}\`", "inline": true },
+                { "name": "👤 Autor", "value": "\`${{ github.actor }}\`", "inline": true },
+                { "name": "🔍 Logs", "value": "[Ver Ejecución]($RUN_URL)", "inline": true }
+              ],
+              "footer": { "text": "Task Manager • Spring Boot API CI" },
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+JSON
+          )
+          curl -s -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK" || true
 
   # ============================================================
   # 4. INTEGRATION TESTS
@@ -180,6 +252,43 @@ jobs:
             echo "ℹ️ Omitiendo Integration Tests de forma segura."
           fi
 
+      - name: 📢 Notify Discord (Integration Tests)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then exit 0; fi
+          if [ "$JOB_STATUS" = "success" ]; then
+            COLOR=3066993; STATUS_TXT="PASSED"; EMOJI="✅"
+          elif [ "$JOB_STATUS" = "failure" ]; then
+            COLOR=15158332; STATUS_TXT="FAILED"; EMOJI="❌"
+          else
+            COLOR=15965458; STATUS_TXT="CANCELLED"; EMOJI="⚠️"
+          fi
+          COMMIT_MSG=$(git log -1 --pretty=%s 2>/dev/null || echo "${{ github.event.head_commit.message }}" | head -n 1 | sed 's/"/\\"/g' | cut -c1-100)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(cat <<JSON
+          {
+            "username": "GitHub Actions CI",
+            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+            "embeds": [{
+              "title": "$EMOJI [Backend Spring] Integration Tests: $STATUS_TXT",
+              "color": $COLOR,
+              "description": "**Commit:** \`$COMMIT_MSG\`",
+              "fields": [
+                { "name": "🌿 Rama", "value": "\`${{ github.ref_name }}\`", "inline": true },
+                { "name": "👤 Autor", "value": "\`${{ github.actor }}\`", "inline": true },
+                { "name": "🔍 Logs", "value": "[Ver Ejecución]($RUN_URL)", "inline": true }
+              ],
+              "footer": { "text": "Task Manager • Spring Boot API CI" },
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+JSON
+          )
+          curl -s -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK" || true
+
   # ============================================================
   # 5. PRODUCTION BUILD
   # ============================================================
@@ -221,6 +330,43 @@ jobs:
           name: backend-jar
           path: task-manager/target/*.jar
           retention-days: 1
+
+      - name: 📢 Notify Discord (Build)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then exit 0; fi
+          if [ "$JOB_STATUS" = "success" ]; then
+            COLOR=3066993; STATUS_TXT="PASSED"; EMOJI="✅"
+          elif [ "$JOB_STATUS" = "failure" ]; then
+            COLOR=15158332; STATUS_TXT="FAILED"; EMOJI="❌"
+          else
+            COLOR=15965458; STATUS_TXT="CANCELLED"; EMOJI="⚠️"
+          fi
+          COMMIT_MSG=$(git log -1 --pretty=%s 2>/dev/null || echo "${{ github.event.head_commit.message }}" | head -n 1 | sed 's/"/\\"/g' | cut -c1-100)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(cat <<JSON
+          {
+            "username": "GitHub Actions CI",
+            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+            "embeds": [{
+              "title": "$EMOJI [Backend Spring] Production JAR Build: $STATUS_TXT",
+              "color": $COLOR,
+              "description": "**Commit:** \`$COMMIT_MSG\`",
+              "fields": [
+                { "name": "🌿 Rama", "value": "\`${{ github.ref_name }}\`", "inline": true },
+                { "name": "👤 Autor", "value": "\`${{ github.actor }}\`", "inline": true },
+                { "name": "🔍 Logs", "value": "[Ver Ejecución]($RUN_URL)", "inline": true }
+              ],
+              "footer": { "text": "Task Manager • Spring Boot API CI" },
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+JSON
+          )
+          curl -s -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK" || true
 
   # ============================================================
   # 6. SONARCLOUD
@@ -274,6 +420,43 @@ jobs:
             -Dsonar.qualitygate.wait=true \
             -Dsonar.qualitygate.timeout=300
 
+      - name: 📢 Notify Discord (SonarCloud)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then exit 0; fi
+          if [ "$JOB_STATUS" = "success" ]; then
+            COLOR=3066993; STATUS_TXT="PASSED"; EMOJI="✅"
+          elif [ "$JOB_STATUS" = "failure" ]; then
+            COLOR=15158332; STATUS_TXT="FAILED"; EMOJI="❌"
+          else
+            COLOR=15965458; STATUS_TXT="CANCELLED"; EMOJI="⚠️"
+          fi
+          COMMIT_MSG=$(git log -1 --pretty=%s 2>/dev/null || echo "${{ github.event.head_commit.message }}" | head -n 1 | sed 's/"/\\"/g' | cut -c1-100)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(cat <<JSON
+          {
+            "username": "GitHub Actions CI",
+            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+            "embeds": [{
+              "title": "$EMOJI [Backend Spring] SonarCloud Quality Gate: $STATUS_TXT",
+              "color": $COLOR,
+              "description": "**Commit:** \`$COMMIT_MSG\`",
+              "fields": [
+                { "name": "🌿 Rama", "value": "\`${{ github.ref_name }}\`", "inline": true },
+                { "name": "👤 Autor", "value": "\`${{ github.actor }}\`", "inline": true },
+                { "name": "🔍 Logs", "value": "[Ver Ejecución]($RUN_URL)", "inline": true }
+              ],
+              "footer": { "text": "Task Manager • Spring Boot API CI" },
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+JSON
+          )
+          curl -s -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK" || true
+
   # ============================================================
   # 7. FINAL CI QUALITY GATE
   # ============================================================
@@ -316,20 +499,17 @@ jobs:
           echo "Sonar:        $SONAR_RESULT"
           echo "=========================================="
 
-          # El job de changes debe haber terminado correctamente.
           if [[ "$CHANGES_RESULT" != "success" ]]; then
             echo "❌ Change detection / repository policy failed."
             exit 1
           fi
 
-          # Si el backend no cambió, este Quality Gate pasa.
           if [[ "$CHANGED" != "true" ]]; then
             echo "ℹ️ No Backend changes detected."
             echo "✅ Backend CI Quality Gate PASSED."
             exit 0
           fi
 
-          # Todos los checks deben haber terminado correctamente.
           if [[ "$STATIC_RESULT" != "success" ]]; then
             echo "❌ Static checks failed."
             exit 1
@@ -358,3 +538,62 @@ jobs:
           echo "=========================================="
           echo "✅ BACKEND CI QUALITY GATE PASSED"
           echo "=========================================="
+
+      - name: 📢 Notify Discord (Final Quality Gate Report)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          CHANGED: ${{ needs.changes.outputs.backend }}
+          STATIC_RESULT: ${{ needs.static-checks.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SONAR_RESULT: ${{ needs.sonar.result }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then exit 0; fi
+
+          if [[ "$CHANGED" != "true" ]]; then
+            COLOR=3447003
+            TITLE="ℹ️ [Spring API] CI Omitido (Sin cambios)"
+          elif [[ "$STATIC_RESULT" == "success" && "$UNIT_RESULT" == "success" && "$INTEGRATION_RESULT" == "success" && "$BUILD_RESULT" == "success" && "$SONAR_RESULT" == "success" ]]; then
+            COLOR=3066993
+            TITLE="🎉 [Spring API] Quality Gate PASSED - Todo Exitoso"
+          else
+            COLOR=15158332
+            TITLE="🚨 [Spring API] Quality Gate FAILED - Pipeline con Errores"
+          fi
+
+          icon() {
+            case "$1" in
+              "success") echo "✅ Exitoso" ;;
+              "failure") echo "❌ Fallido" ;;
+              "skipped") echo "⏭️ Omitido" ;;
+              "cancelled") echo "⚠️ Cancelado" ;;
+              *) echo "❓ Desconocido" ;;
+            esac
+          }
+
+          COMMIT_MSG=$(git log -1 --pretty=%s 2>/dev/null || echo "${{ github.event.head_commit.message }}" | head -n 1 | sed 's/"/\\"/g' | cut -c1-100)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(cat <<JSON
+          {
+            "username": "GitHub Actions CI",
+            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+            "embeds": [{
+              "title": "$TITLE",
+              "color": $COLOR,
+              "description": "**Commit:** \`$COMMIT_MSG\`\n**Rama:** \`${{ github.ref_name }}\` • **Autor:** \`${{ github.actor }}\`\n[🔗 Ver detalles en GitHub Actions]($RUN_URL)",
+              "fields": [
+                { "name": "🎨 Spotless & Compilación", "value": "$(icon $STATIC_RESULT)", "inline": true },
+                { "name": "🧪 Pruebas Unitarias", "value": "$(icon $UNIT_RESULT)", "inline": true },
+                { "name": "🔗 Pruebas Integración", "value": "$(icon $INTEGRATION_RESULT)", "inline": true },
+                { "name": "📦 Build de JAR", "value": "$(icon $BUILD_RESULT)", "inline": true },
+                { "name": "🔍 SonarCloud Gate", "value": "$(icon $SONAR_RESULT)", "inline": true }
+              ],
+              "footer": { "text": "Task Manager • Reporte Final de CI" },
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            }]
+          }
+JSON
+          )
+          curl -s -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK" || true
