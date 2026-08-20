@@ -5,37 +5,75 @@ on:
     branches:
       - dev
       - main
+
   pull_request:
     branches:
       - dev
       - main
 
+concurrency:
+  group: ci-backend-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  format:
-    name: 🎨 Verify Java Code Format (Spotless)
+  # ============================================================
+  # 1. CHANGE DETECTION
+  # ============================================================
+  changes:
+    name: 🔍 Check Backend Changes
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager
+
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+
     steps:
-      - name: 🛑 Verify PR source branch is dev (when targeting main)
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛡️ Verify PR source branch
         if: github.base_ref == 'main' && github.head_ref != 'dev'
         env:
           SOURCE_BRANCH: ${{ github.head_ref }}
         run: |
           echo "❌ ERROR: No está permitido hacer Pull Request a 'main' desde '$SOURCE_BRANCH'."
-          echo "👉 Todo cambio hacia 'main' debe provenir obligatoriamente de la rama 'dev'."
+          echo "👉 Todo cambio hacia 'main' debe provenir obligatoriamente de 'dev'."
           exit 1
 
+      - name: 🔍 Detect Backend Changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'task-manager/**'
+              - '.github/workflows/ci-backend.yml'
+
+  # ============================================================
+  # 2. FAST-FAIL STATIC QUALITY GATE
+  # ============================================================
+  static-checks:
+    name: ⚡ Fast-Fail Quality Gate (Format & Compile)
+
+    needs: changes
+
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./task-manager
+
+    steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
       - name: ☕ Set up OpenJDK 17
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
@@ -43,37 +81,27 @@ jobs:
       - name: 🎨 Spotless Format Check
         run: ./mvnw spotless:check
 
-  compile:
-    name: ⚙️ Compile Java Code
-    needs: format
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager
-    steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: ☕ Set up OpenJDK 17
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
-
-      - name: 🔑 Make Maven Wrapper Executable
-        run: chmod +x ./mvnw
-
-      - name: ⚙️ Maven Clean Compile
+      - name: ⚙️ Compile Java Code
         run: ./mvnw clean compile
 
-  test:
+  # ============================================================
+  # 3. UNIT TESTS
+  # ============================================================
+  unit-tests:
     name: 🧪 Unit Tests & JaCoCo Coverage
-    needs: compile
+
+    needs:
+      - changes
+      - static-checks
+
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./task-manager
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -81,25 +109,137 @@ jobs:
       - name: ☕ Set up OpenJDK 17
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
-      - name: 🧪 Run Tests & JaCoCo Report
-        run: ./mvnw test jacoco:report -Dtest="!TaskManagerApplicationTests"
+      - name: 🧪 Run Unit Tests & Generate JaCoCo Report
+        run: |
+          ./mvnw test jacoco:report \
+            -Dtest="!TaskManagerApplicationTests,!*IntegrationTest,!*IT"
 
-  sonar:
-    name: 🔍 SonarCloud Code Analysis & Quality Gate
-    needs: test
+      - name: 📤 Upload JaCoCo Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jacoco
+          path: task-manager/target/site/jacoco/jacoco.xml
+          retention-days: 1
+
+  # ============================================================
+  # 4. INTEGRATION TESTS
+  # ============================================================
+  integration-tests:
+    name: 🔗 Integration Tests (Testcontainers / Spring)
+
+    needs:
+      - changes
+      - static-checks
+
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./task-manager
+
     steps:
-      - name: 📥 Checkout Repository (Full History)
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up OpenJDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: 🔑 Make Maven Wrapper Executable
+        run: chmod +x ./mvnw
+
+      - name: 🔗 Run Integration Tests
+        run: |
+          IT_FILES=$(find src/test/java \
+            \( -name "*IntegrationTest.java" -o -name "*IT.java" \) \
+            2>/dev/null || true)
+
+          if [ -n "$IT_FILES" ]; then
+            echo "🧪 Tests de integración encontrados:"
+            echo "$IT_FILES"
+
+            ./mvnw test \
+              -Dtest="*IntegrationTest,*IT" \
+              -Dsurefire.failIfNoSpecifiedTests=false
+          else
+            echo "ℹ️ No se encontraron tests de integración."
+            echo "ℹ️ Omitiendo Integration Tests de forma segura."
+          fi
+
+  # ============================================================
+  # 5. PRODUCTION BUILD
+  # ============================================================
+  build:
+    name: 📦 Build Spring Boot JAR
+
+    needs:
+      - changes
+      - static-checks
+
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./task-manager
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up OpenJDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: 🔑 Make Maven Wrapper Executable
+        run: chmod +x ./mvnw
+
+      - name: 📦 Build Production JAR
+        run: ./mvnw package -DskipTests
+
+      - name: 📤 Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: task-manager/target/*.jar
+          retention-days: 1
+
+  # ============================================================
+  # 6. SONARCLOUD
+  # ============================================================
+  sonar:
+    name: 🔍 SonarCloud Analysis & Quality Gate
+
+    needs:
+      - changes
+      - unit-tests
+
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./task-manager
+
+    steps:
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -107,46 +247,126 @@ jobs:
       - name: ☕ Set up OpenJDK 17
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: 🔑 Make Maven Wrapper Executable
         run: chmod +x ./mvnw
 
-      - name: 🧪 Run Tests & Generate JaCoCo Coverage
-        run: ./mvnw test jacoco:report -Dtest="!TaskManagerApplicationTests"
+      - name: 📥 Download JaCoCo Coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jacoco
+          path: task-manager/target/site/jacoco
 
-      - name: 🔍 SonarCloud Scan
+      - name: 🔍 Run SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=DiegoVilla27_task-manager-system \
+            -Dsonar.projectKey=DiegoVilla27_task-manager-backend \
             -Dsonar.organization=diegovilla27 \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.qualitygate.wait=true \
+            -Dsonar.qualitygate.timeout=300
 
-  build:
-    name: 📦 Build Spring Boot JAR
-    needs: sonar
+  # ============================================================
+  # 7. FINAL CI QUALITY GATE
+  # ============================================================
+  quality-gate:
+    name: 🛡️ Backend CI Quality Gate
+
+    needs:
+      - changes
+      - static-checks
+      - unit-tests
+      - integration-tests
+      - build
+      - sonar
+
+    if: ${{ always() }}
+
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./task-manager
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ☕ Set up OpenJDK 17
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+      - name: 🛡️ Evaluate CI Results
+        env:
+          CHANGED: ${{ needs.changes.outputs.backend }}
+          CHANGES_RESULT: ${{ needs.changes.result }}
 
-      - name: 🔑 Make Maven Wrapper Executable
-        run: chmod +x ./mvnw
+          STATIC_RESULT: ${{ needs.static-checks.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SONAR_RESULT: ${{ needs.sonar.result }}
+        run: |
+          echo "=========================================="
+          echo "🛡️ Backend CI Quality Gate"
+          echo "=========================================="
 
-      - name: 📦 Build JAR Package
-        run: ./mvnw package -DskipTests
+          echo "Changes:      $CHANGED"
+          echo "Static:       $STATIC_RESULT"
+          echo "Unit:         $UNIT_RESULT"
+          echo "Integration:  $INTEGRATION_RESULT"
+          echo "Build:        $BUILD_RESULT"
+          echo "Sonar:        $SONAR_RESULT"
+          echo "=========================================="
+
+          if [[ "$CHANGES_RESULT" != "success" ]]; then
+            echo "❌ Change detection / repository policy failed."
+            exit 1
+          fi
+
+          if [[ "$CHANGED" != "true" ]]; then
+            echo "ℹ️ No Backend changes detected."
+            echo "✅ Backend CI Quality Gate PASSED."
+            exit 0
+          fi
+
+          if [[ "$STATIC_RESULT" != "success" ]]; then
+            echo "❌ Static checks failed."
+            exit 1
+          fi
+
+          if [[ "$UNIT_RESULT" != "success" ]]; then
+            echo "❌ Unit tests failed."
+            exit 1
+          fi
+
+          if [[ "$INTEGRATION_RESULT" != "success" ]]; then
+            echo "❌ Integration tests failed."
+            exit 1
+          fi
+
+          if [[ "$BUILD_RESULT" != "success" ]]; then
+            echo "❌ Production build failed."
+            exit 1
+          fi
+
+          if [[ "$SONAR_RESULT" != "success" ]]; then
+            echo "❌ SonarCloud Quality Gate failed."
+            exit 1
+          fi
+
+          echo "=========================================="
+          echo "✅ BACKEND CI QUALITY GATE PASSED"
+          echo "=========================================="
+
+      - name: 📢 Notify Discord (Single Summary Report)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          MODULE: "Spring Boot API"
+          CHANGED: ${{ needs.changes.outputs.backend }}
+          STATIC_RESULT: ${{ needs.static-checks.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SONAR_RESULT: ${{ needs.sonar.result }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: node ${{ github.workspace }}/.github/scripts/notify-discord-summary.js

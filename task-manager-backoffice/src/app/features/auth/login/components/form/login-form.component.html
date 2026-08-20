@@ -1,0 +1,88 @@
+<div
+  class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-slate-950/80"
+>
+  <div
+    class="flex items-center justify-between pb-6 mb-6 border-b border-slate-800/80"
+  >
+    <div>
+      <h2 class="text-lg font-semibold text-white">Iniciar Sesión</h2>
+      <p class="text-xs text-slate-400">
+        Ingresa tus credenciales de backoffice
+      </p>
+    </div>
+  </div>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="handleSubmit()"
+    class="space-y-4 flex flex-col gap-4"
+  >
+    <!-- Email Field -->
+    <app-form-field
+      label="Correo Electrónico / Usuario"
+      forId="login-email"
+      [required]="true"
+    >
+      <app-input
+        id="login-email"
+        type="email"
+        placeholder="admin@taskmanager.io"
+        formControlName="email"
+        [hasPrefix]="true"
+      >
+        <svg class="w-4 h-4" prefix lucideAtSign></svg>
+      </app-input>
+    </app-form-field>
+
+    <!-- Password Field -->
+    <app-form-field label="Contraseña" forId="login-password" [required]="true">
+      <button
+        label-action
+        type="button"
+        class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors font-medium bg-transparent border-0 p-0 cursor-pointer"
+      >
+        ¿Olvidaste tu contraseña?
+      </button>
+
+      <app-input
+        id="login-password"
+        [type]="showPassword() ? 'text' : 'password'"
+        placeholder="••••••••••••"
+        formControlName="password"
+        [hasPrefix]="true"
+        [hasSuffix]="true"
+      >
+        <svg class="w-4 h-4" prefix lucideKeyRound></svg>
+        <button
+          suffix
+          type="button"
+          (click)="togglePasswordVisibility()"
+          class="text-slate-500 hover:text-slate-300 transition-colors cursor-pointer bg-transparent border-0 p-0"
+          [attr.aria-label]="
+            showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'
+          "
+        >
+          @if (showPassword()) {
+            <svg class="w-4 h-4" lucideEye></svg>
+          } @else {
+            <svg class="w-4 h-4" lucideEyeClosed></svg>
+          }
+        </button>
+      </app-input>
+    </app-form-field>
+
+    <!-- Submit Button -->
+    <div class="pt-2">
+      <app-button
+        type="submit"
+        variant="primary"
+        size="lg"
+        [fullWidth]="true"
+        [loading]="loginMutation.isPending()"
+      >
+        <span>Acceder al Panel</span>
+        <svg class="w-4 h-4 ml-1" lucideArrowRight></svg>
+      </app-button>
+    </div>
+  </form>
+</div>

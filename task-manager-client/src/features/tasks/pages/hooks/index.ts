@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { Task, TasksResponse, TaskStatusType } from '../interfaces/response';
-import { getAllTasksSvc } from '../service';
+import type { Task, TasksResponse, TaskStatusType } from '../../interfaces/response';
+import { getAllTasksSvc } from '../../services';
+import useModalStore from '@features/tasks/store/modalStore';
 
 export type ViewMode = 'table' | 'kanban';
 
@@ -11,9 +12,9 @@ const useTasksPage = () => {
   const [tasks, setTasks] = useState<TasksResponse | null>(null);
   const [accumulatedTasks, setAccumulatedTasks] = useState<Task[]>([]);
   const [page, setPage] = useState<number>(1);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+
+  const { notifySuccess } = useModalStore();
 
   // Carga limpia para Tabla o inicial Kanban
   const fetchTasks = useCallback(async () => {
@@ -58,24 +59,6 @@ const useTasksPage = () => {
     );
   };
 
-  // Abrir modal en modo edición
-  const handleOpenEditModal = (task: Task) => {
-    setTaskToEdit(task);
-    setIsModalOpen(true);
-  };
-
-  // Abrir modal en modo creación
-  const handleOpenCreateModal = () => {
-    setTaskToEdit(null);
-    setIsModalOpen(true);
-  };
-
-  // Cerrar modal y limpiar tarea a editar
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setTaskToEdit(null);
-  };
-
   // Callback cuando se elimina una tarea: refrescar lista
   const handleTaskDeleted = () => {
     fetchTasks();
@@ -95,13 +78,7 @@ const useTasksPage = () => {
   // Carga automática al cambiar página o filtros
   useEffect(() => {
     fetchTasks();
-  }, [fetchTasks]);
-
-  // Callback cuando se guarda (crea o edita) una tarea exitosamente
-  const handleTaskSaved = () => {
-    handleCloseModal();
-    fetchTasks();
-  };
+  }, [fetchTasks, notifySuccess]);
 
   return {
     viewMode,
@@ -114,15 +91,9 @@ const useTasksPage = () => {
     setStatus: handleSetStatus,
     search,
     setSearch: handleSetSearch,
-    isModalOpen,
-    taskToEdit,
     isLoadingMore,
     hasMore: tasks ? page < tasks.totalPages : false,
     handleLoadMore,
-    handleOpenCreateModal,
-    handleOpenEditModal,
-    handleCloseModal,
-    handleTaskSaved,
     handleTaskStatusChange,
     handleTaskDeleted,
   };

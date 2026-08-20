@@ -1,0 +1,42 @@
+<div class="space-y-6">
+  <!-- Header & Actions -->
+  <app-users-header (newUserClicked)="isCreateModalOpen.set(true)" />
+
+  <div class="flex flex-col gap-4">
+    <!-- Filters & Search Toolbar -->
+    <app-users-filters
+      [search]="search()"
+      (searchChange)="search.set($event)"
+      (clearFilters)="search.set('')"
+    />
+
+    <!-- Users Table & Pagination -->
+    <app-users-table
+      [users]="users.data()"
+      [page]="page()"
+      (edit)="openEditModal($event)"
+      (delete)="openDeleteModal($event)"
+      (pageChange)="page.set($event)"
+    />
+  </div>
+
+  <!-- Create User Modal -->
+  <app-user-create-modal
+    [isOpen]="isCreateModalOpen()"
+    (close)="closeModal()"
+  />
+
+  <!-- Edit User Modal -->
+  <app-user-edit-modal
+    [isOpen]="isEditModalOpen()"
+    [user]="selectedUser()"
+    (close)="closeModal()"
+  />
+
+  <!-- Delete User Modal -->
+  <app-user-delete-modal
+    [isOpen]="isDeleteModalOpen()"
+    [user]="selectedUser()"
+    (close)="closeModal()"
+  />
+</div>

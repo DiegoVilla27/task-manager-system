@@ -1,0 +1,383 @@
+name: CI Backoffice (Angular)
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+  pull_request:
+    branches:
+      - dev
+      - main
+
+concurrency:
+  group: ci-backoffice-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================
+  # 1. CHANGE DETECTION
+  # ============================================================
+  changes:
+    name: 🔍 Check Backoffice Changes
+    runs-on: ubuntu-latest
+
+    outputs:
+      backoffice: ${{ steps.filter.outputs.backoffice }}
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛡️ Verify PR source branch
+        if: github.base_ref == 'main' && github.head_ref != 'dev'
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref }}
+        run: |
+          echo "❌ ERROR: No está permitido hacer Pull Request a 'main' desde '$SOURCE_BRANCH'."
+          echo "👉 Todo cambio hacia 'main' debe provenir obligatoriamente de 'dev'."
+          exit 1
+
+      - name: 🔍 Detect Backoffice Changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backoffice:
+              - 'task-manager-backoffice/**'
+              - '.github/workflows/ci-backoffice.yml'
+
+  # ============================================================
+  # 2. FAST-FAIL STATIC QUALITY GATE
+  # ============================================================
+  static-checks:
+    name: ⚡ Fast-Fail Quality Gate (Format, Lint & Types)
+
+    needs: changes
+
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ./task-manager-backoffice/pnpm-lock.yaml
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🎨 Prettier Format Check
+        run: pnpm run format:check
+
+      - name: ⚡ Run ESLint
+        run: pnpm run lint
+
+      - name: 🛡️ Strict TypeScript Typecheck
+        run: pnpm run typecheck
+
+  # ============================================================
+  # 3. UNIT TESTS
+  # ============================================================
+  unit-tests:
+    name: 🧪 Unit Tests & Coverage
+
+    needs:
+      - changes
+      - static-checks
+
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ./task-manager-backoffice/pnpm-lock.yaml
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🧪 Run Tests & Generate Coverage
+        run: pnpm run test:coverage
+
+      - name: 📤 Upload Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backoffice-coverage
+          path: task-manager-backoffice/coverage/lcov.info
+          retention-days: 1
+
+  # ============================================================
+  # 4. INTEGRATION TESTS
+  # ============================================================
+  integration-tests:
+    name: 🔗 Integration Tests (Component / Router)
+
+    needs:
+      - changes
+      - static-checks
+
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ./task-manager-backoffice/pnpm-lock.yaml
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 🔗 Run Integration Tests
+        run: |
+          IT_FILES=$(find src \
+            -name "*.integration.spec.ts" \
+            2>/dev/null || true)
+
+          if [ -n "$IT_FILES" ]; then
+            echo "🧪 Tests de integración encontrados:"
+            echo "$IT_FILES"
+
+            pnpm run test:integration
+          else
+            echo "ℹ️ No se encontraron tests de integración."
+            echo "ℹ️ Omitiendo Integration Tests de forma segura."
+          fi
+
+  # ============================================================
+  # 5. PRODUCTION BUILD
+  # ============================================================
+  build:
+    name: 📦 Build Production Bundle (Angular)
+
+    needs:
+      - changes
+      - static-checks
+
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./task-manager-backoffice
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ./task-manager-backoffice/pnpm-lock.yaml
+
+      - name: 📥 Install Dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: 📦 Build Angular Bundle
+        run: pnpm run build
+
+      - name: 📤 Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backoffice-build
+          path: task-manager-backoffice/dist
+          retention-days: 1
+
+  # ============================================================
+  # 6. SONARCLOUD
+  # ============================================================
+  sonar:
+    name: 🔍 SonarCloud Analysis & Quality Gate
+
+    needs:
+      - changes
+      - unit-tests
+
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📥 Download Coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backoffice-coverage
+          path: task-manager-backoffice/coverage
+
+      - name: 🔍 Run SonarCloud Analysis
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: task-manager-backoffice
+          args: >
+            -Dsonar.projectKey=DiegoVilla27_task-manager-backoffice
+            -Dsonar.organization=diegovilla27
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=src/**/*.spec.ts
+            -Dsonar.exclusions=src/main.ts
+            -Dsonar.coverage.exclusions=src/main.ts,src/**/*.spec.ts
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+
+  # ============================================================
+  # 7. FINAL CI QUALITY GATE
+  # ============================================================
+  quality-gate:
+    name: 🛡️ Backoffice CI Quality Gate
+
+    needs:
+      - changes
+      - static-checks
+      - unit-tests
+      - integration-tests
+      - build
+      - sonar
+
+    if: ${{ always() }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛡️ Evaluate CI Results
+        env:
+          CHANGED: ${{ needs.changes.outputs.backoffice }}
+          CHANGES_RESULT: ${{ needs.changes.result }}
+
+          STATIC_RESULT: ${{ needs.static-checks.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SONAR_RESULT: ${{ needs.sonar.result }}
+        run: |
+          echo "=========================================="
+          echo "🛡️ Backoffice CI Quality Gate"
+          echo "=========================================="
+
+          echo "Changes:      $CHANGED"
+          echo "Static:       $STATIC_RESULT"
+          echo "Unit:         $UNIT_RESULT"
+          echo "Integration:  $INTEGRATION_RESULT"
+          echo "Build:        $BUILD_RESULT"
+          echo "Sonar:        $SONAR_RESULT"
+          echo "=========================================="
+
+          if [[ "$CHANGES_RESULT" != "success" ]]; then
+            echo "❌ Change detection / repository policy failed."
+            exit 1
+          fi
+
+          if [[ "$CHANGED" != "true" ]]; then
+            echo "ℹ️ No Backoffice changes detected."
+            echo "✅ Backoffice CI Quality Gate PASSED."
+            exit 0
+          fi
+
+          if [[ "$STATIC_RESULT" != "success" ]]; then
+            echo "❌ Static checks failed."
+            exit 1
+          fi
+
+          if [[ "$UNIT_RESULT" != "success" ]]; then
+            echo "❌ Unit tests failed."
+            exit 1
+          fi
+
+          if [[ "$INTEGRATION_RESULT" != "success" ]]; then
+            echo "❌ Integration tests failed."
+            exit 1
+          fi
+
+          if [[ "$BUILD_RESULT" != "success" ]]; then
+            echo "❌ Production build failed."
+            exit 1
+          fi
+
+          if [[ "$SONAR_RESULT" != "success" ]]; then
+            echo "❌ SonarCloud Quality Gate failed."
+            exit 1
+          fi
+
+          echo "=========================================="
+          echo "✅ BACKOFFICE CI QUALITY GATE PASSED"
+          echo "=========================================="
+
+      - name: 📢 Notify Discord (Single Summary Report)
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          MODULE: "Angular Backoffice"
+          CHANGED: ${{ needs.changes.outputs.backoffice }}
+          STATIC_RESULT: ${{ needs.static-checks.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SONAR_RESULT: ${{ needs.sonar.result }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: node ${{ github.workspace }}/.github/scripts/notify-discord-summary.js

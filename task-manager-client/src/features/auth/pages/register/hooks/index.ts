@@ -11,6 +11,7 @@ const useRegisterPage = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<AuthRegisterRequest>({
     resolver: zodResolver(RegisterSchema),
@@ -33,6 +34,7 @@ const useRegisterPage = () => {
     register,
     submit: handleSubmit(onSubmit),
     errors,
+    setValue,
   };
 };
 

@@ -1,12 +1,13 @@
+import useModalStore from '@features/tasks/store/modalStore';
 import React, { useEffect, useRef } from 'react';
 
 export interface Props {
   isOpen: boolean;
-  onClose: () => void;
 }
 
-const useModal = ({ isOpen, onClose }: Props) => {
+const useModal = ({ isOpen }: Props) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const { closeModal } = useModalStore();
 
   // Manejar el scroll del body y el evento de la tecla Escape
   useEffect(() => {
@@ -16,7 +17,7 @@ const useModal = ({ isOpen, onClose }: Props) => {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose();
+        closeModal();
       }
     };
 
@@ -26,18 +27,19 @@ const useModal = ({ isOpen, onClose }: Props) => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, closeModal]);
 
   // Manejar clic por fuera del contenido del modal
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-      onClose();
+      closeModal();
     }
   };
 
   return {
     modalRef,
     handleBackdropClick,
+    closeModal,
   };
 };
 

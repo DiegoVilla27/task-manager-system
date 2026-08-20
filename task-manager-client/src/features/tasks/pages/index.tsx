@@ -18,26 +18,16 @@ export const TasksPage: React.FC = () => {
     setStatus,
     search,
     setSearch,
-    isModalOpen,
-    taskToEdit,
     hasMore,
     isLoadingMore,
     handleLoadMore,
-    handleOpenCreateModal,
-    handleOpenEditModal,
-    handleCloseModal,
-    handleTaskSaved,
     handleTaskStatusChange,
     handleTaskDeleted,
   } = useTasksPage();
 
   return (
     <div className="space-y-6 flex-1 flex flex-col">
-      <HeaderTasks
-        setIsModalOpen={handleOpenCreateModal}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-      />
+      <HeaderTasks viewMode={viewMode} setViewMode={setViewMode} />
 
       {/* Buscador y Filtros */}
       <FiltersTasks search={search} setSearch={setSearch} status={status} setStatus={setStatus} />
@@ -52,14 +42,12 @@ export const TasksPage: React.FC = () => {
           totalPages={tasks?.totalPages || 0}
           onTaskStatusChange={handleTaskStatusChange}
           onTaskDeleted={handleTaskDeleted}
-          onEditTask={handleOpenEditModal}
         />
       ) : (
         <KanbanTasks
           tasks={accumulatedTasks}
           onTaskStatusChange={handleTaskStatusChange}
           onTaskDeleted={handleTaskDeleted}
-          onEditTask={handleOpenEditModal}
           hasMore={hasMore}
           onLoadMore={handleLoadMore}
           isLoadingMore={isLoadingMore}
@@ -67,12 +55,7 @@ export const TasksPage: React.FC = () => {
       )}
 
       {/* Modal Reutilizable de Guardado (Crear/Editar) */}
-      <SaveModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSuccess={handleTaskSaved}
-        taskToEdit={taskToEdit}
-      />
+      <SaveModal />
     </div>
   );
 };

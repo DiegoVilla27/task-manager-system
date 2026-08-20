@@ -24,9 +24,9 @@ export default defineConfig({
         'src/**/types/**',
         'src/**/models/**',
         'src/**/schema/**',
-        'src/**/layout/**',
-        'src/**/layouts/**',
-        'src/**/pages/**',
+        // 'src/**/layout/**',
+        // 'src/**/pages/**',
+        // 'src/core/router/**',
         'src/core/environments/**',
       ],
       thresholds: {

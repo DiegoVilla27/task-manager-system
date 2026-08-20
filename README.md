@@ -64,6 +64,7 @@ task-manager-system/
 ├── .commitlintrc.json                  # Conventional commits specification rules
 ├── .lintstagedrc.js                    # Staged file linting, formatting & test runner
 ├── docker-compose.yml                  # Multi-container orchestration definition
+├── git-prune-branches.sh               # Utility script to clean up orphaned local Git branches
 ├── package.json                        # Root monorepo workspace dependencies & scripts
 ├── README.md                           # System root documentation
 │
@@ -194,6 +195,31 @@ pnpm run lint
 # Build production bundle with TypeScript type-checking
 pnpm run build
 ```
+
+---
+
+## 🧹 Git Utility Scripts
+
+### Branch Pruning Script (`git-prune-branches.sh`)
+
+[git-prune-branches.sh](file:///Users/diegovilla/Desktop/task-manager-system/git-prune-branches.sh) is a utility script designed to keep the local repository clean by automatically pruning orphaned local branches whose remote tracking branches have been deleted or merged on GitHub/GitLab.
+
+#### What it does
+1. Runs `git fetch -p` (`prune`) to synchronize and purge stale remote references.
+2. Identifies local branches marked with `: gone]` (whose upstream remote no longer exists), while protecting essential branches (`main`, `dev`, `qa`, `staging`).
+3. Displays the list of detected branches and prompts for interactive confirmation (`y/N`) before deleting them (`git branch -D`).
+
+#### How to use it
+
+1. Make sure the script has execution permissions:
+   ```bash
+   chmod +x git-prune-branches.sh
+   ```
+
+2. Run the script from the root of the project:
+   ```bash
+   ./git-prune-branches.sh
+   ```
 
 ---
 

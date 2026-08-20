@@ -1,0 +1,40 @@
+<div class="space-y-6">
+  <!-- Header & Actions -->
+  <app-tasks-header (newTaskClicked)="openCreateModal()" />
+
+  <div class="flex flex-col gap-4">
+    <!-- Stats Grid -->
+    <app-tasks-stats [tasks]="tasks.data()" />
+
+    <!-- Filters & Search Toolbar -->
+    <app-tasks-filters
+      [search]="search()"
+      (searchChange)="search.set($event)"
+      (statusChange)="status.set($event)"
+      (clearFilters)="handleClearFilters()"
+    />
+
+    <!-- Tasks Table & Pagination -->
+    <app-tasks-table
+      [tasks]="tasks.data()"
+      [page]="page()"
+      (edit)="openEditModal($event)"
+      (delete)="openDeleteModal($event)"
+      (pageChange)="page.set($event)"
+    />
+  </div>
+
+  <!-- Create/Edit Task Modal -->
+  <app-task-form-modal
+    [isOpen]="isFormModalOpen()"
+    [task]="selectedTask()"
+    (close)="closeModal()"
+  />
+
+  <!-- Delete Task Modal -->
+  <app-task-delete-modal
+    [isOpen]="isDeleteModalOpen()"
+    [task]="selectedTask()"
+    (close)="closeModal()"
+  />
+</div>
