@@ -27,7 +27,7 @@ services:
     container_name: react_client
     restart: always
     env_file:
-      - ./task-manager-client/.env
+      - ./task-manager-client/.env.localhost
     ports:
       - "3000:3000"
     networks:
@@ -43,4 +43,3 @@ services:
       - "4200:4200"
     networks:
       - shared-network
-

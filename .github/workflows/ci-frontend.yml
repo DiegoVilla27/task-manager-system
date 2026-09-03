@@ -84,7 +84,7 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: 🎨 Prettier Format Check
-        run: pnpm exec prettier --check "src/**/*.{ts,tsx,json,css,html}"
+        run: pnpm run format:check
 
       - name: ⚡ Run Oxlint
         run: pnpm run lint
@@ -130,7 +130,7 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: 🧪 Run Tests & Generate Coverage
-        run: pnpm run test:coverage
+        run: pnpm run test:unit
 
       - name: 📤 Upload Coverage
         uses: actions/upload-artifact@v4
@@ -230,7 +230,7 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: 📦 Build Vite Bundle
-        run: pnpm exec vite build
+        run: pnpm run build:prod
 
       - name: 📤 Upload Build Artifact
         uses: actions/upload-artifact@v4
