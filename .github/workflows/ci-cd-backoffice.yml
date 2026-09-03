@@ -132,7 +132,7 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: 🧪 Run Tests & Generate Coverage
-        run: pnpm run test:coverage
+        run: pnpm run test:unit
 
       - name: 📤 Upload Coverage
         uses: actions/upload-artifact@v4
@@ -407,7 +407,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-version: latest
-          vercel-args: '--prod'
+          vercel-args: "--prod"
 
   # ============================================================
   # 9. DISCORD NOTIFICATION REPORT
