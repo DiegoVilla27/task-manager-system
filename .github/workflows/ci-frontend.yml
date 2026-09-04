@@ -284,7 +284,81 @@ jobs:
             -Dsonar.qualitygate.timeout=300
 
   # ============================================================
-  # 7. FINAL CI QUALITY GATE
+  # 7. E2E
+  # ============================================================
+  e2e:
+    name: 📲 Full-Stack E2E (Cypress + Real API)
+
+    needs:
+      - changes
+      - unit-tests
+      - integration-tests
+      - build
+
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Levantar Infraestructura Efímera (DB + API)
+        run: |
+          docker network create shared-network || true
+          docker run -d --name global_postgres --network shared-network \
+            -e POSTGRES_USER=user \
+            -e POSTGRES_PASSWORD=password \
+            -e POSTGRES_DB=task_manager_db \
+            -p 5432:5432 postgres:15-alpine
+          docker compose up -d --build spring-api
+
+      - name: ⏳ Esperar disponibilidad de Spring Boot
+        run: |
+          timeout 60s bash -c '
+            until curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/v1/api-docs | grep -q "200"; do
+              echo "Esperando a Spring Boot..."
+              sleep 2
+            done
+          '
+          echo "✅ Backend completamente operativo"
+
+      - name: ⚙️ Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: 📦 Install Frontend Dependencies
+        run: pnpm --dir task-manager-client install
+
+      - name: 🌲 Run Cypress E2E contra API Real
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: task-manager-client
+          install: false
+          start: pnpm run local
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 60
+          browser: chrome
+
+      # Si algo falla: Capturas de pantalla de Cypress y logs de los contenedores
+      - name: 📸 Upload Cypress artifacts on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: task-manager-client/cypress/screenshots
+
+      - name: 📋 Dump Docker logs on failure
+        if: failure()
+        run: docker compose logs
+
+  # ============================================================
+  # 8. FINAL CI QUALITY GATE
   # ============================================================
   quality-gate:
     name: 🛡️ Frontend CI Quality Gate
@@ -296,6 +370,7 @@ jobs:
       - integration-tests
       - build
       - sonar
+      - e2e
 
     if: ${{ always() }}
 
@@ -315,6 +390,7 @@ jobs:
           INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
           BUILD_RESULT: ${{ needs.build.result }}
           SONAR_RESULT: ${{ needs.sonar.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
         run: |
           echo "=========================================="
           echo "🛡️ Frontend CI Quality Gate"
@@ -326,6 +402,7 @@ jobs:
           echo "Integration:  $INTEGRATION_RESULT"
           echo "Build:        $BUILD_RESULT"
           echo "Sonar:        $SONAR_RESULT"
+          echo "E2E:          $E2E_RESULT"
           echo "=========================================="
 
           if [[ "$CHANGES_RESULT" != "success" ]]; then
@@ -364,12 +441,44 @@ jobs:
             exit 1
           fi
 
+          if [[ "$E2E_RESULT" != "success" ]]; then
+            echo "❌ E2E tests failed."
+            exit 1
+          fi
+
           echo "=========================================="
           echo "✅ FRONTEND CI QUALITY GATE PASSED"
           echo "=========================================="
 
-      - name: 📢 Notify Discord (Single Summary Report)
-        if: always()
+  # ============================================================
+  # 9. DISCORD NOTIFICATION REPORT
+  # ============================================================
+  notify:
+    name: 📢 Discord CI/CD Summary
+    needs:
+      - changes
+      - static-checks
+      - unit-tests
+      - integration-tests
+      - build
+      - sonar
+      - e2e
+      - quality-gate
+
+    if: ${{ always() }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 📢 Notify Discord (Single Consolidated Report)
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           MODULE: "React Client"
@@ -379,5 +488,6 @@ jobs:
           INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
           BUILD_RESULT: ${{ needs.build.result }}
           SONAR_RESULT: ${{ needs.sonar.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: node ${{ github.workspace }}/.github/scripts/notify-discord-summary.js
