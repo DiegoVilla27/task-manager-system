@@ -1,10 +1,10 @@
-import { authResponse } from '@shared/mocks/data/auth';
-import { meResponse } from '@shared/mocks/data/user';
 import StorageService from '@shared/utils/storage';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import LoginPage from '.';
+import RegisterPage from '.';
+import { authResponse } from '@shared/mocks/data/auth';
+import { meResponse } from '@shared/mocks/data/user';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -15,28 +15,35 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-describe('Auth: Login Integration', () => {
+describe('Auth: Register Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     StorageService.clear();
   });
 
-  const renderComponent = () => {
-    return render(<LoginPage />, { wrapper: MemoryRouter });
-  };
-
-  it('should login user successfully', async () => {
+  it('should register user successfully', async () => {
     // Arrange
     const user = userEvent.setup();
-    renderComponent();
+    render(<RegisterPage />, { wrapper: MemoryRouter });
+
+    // Assert
+    expect(StorageService.get('TOKEN')).toBeNull();
+    expect(StorageService.get('REFRESH')).toBeNull();
+    expect(StorageService.get('ME')).toBeNull();
 
     // Act
+    const nameInput = screen.getByLabelText(/nombre/i);
+    const lastnameInput = screen.getByLabelText(/apellido/i);
     const emailInput = screen.getByLabelText(/correo electrónico/i);
-    const passwordInput = screen.getByLabelText(/contraseña/i);
-    const submit = screen.getByRole('button', { name: /ingresar/i });
+    const passwordInput = screen.getByLabelText('Contraseña');
+    const confirmPasswordInput = screen.getByLabelText('Confirmar Contraseña');
+    const submit = screen.getByRole('button', { name: /registrarse/i });
 
-    await user.type(emailInput, 'dv@gmail.com');
+    await user.type(nameInput, 'Diego');
+    await user.type(lastnameInput, 'Villa');
+    await user.type(emailInput, 'dv270992@gmail.com');
     await user.type(passwordInput, '12345678');
+    await user.type(confirmPasswordInput, '12345678');
     await user.click(submit);
 
     // Assert

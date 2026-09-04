@@ -33,6 +33,7 @@ export default defineConfig({
         'src/**/schema/**',
         'src/core/environments/**',
         'src/**/*.integration.*',
+        'src/shared/mocks/**',
       ],
       thresholds: {
         lines: 80,
