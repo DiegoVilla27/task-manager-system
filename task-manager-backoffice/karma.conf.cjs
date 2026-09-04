@@ -27,6 +27,22 @@ module.exports = function (config) {
         { type: 'text-summary' },
         { type: 'lcovonly', file: 'lcov.info' },
       ],
+      exclude: [
+        'src/main.ts',
+        'src/environments/**',
+        'src/**/*.module.ts',
+        'src/**/*.routes.ts',
+        'src/**/models/**',
+        'src/**/interfaces/**'
+      ],
+      check: {
+        global: {
+          statements: 80,
+          lines: 80,
+          branches: 80,
+          functions: 80,
+        },
+      },
     },
     reporters: ['progress', 'kjhtml', 'coverage'],
     browsers: ['ChromeHeadlessCI'],

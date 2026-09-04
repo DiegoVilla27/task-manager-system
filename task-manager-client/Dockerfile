@@ -8,7 +8,7 @@ WORKDIR /app
 RUN npm install -g pnpm@latest
 
 # Copiar archivos de dependencias para aprovechar la caché
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* ./
 
 # Instalar dependencias del proyecto
 RUN pnpm install

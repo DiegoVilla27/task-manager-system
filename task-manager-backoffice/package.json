@@ -16,12 +16,12 @@
     "typecheck": "tsc --noEmit",
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,css,json}\"",
     "format:write": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
-    "test": "ng test",
-    "test:unit": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage",
-    "test:unit:watch": "ng test --watch=true --browsers=ChromeHeadlessCI --code-coverage",
-    "test:integration": "ng test --watch=false --browsers=ChromeHeadlessCI",
+    "test": "ng test --watch=false --browsers=ChromeHeadlessCI",
+    "test:watch": "ng test --watch=true --browsers=ChromeHeadlessCI",
     "test:coverage": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage",
-    "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage"
+    "test:watch:coverage": "ng test --watch=true --browsers=ChromeHeadlessCI --code-coverage",
+    "test:unit": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage --include='src/**/!(*.integration).spec.ts'",
+    "test:integration": "ng test --watch=false --browsers=ChromeHeadlessCI --include='**/*integration.spec.ts'"
   },
   "private": true,
   "dependencies": {

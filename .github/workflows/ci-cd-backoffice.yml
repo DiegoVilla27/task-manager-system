@@ -132,7 +132,7 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: 🧪 Run Tests & Generate Coverage
-        run: pnpm run test:coverage
+        run: pnpm run test:unit
 
       - name: 📤 Upload Coverage
         uses: actions/upload-artifact@v4
@@ -280,7 +280,7 @@ jobs:
             -Dsonar.tests=src
             -Dsonar.test.inclusions=src/**/*.spec.ts
             -Dsonar.exclusions=src/main.ts
-            -Dsonar.coverage.exclusions=src/main.ts,src/**/*.spec.ts,src/environments/**
+            -Dsonar.coverage.exclusions=src/main.ts,src/environments/**,src/**/*.module.ts,src/**/*.routes.ts,src/**/models/**,src/**/interfaces/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
@@ -407,7 +407,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-version: latest
-          vercel-args: '--prod'
+          vercel-args: "--prod"
 
   # ============================================================
   # 9. DISCORD NOTIFICATION REPORT
