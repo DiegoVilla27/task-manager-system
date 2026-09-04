@@ -20,6 +20,7 @@ const unitResult = process.env.UNIT_RESULT || 'skipped';
 const integrationResult = process.env.INTEGRATION_RESULT || 'skipped';
 const buildResult = process.env.BUILD_RESULT || 'skipped';
 const sonarResult = process.env.SONAR_RESULT || 'skipped';
+const e2eResult = process.env.E2E_RESULT || 'skipped';
 const deployResult = process.env.DEPLOY_RESULT;
 
 const branch = process.env.GITHUB_REF_NAME || process.env.BRANCH || 'unknown';
@@ -47,7 +48,7 @@ const formatStatus = (res) => {
 let color;
 let title;
 
-const checks = [staticResult, unitResult, integrationResult, buildResult, sonarResult];
+const checks = [staticResult, unitResult, integrationResult, buildResult, sonarResult, e2eResult];
 if (deployResult) {
   checks.push(deployResult);
 }
@@ -72,6 +73,7 @@ const fields = [
   { name: '🔗 Pruebas Integración', value: formatStatus(integrationResult), inline: true },
   { name: '📦 Production Build', value: formatStatus(buildResult), inline: true },
   { name: '🔍 SonarCloud Gate', value: formatStatus(sonarResult), inline: true },
+  { name: '📲 Pruebas E2E', value: formatStatus(e2eResult), inline: true },
 ];
 
 if (deployResult) {
