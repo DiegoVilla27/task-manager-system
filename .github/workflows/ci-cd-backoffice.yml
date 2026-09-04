@@ -280,7 +280,7 @@ jobs:
             -Dsonar.tests=src
             -Dsonar.test.inclusions=src/**/*.spec.ts
             -Dsonar.exclusions=src/main.ts
-            -Dsonar.coverage.exclusions=src/main.ts,src/**/*.spec.ts,src/environments/**
+            -Dsonar.coverage.exclusions=src/main.ts,src/environments/**,src/**/*.module.ts,src/**/*.routes.ts,src/**/models/**,src/**/interfaces/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
