@@ -20,7 +20,9 @@
     "test:coverage": "vitest run --coverage",
     "test:coverage:watch": "vitest --coverage",
     "test:unit": "vitest run --project unit --coverage",
-    "test:integration": "vitest run --project integration"
+    "test:integration": "vitest run --project integration",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -48,6 +50,7 @@
     "@vitejs/plugin-react": "^6.0.4",
     "@vitest/coverage-v8": "^4.1.10",
     "@vitest/ui": "^4.1.10",
+    "cypress": "^16.0.0",
     "jsdom": "^30.0.1",
     "msw": "^2.15.0",
     "oxlint": "^1.75.0",
