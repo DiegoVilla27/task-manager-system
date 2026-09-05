@@ -7,14 +7,12 @@ networks:
 services:
   spring-api:
     build:
-      context: ./task-manager
+      context: ./apps/task-manager
       dockerfile: Dockerfile
     container_name: spring_api
     restart: always
-    env_file:
-      - ./task-manager/.env
     environment:
-      - POSTGRES_URL=jdbc:postgresql://global_postgres:5432/task_manager_db
+      - SPRING_PROFILES_ACTIVE=docker
     ports:
       - "8080:8080"
     networks:
@@ -22,12 +20,12 @@ services:
 
   react-client:
     build:
-      context: ./task-manager-client
+      context: ./apps/task-manager-client
       dockerfile: Dockerfile
     container_name: react_client
     restart: always
     env_file:
-      - ./task-manager-client/.env.localhost
+      - ./apps/task-manager-client/.env.localhost
     ports:
       - "3000:3000"
     networks:
@@ -35,7 +33,7 @@ services:
 
   angular-backoffice:
     build:
-      context: ./task-manager-backoffice
+      context: ./apps/task-manager-backoffice
       dockerfile: Dockerfile
     container_name: angular_backoffice
     restart: always

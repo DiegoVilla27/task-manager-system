@@ -4,12 +4,17 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "install:root": "pnpm install",
-    "install:client": "pnpm --dir task-manager-client install",
-    "install:backoffice": "pnpm --dir task-manager-backoffice install",
-    "install:server": "cd task-manager && ./mvnw dependency:resolve",
-    "install:all": "pnpm install:root && pnpm install:client && pnpm install:backoffice && pnpm install:server",
-    "start:backoffice": "pnpm --dir task-manager-backoffice start",
+    "projects": "nx show projects",
+    "start:client": "nx dev task-manager-client",
+    "start:backoffice": "nx start:dev task-manager-backoffice",
+    "start:server": "nx dev task-manager-server",
+    "build:all": "nx run-many -t build",
+    "test:all": "nx run-many -t test",
+    "affected": "nx affected",
+    "affected:test": "nx affected -t test",
+    "affected:build": "nx affected -t build",
+    "affected:lint": "nx affected -t lint",
+    "graph": "nx graph",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f"
@@ -18,6 +23,7 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7"
+    "lint-staged": "^16.2.7",
+    "nx": "^23.2.0"
   }
 }

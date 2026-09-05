@@ -1,0 +1,39 @@
+{
+  "name": "task-manager-server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/task-manager/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./mvnw clean package -DskipTests",
+        "cwd": "apps/task-manager"
+      },
+      "outputs": [
+        "{projectRoot}/target"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./mvnw test",
+        "cwd": "apps/task-manager"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./mvnw spring-boot:run",
+        "cwd": "apps/task-manager"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./mvnw spotless:apply",
+        "cwd": "apps/task-manager"
+      }
+    }
+  }
+}
