@@ -5,7 +5,7 @@ export const backofficeConfig = {
     // 1. Filtrar ÚNICAMENTE los archivos .spec.ts que están en el commit actual
     const specFiles = filenames
       .map((f) => f.replace(/\\/g, "/"))
-      .filter((f) => f.endsWith(".spec.ts"));
+      .filter((f) => f.includes("/src/") && f.endsWith(".spec.ts"));
 
     // 2. Comandos base para todo archivo modificado
     const commands = [
@@ -14,7 +14,7 @@ export const backofficeConfig = {
       `pnpm --dir task-manager-backoffice exec tsc --noEmit`
     ];
 
-    // 3. Si hay .spec.ts en staged, ejecutar SOLO esos con Karma
+    // 3. Si hay .spec.ts de src/ en staged, ejecutar SOLO esos con Karma
     if (specFiles.length > 0) {
       // Angular CLI necesita la ruta relativa a la carpeta del proyecto (task-manager-backoffice/)
       const relativeSpecs = specFiles.map((f) =>

@@ -33,7 +33,8 @@ module.exports = function (config) {
         'src/**/*.module.ts',
         'src/**/*.routes.ts',
         'src/**/models/**',
-        'src/**/interfaces/**'
+        'src/**/interfaces/**',
+        'e2e/**'
       ],
       check: {
         global: {

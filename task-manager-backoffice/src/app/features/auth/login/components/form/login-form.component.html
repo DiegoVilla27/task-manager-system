@@ -19,13 +19,14 @@
   >
     <!-- Email Field -->
     <app-form-field
-      label="Correo Electrónico / Usuario"
+      label="Correo Electrónico"
       forId="login-email"
       [required]="true"
     >
       <app-input
         id="login-email"
         type="email"
+        name="email"
         placeholder="admin@taskmanager.io"
         formControlName="email"
         [hasPrefix]="true"
@@ -47,6 +48,7 @@
       <app-input
         id="login-password"
         [type]="showPassword() ? 'text' : 'password'"
+        name="password"
         placeholder="••••••••••••"
         formControlName="password"
         [hasPrefix]="true"
