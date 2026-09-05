@@ -280,13 +280,91 @@ jobs:
             -Dsonar.tests=src
             -Dsonar.test.inclusions=src/**/*.spec.ts
             -Dsonar.exclusions=src/main.ts
-            -Dsonar.coverage.exclusions=src/main.ts,src/environments/**,src/**/*.module.ts,src/**/*.routes.ts,src/**/models/**,src/**/interfaces/**
+            -Dsonar.coverage.exclusions=src/main.ts,src/environments/**,src/**/*.module.ts,src/**/*.routes.ts,src/**/models/**,src/**/interfaces/**,e2e/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
 
+    # ============================================================
+  # 7. FULL-STACK E2E (PLAYWRIGHT + REAL API)
   # ============================================================
-  # 7. FINAL CI QUALITY GATE
+  e2e:
+    name: 📲 Full-Stack E2E (Playwright + Real API)
+
+    needs:
+      - changes
+      - unit-tests
+      - integration-tests
+      - build
+
+    if: ${{ needs.changes.outputs.backoffice == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      # Levanta Postgres y el backend de Spring Boot exactamente como en client
+      - name: 🐳 Levantar Infraestructura Efímera (DB + API)
+        run: |
+          docker network create shared-network || true
+          docker run -d --name global_postgres --network shared-network \
+            -e POSTGRES_USER=user \
+            -e POSTGRES_PASSWORD=password \
+            -e POSTGRES_DB=task_manager_db \
+            -p 5432:5432 postgres:15-alpine
+          docker compose up -d --build spring-api
+
+      - name: ⏳ Esperar disponibilidad de Spring Boot
+        run: |
+          timeout 60s bash -c '
+            until curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/v1/api-docs | grep -q "200"; do
+              echo "Esperando a Spring Boot..."
+              sleep 2
+            done
+          '
+          echo "✅ Backend completamente operativo"
+
+      - name: ⚙️ Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: 📦 Install Backoffice Dependencies
+        run: pnpm --dir task-manager-backoffice install
+
+      # Instala Chromium y dependencias de sistema de Linux para Playwright
+      - name: 🎭 Install Playwright Chromium
+        run: pnpm --dir task-manager-backoffice exec playwright install --with-deps chromium
+
+      # Playwright levantará automáticamente Angular local y correrá los tests
+      - name: 🚀 Run Playwright E2E contra API Real
+        run: pnpm --dir task-manager-backoffice e2e
+        env:
+          CI: true
+
+      # Si falla: sube el reporte HTML y capturas de Playwright
+      - name: 📸 Upload Playwright Report on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: backoffice-playwright-report
+          path: task-manager-backoffice/playwright-report
+          retention-days: 7
+
+      - name: 📋 Dump Docker logs on failure
+        if: failure()
+        run: docker compose logs
+
+  # ============================================================
+  # 8. FINAL CI QUALITY GATE
   # ============================================================
   quality-gate:
     name: 🛡️ Backoffice CI Quality Gate
@@ -298,6 +376,7 @@ jobs:
       - integration-tests
       - build
       - sonar
+      - e2e
 
     if: ${{ always() }}
 
@@ -317,6 +396,7 @@ jobs:
           INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
           BUILD_RESULT: ${{ needs.build.result }}
           SONAR_RESULT: ${{ needs.sonar.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
         run: |
           echo "=========================================="
           echo "🛡️ Backoffice CI Quality Gate"
@@ -328,6 +408,7 @@ jobs:
           echo "Integration:  $INTEGRATION_RESULT"
           echo "Build:        $BUILD_RESULT"
           echo "Sonar:        $SONAR_RESULT"
+          echo "E2E:          $E2E_RESULT"
           echo "=========================================="
 
           if [[ "$CHANGES_RESULT" != "success" ]]; then
@@ -366,12 +447,17 @@ jobs:
             exit 1
           fi
 
+          if [[ "$E2E_RESULT" != "success" ]]; then
+            echo "❌ E2E Playwright tests failed."
+            exit 1
+          fi
+
           echo "=========================================="
           echo "✅ BACKOFFICE CI QUALITY GATE PASSED"
           echo "=========================================="
 
   # ============================================================
-  # 8. CONTINUOUS DEPLOYMENT (CD) - VERCEL
+  # 9. CONTINUOUS DEPLOYMENT (CD) - VERCEL
   # ============================================================
   deploy:
     name: 🚀 Deploy to Vercel
@@ -410,7 +496,7 @@ jobs:
           vercel-args: "--prod"
 
   # ============================================================
-  # 9. DISCORD NOTIFICATION REPORT
+  # 10. DISCORD NOTIFICATION REPORT
   # ============================================================
   notify:
     name: 📢 Discord CI/CD Summary
@@ -421,8 +507,9 @@ jobs:
       - integration-tests
       - build
       - sonar
-      - quality-gate
       - deploy
+      - e2e
+      - quality-gate
 
     if: ${{ always() }}
 
@@ -447,6 +534,7 @@ jobs:
           INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
           BUILD_RESULT: ${{ needs.build.result }}
           SONAR_RESULT: ${{ needs.sonar.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
           DEPLOY_RESULT: ${{ needs.deploy.result }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: node ${{ github.workspace }}/.github/scripts/notify-discord-summary.js
