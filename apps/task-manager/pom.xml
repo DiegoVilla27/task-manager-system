@@ -43,6 +43,10 @@
       **/core/security/seeders/**,
       **/core/openapi/**
     </sonar.coverage.exclusions>
+    <!-- Excluir properties de análisis de secretos en SonarCloud -->
+    <sonar.exclusions>
+      src/main/resources/application*.properties
+    </sonar.exclusions>
   </properties>
   <dependencies>
     <dependency>
