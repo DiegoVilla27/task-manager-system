@@ -11,7 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class UserModelTest {
+class UserModelTest {
 
     @Test
     @DisplayName("Should create a user successfully with valid name, lastname, email and password")

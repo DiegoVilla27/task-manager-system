@@ -50,7 +50,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         return userJpaRepository
                 .findAll(spec, pageable)
                 .map(
-                        (userEntity) ->
+                        userEntity ->
                                 new UserWithTaskCount(
                                         userEntityMapper.entityToModel(userEntity),
                                         userEntity.getTaskCount()));
@@ -62,7 +62,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         return userJpaRepository
                 .findById(id)
                 .map(
-                        (userEntity) ->
+                        userEntity ->
                                 new UserWithTaskCount(
                                         userEntityMapper.entityToModel(userEntity),
                                         userEntity.getTaskCount()));

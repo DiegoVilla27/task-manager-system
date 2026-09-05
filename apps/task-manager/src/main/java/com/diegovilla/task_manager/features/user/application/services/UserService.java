@@ -171,11 +171,9 @@ public class UserService {
     public void delete(UUID id, boolean force) {
         UserWithTaskCount userFound = getById(id);
 
-        if (force) {
-            // 1. Si tiene tareas y force=true, eliminamos sus tareas primero
-            if (userFound.countTasks() > 0) {
-                taskRepositoryPort.deleteAllByUserId(id);
-            }
+        // 1. Si tiene tareas y force=true, eliminamos sus tareas primero
+        if (force && userFound.countTasks() > 0) {
+            taskRepositoryPort.deleteAllByUserId(id);
         }
 
         userRepositoryPort.delete(userFound.user().getId());

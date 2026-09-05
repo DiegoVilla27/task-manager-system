@@ -26,7 +26,7 @@ class RateLimitServiceTest {
 
         ConsumptionProbe probe2 = rateLimitService.tryConsumeAndReturnProbe("client-1");
         assertThat(probe2.isConsumed()).isTrue();
-        assertThat(probe2.getRemainingTokens()).isEqualTo(0);
+        assertThat(probe2.getRemainingTokens()).isZero();
     }
 
     @Test

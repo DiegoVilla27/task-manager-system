@@ -31,6 +31,7 @@ public class UserModel {
             Pattern.compile("^(?=.{1,150}$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
     /** Internal constructor creating a hydrated {@link UserModel}. */
+    @SuppressWarnings("java:S107")
     private UserModel(
             UUID id,
             String name,
@@ -90,6 +91,7 @@ public class UserModel {
      * @param updatedAt last update timestamp.
      * @return a hydrated {@link UserModel} instance.
      */
+    @SuppressWarnings("java:S107")
     public static UserModel reconstruct(
             UUID id,
             String name,

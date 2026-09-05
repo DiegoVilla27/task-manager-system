@@ -44,6 +44,7 @@ public class SecurityConfig {
      * @throws Exception if a security configuration error occurs during building.
      */
     @Bean
+    @SuppressWarnings({"java:S112", "java:S4502"})
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter,
@@ -55,6 +56,8 @@ public class SecurityConfig {
                         cors ->
                                 cors.configurationSource(
                                         corsConfigurationFilter.corsConfigurationSource()))
+                // CSRF is disabled because authentication is stateless via JWT tokens in
+                // Authorization headers (no session cookies)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

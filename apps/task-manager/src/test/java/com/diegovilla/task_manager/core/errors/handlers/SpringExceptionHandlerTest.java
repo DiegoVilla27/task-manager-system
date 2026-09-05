@@ -70,9 +70,9 @@ class SpringExceptionHandlerTest {
         when(ex.getBindingResult()).thenReturn(bindingResult);
         when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
         when(bindingResult.getGlobalErrors()).thenReturn(List.of(globalError));
-        when(fieldErrorFactory.build(eq("email"), eq("invalid"), eq("Invalid email")))
+        when(fieldErrorFactory.build("email", "invalid", "Invalid email"))
                 .thenReturn(new FieldErrorDTO("email", "invalid", "Invalid email"));
-        when(fieldErrorFactory.build(eq(null), eq(null), eq("Global error message")))
+        when(fieldErrorFactory.build(null, null, "Global error message"))
                 .thenReturn(new FieldErrorDTO(null, null, "Global error message"));
         when(errorResponseFactory.build(eq(HttpStatus.BAD_REQUEST), any(), any()))
                 .thenReturn(dummyResponse);

@@ -50,7 +50,7 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
         return taskJpaRepository
                 .findAll(spec, pageable)
                 .map(
-                        (taskEntity) ->
+                        taskEntity ->
                                 new TaskWithUser(
                                         taskEntityMapper.entityToModel(taskEntity),
                                         userEntityMapper.entityToModel(taskEntity.getUser())));
@@ -68,7 +68,7 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
         return taskJpaRepository
                 .findByIdWithUser(id)
                 .map(
-                        (taskEntity) ->
+                        taskEntity ->
                                 new TaskWithUser(
                                         taskEntityMapper.entityToModel(taskEntity),
                                         userEntityMapper.entityToModel(taskEntity.getUser())));

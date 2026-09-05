@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
-public class TaskModelTest {
+class TaskModelTest {
 
     private final UUID userId = UUID.randomUUID();
 
@@ -182,56 +182,6 @@ public class TaskModelTest {
     }
 
     /**
-     * Provides test cases for validating required text fields against {@code null}, empty, and
-     * blank values.
-     *
-     * <p>Each {@link Arguments} contains:
-     *
-     * <ul>
-     *   <li>The name of the field being tested.
-     *   <li>The invalid value to be supplied.
-     * </ul>
-     *
-     * <p>Use this provider with JUnit 5's {@link org.junit.jupiter.params.ParameterizedTest} and
-     * {@link org.junit.jupiter.params.provider.MethodSource}:
-     *
-     * <pre>{@code
-     * @ParameterizedTest
-     * @MethodSource("provideNullOrBlankCases")
-     * void shouldRejectInvalidValues(String fieldName, String value) {
-     *   if (fieldName.equals("Title")) {
-     *     assertThatThrownBy(() -> TaskModel.create(value, "Description"))
-     *       .isInstanceOf(DomainException.class);
-     *   } else {
-     *     assertThatThrownBy(() -> TaskModel.create("Title", value))
-     *       .isInstanceOf(DomainException.class);
-     *   }
-     * }
-     * }</pre>
-     *
-     * <p>The provider generates the following scenarios:
-     *
-     * <ul>
-     *   <li>{@code Title}: {@code null}, empty, and blank values.
-     *   <li>{@code Description}: {@code null}, empty, and blank values.
-     * </ul>
-     *
-     * @return a stream of {@link Arguments} representing invalid null or blank values.
-     */
-    private static Stream<Arguments> provideNullOrBlankCases() {
-        return Stream.of(
-                // Title: null, empty, and blank
-                Arguments.of("Title", null),
-                Arguments.of("Title", ""),
-                Arguments.of("Title", "   "),
-
-                // Description: null, empty, and blank
-                Arguments.of("Description", null),
-                Arguments.of("Description", ""),
-                Arguments.of("Description", "   "));
-    }
-
-    /**
      * Provides test cases for validating text fields against their minimum and maximum allowed
      * lengths.
      *
@@ -249,13 +199,13 @@ public class TaskModelTest {
      * @ParameterizedTest
      * @MethodSource("provideBoundaryLengthCases")
      * void shouldRejectInvalidLengths(String fieldName, String value) {
-     *   if (fieldName.equals("Title")) {
-     *     assertThatThrownBy(() -> TaskModel.create(value, "Description"))
-     *       .isInstanceOf(DomainException.class);
-     *   } else {
-     *     assertThatThrownBy(() -> TaskModel.create("Title", value))
-     *       .isInstanceOf(DomainException.class);
-     *   }
+     *     if (fieldName.equals("Title")) {
+     *         assertThatThrownBy(() -> TaskModel.create(value, "Description"))
+     *                 .isInstanceOf(DomainException.class);
+     *     } else {
+     *         assertThatThrownBy(() -> TaskModel.create("Title", value))
+     *                 .isInstanceOf(DomainException.class);
+     *     }
      * }
      * }</pre>
      *

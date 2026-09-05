@@ -18,7 +18,11 @@ import org.springframework.util.StringUtils;
  *
  * @since 1.0.0
  */
-public class TaskSpecifications {
+public final class TaskSpecifications {
+
+    private TaskSpecifications() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     /**
      * Constructs a JPA specification matching the provided task filters.

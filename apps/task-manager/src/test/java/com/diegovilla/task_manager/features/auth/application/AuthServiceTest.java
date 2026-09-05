@@ -28,7 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthServiceTest {
+class AuthServiceTest {
 
     @Mock private UserRepositoryPort userRepositoryPort;
 
@@ -174,7 +174,6 @@ public class AuthServiceTest {
     @Test
     @DisplayName("Should reject refresh if not valid")
     void shouldRejectRefreshIfNotValid() {
-        UUID userId = UUID.randomUUID();
         AuthRefreshCommand command = new AuthRefreshCommand("refresh_token1");
 
         when(jwtService.isValid(command.refresh_token(), false)).thenReturn(false);
