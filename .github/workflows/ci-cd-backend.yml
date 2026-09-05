@@ -47,7 +47,7 @@ jobs:
         with:
           filters: |
             backend:
-              - 'task-manager/**'
+              - 'apps/task-manager/**'
               - '.github/workflows/ci-cd-backend.yml'
 
   # ============================================================
@@ -64,7 +64,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager
+        working-directory: ./apps/task-manager
 
     steps:
       - name: 📥 Checkout Repository
@@ -102,7 +102,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager
+        working-directory: ./apps/task-manager
 
     steps:
       - name: 📥 Checkout Repository
@@ -127,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-jacoco
-          path: task-manager/target/site/jacoco/jacoco.xml
+          path: apps/task-manager/target/site/jacoco/jacoco.xml
           retention-days: 1
 
   # ============================================================
@@ -146,7 +146,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager
+        working-directory: ./apps/task-manager
 
     steps:
       - name: 📥 Checkout Repository
@@ -196,7 +196,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager
+        working-directory: ./apps/task-manager
 
     steps:
       - name: 📥 Checkout Repository
@@ -219,7 +219,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-jar
-          path: task-manager/target/*.jar
+          path: apps/task-manager/target/*.jar
           retention-days: 1
 
   # ============================================================
@@ -238,7 +238,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager
+        working-directory: ./apps/task-manager
 
     steps:
       - name: 📥 Checkout Repository
@@ -260,7 +260,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: backend-jacoco
-          path: task-manager/target/site/jacoco
+          path: apps/task-manager/target/site/jacoco
 
       - name: 🔍 Run SonarCloud Analysis
         env:

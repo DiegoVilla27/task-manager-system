@@ -1,5 +1,5 @@
 export const backofficeConfig = {
-  "task-manager-backoffice/**/*.{ts,html}": (filenames) => {
+  "apps/task-manager-backoffice/**/*.{ts,html}": (filenames) => {
     const filesList = filenames.join(" ");
 
     // 1. Filtrar ÚNICAMENTE los archivos .spec.ts que están en el commit actual
@@ -9,9 +9,9 @@ export const backofficeConfig = {
 
     // 2. Comandos base para todo archivo modificado
     const commands = [
-      `pnpm --dir task-manager-backoffice exec prettier --write ${filesList}`,
-      `pnpm --dir task-manager-backoffice exec eslint --no-warn-ignored ${filesList}`,
-      `pnpm --dir task-manager-backoffice exec tsc --noEmit`
+      `pnpm --dir apps/task-manager-backoffice exec prettier --write ${filesList}`,
+      `pnpm --dir apps/task-manager-backoffice exec eslint --no-warn-ignored ${filesList}`,
+      `pnpm --dir apps/task-manager-backoffice exec tsc --noEmit`
     ];
 
     // 3. Si hay .spec.ts de src/ en staged, ejecutar SOLO esos con Karma
@@ -21,21 +21,20 @@ export const backofficeConfig = {
         f.replace(/^.*?task-manager-backoffice\//, "")
       );
 
-      const includePattern =
-        relativeSpecs.length === 1
-          ? relativeSpecs[0]
-          : `{${relativeSpecs.join(",")}}`;
+      const includeFlags = relativeSpecs
+        .map((spec) => `--include="${spec}"`)
+        .join(" ");
 
       commands.push(
-        `pnpm --dir task-manager-backoffice exec ng test --watch=false --browsers=ChromeHeadlessCI --include="${includePattern}"`
+        `pnpm --dir apps/task-manager-backoffice exec ng test --watch=false --browsers=ChromeHeadlessCI ${includeFlags}`
       );
     }
 
     return commands;
   },
-  "task-manager-backoffice/**/*.{json,scss,css,md}": (filenames) => {
+  "apps/task-manager-backoffice/**/*.{json,scss,css,md}": (filenames) => {
     return [
-      `pnpm --dir task-manager-backoffice exec prettier --write ${filenames.join(" ")}`,
+      `pnpm --dir apps/task-manager-backoffice exec prettier --write ${filenames.join(" ")}`,
     ];
   },
 }

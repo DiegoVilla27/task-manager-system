@@ -45,7 +45,7 @@ jobs:
         with:
           filters: |
             frontend:
-              - 'task-manager-client/**'
+              - 'apps/task-manager-client/**'
               - '.github/workflows/ci-frontend.yml'
 
   # ============================================================
@@ -62,7 +62,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager-client
+        working-directory: ./apps/task-manager-client
 
     steps:
       - name: 📥 Checkout Repository
@@ -78,7 +78,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: ./task-manager-client/pnpm-lock.yaml
+          cache-dependency-path: ./apps/task-manager-client/pnpm-lock.yaml
 
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -108,7 +108,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager-client
+        working-directory: ./apps/task-manager-client
 
     steps:
       - name: 📥 Checkout Repository
@@ -124,7 +124,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: ./task-manager-client/pnpm-lock.yaml
+          cache-dependency-path: ./apps/task-manager-client/pnpm-lock.yaml
 
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -136,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
-          path: task-manager-client/coverage/lcov.info
+          path: apps/task-manager-client/coverage/lcov.info
           retention-days: 1
 
   # ============================================================
@@ -155,7 +155,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager-client
+        working-directory: ./apps/task-manager-client
 
     steps:
       - name: 📥 Checkout Repository
@@ -171,7 +171,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: ./task-manager-client/pnpm-lock.yaml
+          cache-dependency-path: ./apps/task-manager-client/pnpm-lock.yaml
 
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -208,7 +208,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager-client
+        working-directory: ./apps/task-manager-client
 
     steps:
       - name: 📥 Checkout Repository
@@ -224,7 +224,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: ./task-manager-client/pnpm-lock.yaml
+          cache-dependency-path: ./apps/task-manager-client/pnpm-lock.yaml
 
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -236,7 +236,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
-          path: task-manager-client/dist
+          path: apps/task-manager-client/dist
           retention-days: 1
 
   # ============================================================
@@ -263,14 +263,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage
-          path: task-manager-client/coverage
+          path: apps/task-manager-client/coverage
 
       - name: 🔍 Run SonarCloud Analysis
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          projectBaseDir: task-manager-client
+          projectBaseDir: apps/task-manager-client
           args: >
             -Dsonar.projectKey=DiegoVilla27_task-manager-frontend
             -Dsonar.organization=diegovilla27
@@ -335,12 +335,12 @@ jobs:
           cache: "pnpm"
 
       - name: 📦 Install Frontend Dependencies
-        run: pnpm --dir task-manager-client install
+        run: pnpm --dir apps/task-manager-client install
 
       - name: 🌲 Run Cypress E2E contra API Real
         uses: cypress-io/github-action@v6
         with:
-          working-directory: task-manager-client
+          working-directory: apps/task-manager-client
           install: false
           start: pnpm run local
           wait-on: "http://localhost:3000"
@@ -353,7 +353,7 @@ jobs:
         if: failure()
         with:
           name: cypress-screenshots
-          path: task-manager-client/cypress/screenshots
+          path: apps/task-manager-client/cypress/screenshots
 
       - name: 📋 Dump Docker logs on failure
         if: failure()
