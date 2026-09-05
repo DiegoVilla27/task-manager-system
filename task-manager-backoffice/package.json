@@ -21,7 +21,11 @@
     "test:coverage": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage",
     "test:watch:coverage": "ng test --watch=true --browsers=ChromeHeadlessCI --code-coverage",
     "test:unit": "ng test --watch=false --browsers=ChromeHeadlessCI --code-coverage --include='src/**/!(*.integration).spec.ts'",
-    "test:integration": "ng test --watch=false --browsers=ChromeHeadlessCI --include='**/*integration.spec.ts'"
+    "test:integration": "ng test --watch=false --browsers=ChromeHeadlessCI --include='**/*integration.spec.ts'",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:debug": "playwright test --debug",
+    "e2e:report": "playwright show-report"
   },
   "private": true,
   "dependencies": {
@@ -47,8 +51,10 @@
     "@angular/cli": "^19.2.27",
     "@angular/compiler-cli": "^19.2.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/jasmine": "~5.1.0",
+    "@types/node": "^26.4.1",
     "eslint": "^10.8.1",
     "globals": "^17.11.0",
     "jasmine-core": "~5.6.0",

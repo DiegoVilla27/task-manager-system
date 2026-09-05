@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
       @if (label()) {
         <div class="flex items-center justify-between">
           <label
-            [for]="forId() || null"
+            [attr.for]="forId() || null"
             class="block text-xs font-semibold uppercase tracking-wider text-slate-300"
           >
             {{ label() }}
