@@ -47,7 +47,7 @@ jobs:
         with:
           filters: |
             backoffice:
-              - 'task-manager-backoffice/**'
+              - 'apps/task-manager-backoffice/**'
               - '.github/workflows/ci-cd-backoffice.yml'
 
   # ============================================================
@@ -64,7 +64,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager-backoffice
+        working-directory: ./apps/task-manager-backoffice
 
     steps:
       - name: 📥 Checkout Repository
@@ -80,7 +80,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: ./task-manager-backoffice/pnpm-lock.yaml
+          cache-dependency-path: ./apps/task-manager-backoffice/pnpm-lock.yaml
 
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -110,7 +110,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager-backoffice
+        working-directory: ./apps/task-manager-backoffice
 
     steps:
       - name: 📥 Checkout Repository
@@ -126,7 +126,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: ./task-manager-backoffice/pnpm-lock.yaml
+          cache-dependency-path: ./apps/task-manager-backoffice/pnpm-lock.yaml
 
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -138,7 +138,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backoffice-coverage
-          path: task-manager-backoffice/coverage/lcov.info
+          path: apps/task-manager-backoffice/coverage/lcov.info
           retention-days: 1
 
   # ============================================================
@@ -157,7 +157,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager-backoffice
+        working-directory: ./apps/task-manager-backoffice
 
     steps:
       - name: 📥 Checkout Repository
@@ -173,7 +173,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: ./task-manager-backoffice/pnpm-lock.yaml
+          cache-dependency-path: ./apps/task-manager-backoffice/pnpm-lock.yaml
 
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -210,7 +210,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./task-manager-backoffice
+        working-directory: ./apps/task-manager-backoffice
 
     steps:
       - name: 📥 Checkout Repository
@@ -226,7 +226,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: ./task-manager-backoffice/pnpm-lock.yaml
+          cache-dependency-path: ./apps/task-manager-backoffice/pnpm-lock.yaml
 
       - name: 📥 Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -238,7 +238,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backoffice-build
-          path: task-manager-backoffice/dist
+          path: apps/task-manager-backoffice/dist
           retention-days: 1
 
   # ============================================================
@@ -265,14 +265,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: backoffice-coverage
-          path: task-manager-backoffice/coverage
+          path: apps/task-manager-backoffice/coverage
 
       - name: 🔍 Run SonarCloud Analysis
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          projectBaseDir: task-manager-backoffice
+          projectBaseDir: apps/task-manager-backoffice
           args: >
             -Dsonar.projectKey=DiegoVilla27_task-manager-backoffice
             -Dsonar.organization=diegovilla27
@@ -338,15 +338,15 @@ jobs:
           cache: "pnpm"
 
       - name: 📦 Install Backoffice Dependencies
-        run: pnpm --dir task-manager-backoffice install
+        run: pnpm --dir apps/task-manager-backoffice install
 
       # Instala Chromium y dependencias de sistema de Linux para Playwright
       - name: 🎭 Install Playwright Chromium
-        run: pnpm --dir task-manager-backoffice exec playwright install --with-deps chromium
+        run: pnpm --dir apps/task-manager-backoffice exec playwright install --with-deps chromium
 
       # Playwright levantará automáticamente Angular local y correrá los tests
       - name: 🚀 Run Playwright E2E contra API Real
-        run: pnpm --dir task-manager-backoffice e2e
+        run: pnpm --dir apps/task-manager-backoffice e2e
         env:
           CI: true
 
@@ -356,7 +356,7 @@ jobs:
         if: failure()
         with:
           name: backoffice-playwright-report
-          path: task-manager-backoffice/playwright-report
+          path: apps/task-manager-backoffice/playwright-report
           retention-days: 7
 
       - name: 📋 Dump Docker logs on failure

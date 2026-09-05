@@ -1,0 +1,12 @@
+node_modules
+dist
+.nx
+.git
+.angular
+apps/**/target/
+apps/**/.dart_tool/
+apps/**/build/
+apps/**/ios/DerivedData/
+apps/**/ios/Pods/
+apps/**/android/.gradle/
+apps/**/android/build/
