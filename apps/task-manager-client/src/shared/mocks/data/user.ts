@@ -1,4 +1,4 @@
-import type { UserMeResponse } from '@features/users/interfaces/response';
+import type { UserMeResponse } from '@task-manager-system/api-types';
 
 const meResponse: UserMeResponse = {
   id: '1',

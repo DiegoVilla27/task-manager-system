@@ -1,13 +1,13 @@
-import type { Task, TaskStatusType } from '@features/tasks/interfaces/response';
 import { Draggable } from '@hello-pangea/dnd';
 import { Avatar, Button } from '@shared/components/ui';
 import { Calendar, Check, Copy, GripVertical, Pencil, Trash2 } from 'lucide-react';
 import useTableTasks from '../../../table/hooks';
+import type { TaskResponse, TaskStatus } from '@task-manager-system/api-types';
 
 interface Props {
   index: number;
-  task: Task;
-  onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
+  task: TaskResponse;
+  onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
   onTaskDeleted?: () => void;
 }
 
@@ -18,7 +18,7 @@ const ColumnDraggable = ({ index, task, onTaskDeleted, onTaskStatusChange }: Pro
   });
 
   return (
-    <Draggable key={task.id} draggableId={task.id} index={index}>
+    <Draggable key={task.id} draggableId={task.id!} index={index}>
       {(providedDrag, snapshotDrag) => (
         <div
           ref={providedDrag.innerRef}
@@ -47,7 +47,7 @@ const ColumnDraggable = ({ index, task, onTaskDeleted, onTaskStatusChange }: Pro
               </span>
               <button
                 type="button"
-                onClick={() => handleCopyId(task.id)}
+                onClick={() => handleCopyId(task.id!)}
                 className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer"
                 title="Copiar ID"
               >
@@ -77,7 +77,7 @@ const ColumnDraggable = ({ index, task, onTaskDeleted, onTaskStatusChange }: Pro
                 size="sm"
                 className="p-1.5 h-7 w-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
                 title="Eliminar tarea"
-                onClick={() => deleteTask(task.id)}
+                onClick={() => deleteTask(task.id!)}
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </Button>
@@ -98,18 +98,18 @@ const ColumnDraggable = ({ index, task, onTaskDeleted, onTaskStatusChange }: Pro
           <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700/60 mt-1">
             <div className="flex items-center gap-1.5">
               <Avatar
-                name={`${task.user.name} ${task.user.lastname}`}
+                name={`${task.user?.name} ${task.user?.lastname}`}
                 size="sm"
                 className="w-6 h-6 text-[10px]"
               />
               <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
-                {task.user.name}
+                {task.user?.name}
               </span>
             </div>
 
             <div className="flex items-center gap-1 text-[11px] text-slate-400">
               <Calendar className="w-3 h-3" />
-              <span>{formatDate(task.createdAt)}</span>
+              <span>{formatDate(task.createdAt!)}</span>
             </div>
           </div>
         </div>

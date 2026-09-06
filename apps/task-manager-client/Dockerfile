@@ -7,14 +7,19 @@ WORKDIR /app
 # Instalar pnpm globalmente
 RUN npm install -g pnpm@latest
 
-# Copiar archivos de dependencias para aprovechar la caché
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* ./
+# Copiar archivos de dependencias y workspace
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY libs/api-types ./libs/api-types
+COPY apps/task-manager-client/package.json ./apps/task-manager-client/
 
 # Instalar dependencias del proyecto
-RUN pnpm install
+RUN pnpm install --filter task-manager-client...
 
 # Copiar todo el código fuente del proyecto
-COPY . .
+COPY apps/task-manager-client ./apps/task-manager-client
+
+# Directorio de la aplicación
+WORKDIR /app/apps/task-manager-client
 
 # Exponer el puerto configurado en Vite (3000)
 EXPOSE 3000

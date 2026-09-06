@@ -8,10 +8,10 @@ import {
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
 import {
+  PageTaskResponse,
   TaskResponse,
-  TasksPagination,
   TaskStatus,
-} from './interfaces/response';
+} from '@task-manager-system/api-types';
 
 describe('TasksListComponent', () => {
   let component: TasksListComponent;
@@ -33,7 +33,7 @@ describe('TasksListComponent', () => {
     createdAt: '2026-08-20',
   };
 
-  const mockTasksPagination: TasksPagination = {
+  const mockTasksPagination: PageTaskResponse = {
     content: [mockTask],
     totalElements: 1,
     totalPages: 1,

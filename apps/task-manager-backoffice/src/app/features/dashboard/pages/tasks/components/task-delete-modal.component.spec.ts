@@ -6,7 +6,7 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { TaskResponse, TaskStatus } from '../interfaces/response';
+import { TaskResponse, TaskStatus } from '@task-manager-system/api-types';
 
 describe('TaskDeleteModalComponent', () => {
   let component: TaskDeleteModalComponent;

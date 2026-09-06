@@ -1,13 +1,16 @@
-import type { TaskCreateRequest, TaskUpdateRequest } from '@features/tasks/interfaces/request';
 import { createTaskSvc, updateTaskSvc } from '@features/tasks/services';
 import useModalStore from '@features/tasks/store/modalStore';
-import type { UserMeResponse } from '@features/users/interfaces/response';
 import { zodResolver } from '@hookform/resolvers/zod';
 import StorageService from '@shared/utils/storage';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import SaveTaskSchema from '../schema';
+import type {
+  TaskCreateRequest,
+  TaskUpdateRequest,
+  UserMeResponse,
+} from '@task-manager-system/api-types';
 
 interface FormValues {
   title: string;
@@ -37,7 +40,7 @@ const useSaveModal = () => {
     if (task) {
       // Modo Edición
       const payload: TaskUpdateRequest = values;
-      await updateTaskSvc(task.id, payload);
+      await updateTaskSvc(task.id!, payload);
       toast.success('Task updated successfully');
       resetAndNotifySuccess();
     } else {

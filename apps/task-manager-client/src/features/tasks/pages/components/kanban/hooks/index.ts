@@ -1,10 +1,10 @@
 import { completeTaskSvc, startTaskSvc } from '@features/tasks/services';
 import type { DropResult } from '@hello-pangea/dnd';
+import type { TaskStatus } from '@task-manager-system/api-types';
 import { toast } from 'sonner';
-import type { TaskStatusType } from '../../../../interfaces/response';
 
 interface Props {
-  onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
+  onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
 }
 
 const useKanbanTasks = ({ onTaskStatusChange }: Props) => {
@@ -14,8 +14,8 @@ const useKanbanTasks = ({ onTaskStatusChange }: Props) => {
     if (!destination) return;
     if (destination.droppableId === source.droppableId) return;
 
-    const currentStatus = source.droppableId as TaskStatusType;
-    const targetStatus = destination.droppableId as TaskStatusType;
+    const currentStatus = source.droppableId as TaskStatus;
+    const targetStatus = destination.droppableId as TaskStatus;
 
     // Regla de Negocio 1: PENDING -> IN_PROGRESS únicamente
     if (currentStatus === 'PENDING' && targetStatus === 'IN_PROGRESS') {

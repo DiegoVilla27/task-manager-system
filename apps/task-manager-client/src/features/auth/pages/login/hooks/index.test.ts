@@ -1,9 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 import useLoginPage from '.';
 import { loginSvc } from '@features/auth/services';
-import type { AuthResponse } from '@features/auth/interfaces/response';
-import type { AuthLoginRequest } from '@features/auth/interfaces/request';
 import { useNavigate } from 'react-router-dom';
+import type { AuthLoginRequest, AuthResponse } from '@task-manager-system/api-types';
 
 vi.mock('react-router-dom', () => ({
   useNavigate: vi.fn(),

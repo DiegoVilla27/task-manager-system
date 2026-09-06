@@ -5,7 +5,7 @@ import {
   tick,
 } from '@angular/core/testing';
 import { TasksFiltersComponent } from './tasks-filters.component';
-import { TaskStatus } from '../interfaces/response';
+import { TaskStatus } from '@task-manager-system/api-types';
 
 describe('TasksFiltersComponent', () => {
   let component: TasksFiltersComponent;

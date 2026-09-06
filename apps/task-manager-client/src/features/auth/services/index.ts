@@ -1,8 +1,11 @@
 import { httpService } from '@core/http';
 import { getMeSvc } from '@features/users/services';
 import StorageService from '@shared/utils/storage';
-import type { AuthLoginRequest, AuthRegisterRequest } from '../interfaces/request';
-import type { AuthResponse } from '../interfaces/response';
+import type {
+  AuthLoginRequest,
+  AuthRegisterRequest,
+  AuthResponse,
+} from '@task-manager-system/api-types';
 
 const API_AUTH = '/auth';
 

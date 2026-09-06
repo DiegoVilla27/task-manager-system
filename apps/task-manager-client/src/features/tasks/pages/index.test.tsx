@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import TasksPage from '.';
 import useTasksPage from './hooks';
 import userEvent from '@testing-library/user-event';
-import { TaskStatus } from '../interfaces/response';
+import { TaskStatus } from '@task-manager-system/api-types';
 
 vi.mock('@core/http', () => ({
   httpService: {

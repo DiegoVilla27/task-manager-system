@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UsersTableComponent } from './users-table.component';
-import { UserResponse, UsersPagination } from '../interfaces/response';
 import { By } from '@angular/platform-browser';
+import { PageUserResponse, UserResponse } from '@task-manager-system/api-types';
 
 describe('UsersTableComponent', () => {
   let component: UsersTableComponent;
@@ -16,7 +16,7 @@ describe('UsersTableComponent', () => {
     createdAt: '2026-08-20',
   };
 
-  const mockUsersPagination: UsersPagination = {
+  const mockUsersPagination: PageUserResponse = {
     content: [mockUser],
     totalElements: 1,
     totalPages: 1,

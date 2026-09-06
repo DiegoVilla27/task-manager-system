@@ -22,7 +22,6 @@ import {
   SelectComponent,
   TextareaComponent,
 } from '@shared/components/ui';
-import { TaskResponse } from '../interfaces/response';
 import { TaskService } from '../services/task.service';
 import { UserService } from '../../users/services/user.service';
 import {
@@ -31,7 +30,11 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { firstValueFrom } from 'rxjs';
-import { CreateTaskRequest, EditTaskRequest } from '../interfaces/request';
+import {
+  TaskCreateRequest,
+  TaskResponse,
+  TaskUpdateRequest,
+} from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-task-form-modal',
@@ -166,7 +169,13 @@ export class TaskFormModalComponent {
     queryKey: ['/users'],
     queryFn: () =>
       firstValueFrom(
-        this.usersSvc.getUsers({ page: 1, limit: 100, search: '' }),
+        this.usersSvc.getUsers({
+          page: 1,
+          limit: 100,
+          filters: {
+            search: '',
+          },
+        }),
       ),
   }));
 
@@ -175,7 +184,7 @@ export class TaskFormModalComponent {
     if (list && list.length > 0) {
       return list.map((u) => ({
         label: `${u.name} ${u.lastname}`,
-        value: u.id,
+        value: u.id!,
       }));
     }
     const currentAssignee = this.task()?.user;
@@ -183,7 +192,7 @@ export class TaskFormModalComponent {
       return [
         {
           label: `${currentAssignee.name} ${currentAssignee.lastname}`,
-          value: currentAssignee.id,
+          value: currentAssignee.id!,
         },
       ];
     }
@@ -191,7 +200,7 @@ export class TaskFormModalComponent {
   });
 
   private readonly createTaskMutation = injectMutation(() => ({
-    mutationFn: (payload: CreateTaskRequest) =>
+    mutationFn: (payload: TaskCreateRequest) =>
       firstValueFrom(this.tasksSvc.createTask(payload)),
     onSuccess: () =>
       this.queryClient.invalidateQueries({ queryKey: ['/tasks'] }),
@@ -203,7 +212,7 @@ export class TaskFormModalComponent {
       payload,
     }: {
       taskId: string;
-      payload: EditTaskRequest;
+      payload: TaskUpdateRequest;
     }) => firstValueFrom(this.tasksSvc.updateTask(taskId, payload)),
     onSuccess: () =>
       this.queryClient.invalidateQueries({ queryKey: ['/tasks'] }),
@@ -216,7 +225,7 @@ export class TaskFormModalComponent {
         this.form.patchValue({
           title: current.title,
           description: current.description,
-          userId: current.user.id,
+          userId: current.user!.id,
         });
         this.form.get('userId')?.disable();
       } else {
@@ -239,16 +248,16 @@ export class TaskFormModalComponent {
     const raw = this.form.getRawValue();
 
     if (this.isEdit()) {
-      const editPayload: EditTaskRequest = {
+      const editPayload: TaskUpdateRequest = {
         title: raw.title,
         description: raw.description,
       };
       await this.editTaskMutation.mutate({
-        taskId: this.task()!.id,
+        taskId: this.task()!.id!,
         payload: editPayload,
       });
     } else {
-      const createPayload: CreateTaskRequest = {
+      const createPayload: TaskCreateRequest = {
         title: raw.title,
         description: raw.description,
         userId: raw.userId,

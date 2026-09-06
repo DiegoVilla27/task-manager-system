@@ -1,13 +1,13 @@
 import axiosInstance from '@core/axios';
+import type { ApiErrorResponse } from '@task-manager-system/api-types';
 import type { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import type { HttpResponseError } from './interfaces';
 
 const interceptorErrors = (): void => {
   axiosInstance.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
-      const responseData: HttpResponseError = error.response?.data as HttpResponseError;
+      const responseData: ApiErrorResponse = error.response?.data as ApiErrorResponse;
 
       if (responseData?.message) {
         let toastMessage = responseData.message;

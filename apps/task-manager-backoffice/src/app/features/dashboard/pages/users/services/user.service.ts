@@ -2,18 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
 import { Observable, tap } from 'rxjs';
-import {
-  UserMeResponse,
-  UserResponse,
-  UsersPagination,
-} from '../interfaces/response';
-import {
-  CreateUserRequest,
-  EditUserRequest,
-  UsersPaginationRequest,
-} from '../interfaces/request';
 import { cleanParams } from '@shared/utils/clean-params.utils';
 import { StorageService } from '@shared/services/storage.service';
+import {
+  PageUserResponse,
+  UserCreateRequest,
+  UserMeResponse,
+  UserResponse,
+  UsersPaginationRequest,
+  UserUpdateRequest,
+} from '@task-manager-system/api-types';
 
 @Injectable({
   providedIn: 'root',
@@ -37,18 +35,18 @@ export class UserService {
 
   public getUsers(
     payload: UsersPaginationRequest,
-  ): Observable<UsersPagination> {
+  ): Observable<PageUserResponse> {
     const params = cleanParams(payload);
-    return this.http.get<UsersPagination>(this.BASE_USERS, { params });
+    return this.http.get<PageUserResponse>(this.BASE_USERS, { params });
   }
 
-  public createUser(payload: CreateUserRequest): Observable<UserResponse> {
+  public createUser(payload: UserCreateRequest): Observable<UserResponse> {
     return this.http.post<UserResponse>(this.BASE_USERS, payload);
   }
 
   public updateUser(
     userId: string,
-    payload: EditUserRequest,
+    payload: UserUpdateRequest,
   ): Observable<UserResponse> {
     return this.http.patch<UserResponse>(
       `${this.BASE_USERS}/${userId}`,

@@ -7,14 +7,19 @@ WORKDIR /app
 # Instalar pnpm globalmente
 RUN npm install -g pnpm@latest
 
-# Copiar archivos de dependencias
-COPY package.json pnpm-lock.yaml .npmrc* ./
+# Copiar archivos de dependencias y workspace
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY libs/api-types ./libs/api-types
+COPY apps/task-manager-backoffice/package.json ./apps/task-manager-backoffice/
 
 # Instalar dependencias del proyecto
-RUN pnpm config set ignore-scripts true && pnpm install
+RUN pnpm config set ignore-scripts true && pnpm install --filter task-manager-backoffice...
 
-# Copiar todo el código fuente del proyecto
-COPY . .
+# Copiar todo el código fuente del backoffice
+COPY apps/task-manager-backoffice ./apps/task-manager-backoffice
+
+# Directorio de la aplicación
+WORKDIR /app/apps/task-manager-backoffice
 
 # Exponer el puerto configurado en Angular (4200)
 EXPOSE 4200

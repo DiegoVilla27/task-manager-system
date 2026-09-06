@@ -1,11 +1,11 @@
+import type { TaskResponse } from '@task-manager-system/api-types';
 import { create } from 'zustand';
-import type { Task } from '../interfaces/response';
 
 interface ModalStore {
   isOpen: boolean;
-  task: Task | null;
+  task: TaskResponse | null;
   lastSuccess: number;
-  openModal: (task?: Task | null) => void;
+  openModal: (task?: TaskResponse | null) => void;
   closeModal: () => void;
   notifySuccess: () => void;
 }

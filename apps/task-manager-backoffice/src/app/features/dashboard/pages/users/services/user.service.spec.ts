@@ -8,15 +8,13 @@ import { UserService } from './user.service';
 import { StorageService } from '@shared/services/storage.service';
 import { environment } from '@environments/environment';
 import {
+  PageUserResponse,
+  UserCreateRequest,
   UserMeResponse,
   UserResponse,
-  UsersPagination,
-} from '../interfaces/response';
-import {
-  CreateUserRequest,
-  EditUserRequest,
   UsersPaginationRequest,
-} from '../interfaces/request';
+  UserUpdateRequest,
+} from '@task-manager-system/api-types';
 
 describe('UserService', () => {
   let service: UserService;
@@ -39,7 +37,7 @@ describe('UserService', () => {
     createdAt: '2026-08-20',
   };
 
-  const mockUsersPagination: UsersPagination = {
+  const mockUsersPagination: PageUserResponse = {
     content: [mockUserResponse],
     totalElements: 1,
     totalPages: 1,
@@ -92,7 +90,9 @@ describe('UserService', () => {
     const payload: UsersPaginationRequest = {
       page: 1,
       limit: 10,
-      search: 'Diego',
+      filters: {
+        search: 'Diego',
+      },
     };
 
     service.getUsers(payload).subscribe((res) => {
@@ -112,7 +112,7 @@ describe('UserService', () => {
   });
 
   it('should create user', (done) => {
-    const payload: CreateUserRequest = {
+    const payload: UserCreateRequest = {
       name: 'Diego',
       lastname: 'Villa',
       email: 'diego@taskmanager.com',
@@ -131,7 +131,7 @@ describe('UserService', () => {
   });
 
   it('should update user', (done) => {
-    const payload: EditUserRequest = {
+    const payload: UserUpdateRequest = {
       name: 'Diego Updated',
     };
 

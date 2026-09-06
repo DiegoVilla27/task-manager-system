@@ -24,9 +24,11 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { firstValueFrom } from 'rxjs';
-import { EditUserRequest } from '../interfaces/request';
-import { UserResponse } from '../interfaces/response';
 import { UserService } from '../services/user.service';
+import {
+  UserResponse,
+  UserUpdateRequest,
+} from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-user-edit-modal',
@@ -146,7 +148,7 @@ export class UserEditModalComponent {
       payload,
     }: {
       userId: string;
-      payload: EditUserRequest;
+      payload: UserUpdateRequest;
     }) => firstValueFrom(this.usersSvc.updateUser(userId, payload)),
     onSuccess: () =>
       this.queryClient.invalidateQueries({ queryKey: ['/users'] }),
@@ -182,10 +184,10 @@ export class UserEditModalComponent {
       return;
     }
 
-    const payload = this.form.getRawValue() as EditUserRequest;
+    const payload = this.form.getRawValue() as UserUpdateRequest;
 
     await this.editUserMutation.mutate({
-      userId: this.user()!.id,
+      userId: this.user()!.id!,
       payload,
     });
 

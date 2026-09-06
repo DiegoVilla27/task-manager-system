@@ -1,16 +1,15 @@
-import type { Task } from '@features/tasks/interfaces/response';
-import { TaskStatus } from '@features/tasks/interfaces/response';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TableTasks from '.';
 import useTableTasks from './hooks';
+import { TaskStatus, type TaskResponse } from '@task-manager-system/api-types';
 
 vi.mock('./hooks', () => ({
   default: vi.fn(),
 }));
 
 describe('Tasks: TableTasks', () => {
-  const mockTasks: Task[] = [
+  const mockTasks: TaskResponse[] = [
     {
       id: 'task-1',
       title: 'Setup Environment',
@@ -168,7 +167,7 @@ describe('Tasks: TableTasks', () => {
 
   it('should render default badge variant when status is unknown', () => {
     // Arrange
-    const unknownTask: Task = {
+    const unknownTask: TaskResponse = {
       ...mockTasks[0],
       status: 'ARCHIVED' as any,
     };
