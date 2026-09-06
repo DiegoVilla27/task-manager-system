@@ -1,8 +1,11 @@
 import { httpService } from '@core/http';
-import type { AuthResponse } from '../interfaces/response';
 import { loginSvc, logoutSvc, registerSvc } from '.';
-import type { AuthLoginRequest, AuthRegisterRequest } from '../interfaces/request';
-import type { UserMeResponse } from '@features/users/interfaces/response';
+import type {
+  AuthLoginRequest,
+  AuthRegisterRequest,
+  AuthResponse,
+  UserMeResponse,
+} from '@task-manager-system/api-types';
 
 vi.mock('@core/http', () => ({
   httpService: {
@@ -54,7 +57,6 @@ describe('Auth: Services', () => {
       lastname: 'Villa',
       email: 'dv@gmail.com',
       password: '12345678',
-      confirmPassword: '12345678',
     };
     vi.mocked(httpService.post).mockReturnValue(Promise.resolve(authRes));
     vi.mocked(httpService.get).mockReturnValue(Promise.resolve(userRes));

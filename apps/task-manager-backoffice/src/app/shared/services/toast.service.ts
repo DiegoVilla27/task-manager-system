@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { ApiFieldError } from '@core/interceptors/error.interceptor';
+import { ApiFieldError } from '@task-manager-system/api-types';
 
 /**
  * Service responsible for orchestrating dynamic UI Toast notifications and dialog popups.
@@ -82,7 +82,7 @@ export class ToastService {
           ${errors
             .map(({ field, message }) => {
               const formattedField =
-                field.charAt(0).toUpperCase() + field.slice(1);
+                field!.charAt(0).toUpperCase() + field!.slice(1);
               return `<li>${formattedField}: ${message}</li>`;
             })
             .join('')}

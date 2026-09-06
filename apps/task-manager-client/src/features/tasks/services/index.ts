@@ -1,26 +1,31 @@
 import { httpService } from '@core/http';
-import type { TaskCreateRequest, TasksRequest, TaskUpdateRequest } from '../interfaces/request';
-import type { Task, TasksResponse } from '../interfaces/response';
+import type {
+  PageTaskResponse,
+  TaskCreateRequest,
+  TaskResponse,
+  TasksPaginationRequest,
+  TaskUpdateRequest,
+} from '@task-manager-system/api-types';
 
 const API_TASKS = '/tasks';
 
-const getAllTasksSvc = async (payload: TasksRequest): Promise<TasksResponse | null> => {
-  const response = await httpService.get<TasksResponse>(API_TASKS, {
-    page: payload.page,
-    limit: payload.limit,
-    ...(payload.filters?.search ? { search: payload.filters.search } : {}),
-    ...(payload.filters?.status ? { status: payload.filters.status } : {}),
-  });
+const getAllTasksSvc = async (
+  payload: TasksPaginationRequest,
+): Promise<PageTaskResponse | null> => {
+  const response = await httpService.get<PageTaskResponse>(API_TASKS, { ...payload });
   return response;
 };
 
-const createTaskSvc = async (payload: TaskCreateRequest): Promise<Task | null> => {
-  const response = await httpService.post<Task>(API_TASKS, payload);
+const createTaskSvc = async (payload: TaskCreateRequest): Promise<TaskResponse | null> => {
+  const response = await httpService.post<TaskResponse>(API_TASKS, payload);
   return response;
 };
 
-const updateTaskSvc = async (taskId: string, payload: TaskUpdateRequest): Promise<Task | null> => {
-  const response = await httpService.patch<Task>(`${API_TASKS}/${taskId}`, payload);
+const updateTaskSvc = async (
+  taskId: string,
+  payload: TaskUpdateRequest,
+): Promise<TaskResponse | null> => {
+  const response = await httpService.patch<TaskResponse>(`${API_TASKS}/${taskId}`, payload);
   return response;
 };
 

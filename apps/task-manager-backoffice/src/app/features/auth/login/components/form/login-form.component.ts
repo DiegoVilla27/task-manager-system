@@ -12,7 +12,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoginRequest } from '@features/auth/interfaces/request';
+import { AuthLoginRequest } from '@task-manager-system/api-types';
 import { AuthService } from '@features/auth/services/auth.service';
 import {
   ButtonComponent,
@@ -59,7 +59,7 @@ export class LoginFormComponent {
   });
 
   readonly loginMutation = injectMutation(() => ({
-    mutationFn: (payload: LoginRequest) =>
+    mutationFn: (payload: AuthLoginRequest) =>
       firstValueFrom(this.authSvc.login(payload)),
   }));
 
@@ -73,7 +73,7 @@ export class LoginFormComponent {
       return;
     }
 
-    const payload = this.form.value as LoginRequest;
+    const payload = this.form.value as AuthLoginRequest;
 
     await this.loginMutation.mutateAsync(payload, {
       onSuccess: () => this.router.navigateByUrl('/dashboard/users'),

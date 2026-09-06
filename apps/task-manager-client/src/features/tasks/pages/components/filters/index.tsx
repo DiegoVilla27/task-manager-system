@@ -1,13 +1,13 @@
 import { Button, Input } from '@shared/components/ui';
 import { Filter, Search, X } from 'lucide-react';
-import { TaskStatus } from '../../../interfaces/response';
 import useFiltersTasks from './hooks';
+import { TaskStatus, type TasksPaginationRequest } from '@task-manager-system/api-types';
 
 interface Props {
   search: string;
   setSearch: (search: string) => void;
-  status: string;
-  setStatus: React.Dispatch<React.SetStateAction<'' | 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'>>;
+  status: TasksPaginationRequest['filters']['status'];
+  setStatus: React.Dispatch<React.SetStateAction<TasksPaginationRequest['filters']['status']>>;
 }
 
 const FiltersTasks = ({ search, setSearch, status, setStatus }: Props) => {

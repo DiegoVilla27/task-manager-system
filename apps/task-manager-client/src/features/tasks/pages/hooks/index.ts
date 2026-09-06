@@ -1,16 +1,21 @@
-import { useCallback, useEffect, useState } from 'react';
-import type { Task, TasksResponse, TaskStatusType } from '../../interfaces/response';
-import { getAllTasksSvc } from '../../services';
 import useModalStore from '@features/tasks/store/modalStore';
+import type {
+  PageTaskResponse,
+  TaskResponse,
+  TasksPaginationRequest,
+  TaskStatus,
+} from '@task-manager-system/api-types';
+import { useCallback, useEffect, useState } from 'react';
+import { getAllTasksSvc } from '../../services';
 
 export type ViewMode = 'table' | 'kanban';
 
 const useTasksPage = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [status, setStatus] = useState<TaskStatusType | ''>('');
+  const [status, setStatus] = useState<TasksPaginationRequest['filters']['status']>('');
   const [search, setSearch] = useState<string>('');
-  const [tasks, setTasks] = useState<TasksResponse | null>(null);
-  const [accumulatedTasks, setAccumulatedTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<PageTaskResponse | null>(null);
+  const [accumulatedTasks, setAccumulatedTasks] = useState<TaskResponse[]>([]);
   const [page, setPage] = useState<number>(1);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
@@ -24,31 +29,31 @@ const useTasksPage = () => {
     if (page === 1) {
       setAccumulatedTasks(res?.content || []);
     } else if (res?.content) {
-      setAccumulatedTasks((prev) => [...prev, ...res.content]);
+      setAccumulatedTasks((prev) => [...prev, ...res.content!]);
     }
   }, [page, search, status]);
 
   // Cargar más (para Kanban infinito)
   const handleLoadMore = async () => {
-    if (!tasks || page >= tasks.totalPages || isLoadingMore) return;
+    if (!tasks || page >= tasks.totalPages! || isLoadingMore) return;
     setIsLoadingMore(true);
     const nextPage = page + 1;
     const res = await getAllTasksSvc({ page: nextPage, limit: 10, filters: { search, status } });
     if (res?.content) {
       setPage(nextPage);
       setTasks(res);
-      setAccumulatedTasks((prev) => [...prev, ...res.content]);
+      setAccumulatedTasks((prev) => [...prev, ...res.content!]);
     }
     setIsLoadingMore(false);
   };
 
   // Actualización local/optimista del estado de una tarea individual
-  const handleTaskStatusChange = (taskId: string, newStatus: TaskStatusType) => {
+  const handleTaskStatusChange = (taskId: string, newStatus: TaskStatus) => {
     setTasks((prev) => {
       if (!prev) return null;
       return {
         ...prev,
-        content: prev.content.map((task) =>
+        content: prev.content!.map((task) =>
           task.id === taskId ? { ...task, status: newStatus as any } : task,
         ),
       };
@@ -70,7 +75,9 @@ const useTasksPage = () => {
     setPage(1);
   };
 
-  const handleSetStatus = (newStatus: React.SetStateAction<'' | TaskStatusType>) => {
+  const handleSetStatus = (
+    newStatus: React.SetStateAction<TasksPaginationRequest['filters']['status']>,
+  ) => {
     setStatus(newStatus);
     setPage(1);
   };
@@ -92,7 +99,7 @@ const useTasksPage = () => {
     search,
     setSearch: handleSetSearch,
     isLoadingMore,
-    hasMore: tasks ? page < tasks.totalPages : false,
+    hasMore: tasks ? page < tasks.totalPages! : false,
     handleLoadMore,
     handleTaskStatusChange,
     handleTaskDeleted,

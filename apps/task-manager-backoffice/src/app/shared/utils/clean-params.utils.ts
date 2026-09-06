@@ -21,20 +21,25 @@ export function cleanParams<T extends object>(payload: T): HttpParams {
 
   if (!payload) return params;
 
-  for (const [key, value] of Object.entries(payload)) {
-    if (value === null || value === undefined) {
-      continue;
-    }
-
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      if (trimmed !== '') {
-        params = params.set(key, trimmed);
+  const appendEntries = (obj: Record<string, unknown>) => {
+    for (const [key, value] of Object.entries(obj)) {
+      if (value === null || value === undefined) {
+        continue;
       }
-    } else {
-      params = params.set(key, String(value));
-    }
-  }
 
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed !== '') {
+          params = params.set(key, trimmed);
+        }
+      } else if (typeof value === 'object' && !Array.isArray(value)) {
+        appendEntries(value as Record<string, unknown>);
+      } else {
+        params = params.set(key, String(value));
+      }
+    }
+  };
+
+  appendEntries(payload as Record<string, unknown>);
   return params;
 }

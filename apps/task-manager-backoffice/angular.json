@@ -104,6 +104,12 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
+            "fileReplacements": [
+              {
+                "replace": "src/environments/environment.ts",
+                "with": "src/environments/environment.local.ts"
+              }
+            ],
             "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.cjs",

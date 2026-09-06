@@ -1,6 +1,6 @@
 import { httpService } from '@core/http';
 import StorageService from '@shared/utils/storage';
-import type { UserMeResponse } from '../interfaces/response';
+import type { UserMeResponse } from '@task-manager-system/api-types';
 
 const API_USERS = '/users';
 

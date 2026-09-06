@@ -41,7 +41,8 @@
     "@tanstack/angular-query-experimental": "^5.101.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.15.0",
+    "@task-manager-system/api-types": "workspace:*"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.27",

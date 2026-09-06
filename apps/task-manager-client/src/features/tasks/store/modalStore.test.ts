@@ -1,10 +1,9 @@
 import { act } from '@testing-library/react';
-import type { Task } from '../interfaces/response';
-import { TaskStatus } from '../interfaces/response';
 import useModalStore from './modalStore';
+import { TaskStatus, type TaskResponse } from '@task-manager-system/api-types';
 
 describe('Tasks: modalStore', () => {
-  const mockTask: Task = {
+  const mockTask: TaskResponse = {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test Description',

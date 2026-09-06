@@ -7,8 +7,11 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { TaskResponse, TaskStatus } from '../interfaces/response';
-import { UserResponse } from '../../users/interfaces/response';
+import {
+  TaskResponse,
+  TaskStatus,
+  UserResponse,
+} from '@task-manager-system/api-types';
 
 describe('TaskFormModalComponent', () => {
   let component: TaskFormModalComponent;

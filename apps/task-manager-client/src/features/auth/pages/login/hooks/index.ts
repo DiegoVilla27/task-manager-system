@@ -1,9 +1,9 @@
-import type { AuthLoginRequest } from '@features/auth/interfaces/request';
 import { loginSvc } from '@features/auth/services';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import LoginSchema from '../schema';
 import { useNavigate } from 'react-router-dom';
+import type { AuthLoginRequest } from '@task-manager-system/api-types';
 
 const useLoginPage = () => {
   const navigate = useNavigate();

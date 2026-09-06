@@ -25,7 +25,8 @@
     "paths": {
       "@core/*": ["./src/core/*"],
       "@features/*": ["./src/features/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@task-manager-system/api-types": ["../../libs/api-types/src/index.ts"]
     }
   },
   "include": ["src"]

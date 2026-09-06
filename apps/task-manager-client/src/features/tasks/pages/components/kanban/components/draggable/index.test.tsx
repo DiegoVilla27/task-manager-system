@@ -1,9 +1,8 @@
-import type { Task, TaskStatusType } from '@features/tasks/interfaces/response';
-import { TaskStatus } from '@features/tasks/interfaces/response';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ColumnDraggable from '.';
 import useTableTasks from '../../../table/hooks';
+import { TaskStatus, type TaskResponse } from '@task-manager-system/api-types';
 
 vi.mock('@hello-pangea/dnd', () => ({
   Draggable: ({ children }: { children: (provided: any, snapshot: any) => React.ReactNode }) =>
@@ -22,7 +21,7 @@ vi.mock('../../../table/hooks', () => ({
 }));
 
 describe('Tasks: ColumnDraggable', () => {
-  const mockTask: Task = {
+  const mockTask: TaskResponse = {
     id: 'task-123',
     title: 'Design Wireframes',
     description: 'Create initial design drafts',
@@ -50,9 +49,9 @@ describe('Tasks: ColumnDraggable', () => {
   });
 
   const renderComponent = (props?: {
-    task?: Task;
+    task?: TaskResponse;
     index?: number;
-    onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
+    onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
     onTaskDeleted?: () => void;
   }) => {
     return render(

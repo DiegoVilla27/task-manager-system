@@ -1,17 +1,20 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   input,
   output,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   ButtonComponent,
   SearchInputComponent,
   SelectComponent,
   SelectOption,
 } from '@shared/components/ui';
-import { TaskStatus } from '../interfaces/response';
+import {
+  TasksPaginationRequest,
+  TaskStatus,
+} from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-tasks-filters',
@@ -44,7 +47,7 @@ import { TaskStatus } from '../interfaces/response';
             id="tasks-status-select"
             [options]="statusOptions"
             placeholder="Todos los Estados"
-            (valueChange)="statusChange.emit($event)"
+            (valueChange)="statusHandler($event)"
           />
         </div>
       </div>
@@ -66,7 +69,7 @@ import { TaskStatus } from '../interfaces/response';
 export class TasksFiltersComponent {
   readonly search = input<string>('');
   readonly searchChange = output<string>();
-  readonly statusChange = output<string>();
+  readonly statusChange = output<TasksPaginationRequest['filters']['status']>();
 
   readonly clearFilters = output<void>();
 
@@ -76,4 +79,10 @@ export class TasksFiltersComponent {
     { label: TaskStatus.IN_PROGRESS, value: TaskStatus.IN_PROGRESS },
     { label: TaskStatus.COMPLETED, value: TaskStatus.COMPLETED },
   ];
+
+  public statusHandler(status: string): void {
+    this.statusChange.emit(
+      status as TasksPaginationRequest['filters']['status'],
+    );
+  }
 }

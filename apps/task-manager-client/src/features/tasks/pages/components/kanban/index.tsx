@@ -2,20 +2,20 @@ import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { Badge, Button } from '@shared/components/ui';
 import { AlertCircle, CheckCircle2, Timer } from 'lucide-react';
 import React from 'react';
-import type { Task, TaskStatusType } from '../../../interfaces/response';
 import ColumnDraggable from './components/draggable';
 import useKanbanTasks from './hooks';
+import type { TaskResponse, TaskStatus } from '@task-manager-system/api-types';
 
 interface Props {
-  tasks: Task[];
-  onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
+  tasks: TaskResponse[];
+  onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
   onTaskDeleted?: () => void;
   hasMore?: boolean;
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
 }
 
-const COLUMNS: { id: TaskStatusType; title: string; variant: 'amber' | 'purple' | 'emerald' }[] = [
+const COLUMNS: { id: TaskStatus; title: string; variant: 'amber' | 'purple' | 'emerald' }[] = [
   { id: 'PENDING', title: 'PENDIENTE', variant: 'amber' },
   { id: 'IN_PROGRESS', title: 'EN PROGRESO', variant: 'purple' },
   { id: 'COMPLETED', title: 'COMPLETADA', variant: 'emerald' },
@@ -31,7 +31,7 @@ export const KanbanTasks: React.FC<Props> = ({
 }: Props) => {
   const { handleDragEnd } = useKanbanTasks({ onTaskStatusChange });
 
-  const getColumnIcon = (status: TaskStatusType) => {
+  const getColumnIcon = (status: TaskStatus) => {
     switch (status) {
       case 'PENDING':
         return <AlertCircle className="w-4 h-4 text-amber-500" />;

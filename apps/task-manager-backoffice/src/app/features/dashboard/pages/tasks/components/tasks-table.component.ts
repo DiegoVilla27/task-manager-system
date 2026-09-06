@@ -10,7 +10,7 @@ import {
   BadgeComponent,
   PaginationComponent,
 } from '@shared/components/ui';
-import { TaskResponse, TasksPagination } from '../interfaces/response';
+import { PageTaskResponse, TaskResponse } from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-tasks-table',
@@ -51,7 +51,7 @@ import { TaskResponse, TasksPagination } from '../interfaces/response';
                   <span
                     class="px-2 py-0.5 rounded-md bg-slate-800 text-indigo-400 font-mono text-[11px] font-bold border border-slate-700"
                   >
-                    {{ task.id.slice(0, 5) + '...' }}
+                    {{ task.id!.slice(0, 5) + '...' }}
                   </span>
                 </td>
 
@@ -71,15 +71,15 @@ import { TaskResponse, TasksPagination } from '../interfaces/response';
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-2.5">
                     <app-avatar
-                      [name]="task.user.name"
+                      [name]="task.user!.name!"
                       [initials]="
-                        task.user.name[0] + ' ' + task.user.lastname[0]
+                        task.user?.name![0] + ' ' + task.user?.lastname![0]
                       "
                       size="md"
                     />
                     <div>
                       <p class="font-medium text-slate-200">
-                        {{ task.user.name }}
+                        {{ task.user!.name }}
                       </p>
                     </div>
                   </div>
@@ -197,7 +197,7 @@ import { TaskResponse, TasksPagination } from '../interfaces/response';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TasksTableComponent {
-  readonly tasks = input.required<TasksPagination | undefined>();
+  readonly tasks = input.required<PageTaskResponse | undefined>();
   readonly page = input.required<number>();
 
   readonly edit = output<TaskResponse>();

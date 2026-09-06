@@ -7,15 +7,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { TaskService } from './task.service';
 import { environment } from '@environments/environment';
 import {
+  PageTaskResponse,
+  TaskCreateRequest,
   TaskResponse,
-  TasksPagination,
-  TaskStatus,
-} from '../interfaces/response';
-import {
-  CreateTaskRequest,
-  EditTaskRequest,
   TasksPaginationRequest,
-} from '../interfaces/request';
+  TaskStatus,
+  TaskUpdateRequest,
+} from '@task-manager-system/api-types';
 
 describe('TaskService', () => {
   let service: TaskService;
@@ -35,7 +33,7 @@ describe('TaskService', () => {
     createdAt: '2026-08-20',
   };
 
-  const mockTasksPagination: TasksPagination = {
+  const mockTasksPagination: PageTaskResponse = {
     content: [mockTaskResponse],
     totalElements: 1,
     totalPages: 1,
@@ -63,8 +61,10 @@ describe('TaskService', () => {
     const payload: TasksPaginationRequest = {
       page: 1,
       limit: 10,
-      search: 'test',
-      status: TaskStatus.PENDING,
+      filters: {
+        search: 'test',
+        status: TaskStatus.PENDING,
+      },
     };
 
     service.getTasks(payload).subscribe((res) => {
@@ -85,7 +85,7 @@ describe('TaskService', () => {
   });
 
   it('should create task', (done) => {
-    const payload: CreateTaskRequest = {
+    const payload: TaskCreateRequest = {
       title: 'New task',
       description: 'New task description',
       userId: 'user-1',
@@ -103,7 +103,7 @@ describe('TaskService', () => {
   });
 
   it('should update task', (done) => {
-    const payload: EditTaskRequest = {
+    const payload: TaskUpdateRequest = {
       title: 'Updated title',
     };
 

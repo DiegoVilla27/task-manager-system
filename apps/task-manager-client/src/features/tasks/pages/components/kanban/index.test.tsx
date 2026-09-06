@@ -1,9 +1,8 @@
-import type { Task } from '@features/tasks/interfaces/response';
-import { TaskStatus } from '@features/tasks/interfaces/response';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import KanbanTasks from '.';
 import useKanbanTasks from './hooks';
+import { TaskStatus, type TaskResponse } from '@task-manager-system/api-types';
 
 vi.mock('@hello-pangea/dnd', () => ({
   DragDropContext: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -32,7 +31,7 @@ vi.mock('./hooks', () => ({
 }));
 
 describe('Tasks: KanbanTasks', () => {
-  const mockTasks: Task[] = [
+  const mockTasks: TaskResponse[] = [
     {
       id: 'task-1',
       title: 'Pending Task',
@@ -97,7 +96,7 @@ describe('Tasks: KanbanTasks', () => {
 
   it('should display empty message when a column has no tasks', () => {
     // Arrange: Only tasks in PENDING
-    const singleTask: Task[] = [mockTasks[0]];
+    const singleTask: TaskResponse[] = [mockTasks[0]];
 
     // Act
     renderComponent({ tasks: singleTask });

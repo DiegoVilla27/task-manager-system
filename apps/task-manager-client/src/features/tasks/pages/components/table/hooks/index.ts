@@ -1,11 +1,11 @@
 import { completeTaskSvc, deleteTaskSvc, startTaskSvc } from '@features/tasks/services';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { TaskStatusType } from '../../../../interfaces/response';
 import useModalStore from '@features/tasks/store/modalStore';
+import type { TaskStatus } from '@task-manager-system/api-types';
 
 interface Props {
-  onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
+  onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
   onTaskDeleted?: () => void;
 }
 
