@@ -1,4 +1,4 @@
-import type { AuthResponse } from '@features/auth/interfaces/response';
+import type { AuthResponse } from '@task-manager-system/api-types';
 
 const authResponse: AuthResponse = {
   access_token: 'fake_at_123',

@@ -7,13 +7,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent, ModalComponent } from '@shared/components/ui';
-import { TaskResponse } from '../interfaces/response';
 import {
   injectMutation,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { TaskService } from '../services/task.service';
 import { firstValueFrom } from 'rxjs';
+import { TaskResponse } from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-task-delete-modal',
@@ -108,7 +108,7 @@ export class TaskDeleteModalComponent {
   }
 
   async handleConfirm(): Promise<void> {
-    await this.deleteTaskConfirm.mutate(this.task()!.id);
+    await this.deleteTaskConfirm.mutate(this.task()!.id!);
     this.handleClose();
   }
 }

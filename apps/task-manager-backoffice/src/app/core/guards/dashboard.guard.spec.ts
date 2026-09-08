@@ -5,7 +5,7 @@ import { UserService } from '@features/dashboard/pages/users/services/user.servi
 import { ToastService } from '@shared/services/toast.service';
 import { of, throwError } from 'rxjs';
 import { signal, WritableSignal } from '@angular/core';
-import { UserMeResponse } from '@features/dashboard/pages/users/interfaces/response';
+import { UserMeResponse } from '@task-manager-system/api-types';
 
 describe('dashboardGuard', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;

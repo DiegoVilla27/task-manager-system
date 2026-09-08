@@ -6,7 +6,7 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { UserResponse, UsersPagination } from './interfaces/response';
+import { PageUserResponse, UserResponse } from '@task-manager-system/api-types';
 
 describe('UsersListComponent', () => {
   let component: UsersListComponent;
@@ -22,7 +22,7 @@ describe('UsersListComponent', () => {
     createdAt: '2026-08-20',
   };
 
-  const mockUsersPagination: UsersPagination = {
+  const mockUsersPagination: PageUserResponse = {
     content: [mockUser],
     totalElements: 1,
     totalPages: 1,

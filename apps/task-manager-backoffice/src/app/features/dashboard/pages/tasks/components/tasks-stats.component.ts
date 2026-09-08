@@ -6,7 +6,7 @@ import {
   input,
 } from '@angular/core';
 import { StatCardComponent } from '@shared/components/ui';
-import { TasksPagination } from '../interfaces/response';
+import { PageTaskResponse } from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-tasks-stats',
@@ -24,7 +24,7 @@ import { TasksPagination } from '../interfaces/response';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TasksStatsComponent {
-  readonly tasks = input.required<TasksPagination | undefined>();
+  readonly tasks = input.required<PageTaskResponse | undefined>();
 
   protected readonly totalCount = computed(() => {
     this.tasks();

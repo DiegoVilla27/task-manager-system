@@ -23,8 +23,8 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { firstValueFrom } from 'rxjs';
-import { CreateUserRequest } from '../interfaces/request';
 import { UserService } from '../services/user.service';
+import { UserCreateRequest } from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-user-create-modal',
@@ -145,7 +145,7 @@ export class UserCreateModalComponent {
   });
 
   readonly createUserMutation = injectMutation(() => ({
-    mutationFn: (payload: CreateUserRequest) =>
+    mutationFn: (payload: UserCreateRequest) =>
       firstValueFrom(this.usersSvc.createUser(payload)),
     onSuccess: () =>
       this.queryClient.invalidateQueries({ queryKey: ['/users'] }),
@@ -167,7 +167,7 @@ export class UserCreateModalComponent {
       return;
     }
 
-    const payload = this.form.getRawValue() as CreateUserRequest;
+    const payload = this.form.getRawValue() as UserCreateRequest;
     await this.createUserMutation.mutate(payload);
 
     this.handleClose();

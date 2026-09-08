@@ -10,7 +10,8 @@ const RegisterSchema = z
     lastname: z
       .string('Last name is required')
       .min(3, 'Last name must be at least 3 characters long')
-      .max(100, 'Last name must be at most 100 characters long'),
+      .max(100, 'Last name must be at most 100 characters long')
+      .optional(),
 
     email: z
       .string('Email is required')

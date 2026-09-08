@@ -19,16 +19,16 @@ import {
   Timer,
   Trash2,
 } from 'lucide-react';
-import type { Task, TaskStatusType } from '../../../interfaces/response';
 import useTableTasks from './hooks';
+import type { TaskResponse, TaskStatus } from '@task-manager-system/api-types';
 
 interface Props {
-  tasks: Task[];
+  tasks: TaskResponse[];
   page: number;
   setPage: (page: number) => void;
   totalPages: number;
   totalElements: number;
-  onTaskStatusChange?: (taskId: string, newStatus: TaskStatusType) => void;
+  onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
   onTaskDeleted?: () => void;
 }
 
@@ -44,7 +44,7 @@ const TableTasks: React.FC<Props> = ({
   const { copiedId, handleCopyId, formatDate, startTask, completeTask, deleteTask, openModal } =
     useTableTasks({ onTaskStatusChange, onTaskDeleted });
 
-  const renderStatusBadge = (status: TaskStatusType, taskId: string) => {
+  const renderStatusBadge = (status: TaskStatus, taskId: string) => {
     switch (status) {
       case 'PENDING':
         return (
@@ -125,7 +125,7 @@ const TableTasks: React.FC<Props> = ({
         </TableHeader>
         <TableBody>
           {tasks.length > 0 ? (
-            tasks.map((task: Task) => (
+            tasks.map((task: TaskResponse) => (
               <TableRow key={task.id}>
                 {/* ID separado con botón para copiar */}
                 <TableCell className="whitespace-nowrap">
@@ -137,7 +137,7 @@ const TableTasks: React.FC<Props> = ({
                       {task.id}
                     </span>
                     <button
-                      onClick={() => handleCopyId(task.id)}
+                      onClick={() => handleCopyId(task.id!)}
                       className="p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer"
                       title="Copiar ID"
                     >
@@ -164,15 +164,15 @@ const TableTasks: React.FC<Props> = ({
 
                 {/* Estado */}
                 <TableCell className="whitespace-nowrap">
-                  {renderStatusBadge(task.status, task.id)}
+                  {renderStatusBadge(task.status!, task.id!)}
                 </TableCell>
 
                 {/* Asignado */}
                 <TableCell className="whitespace-nowrap">
                   <div className="flex items-center gap-2">
-                    <Avatar name={`${task.user.name} ${task.user.lastname}`} size="sm" />
+                    <Avatar name={`${task.user?.name} ${task.user?.lastname}`} size="sm" />
                     <span className="text-slate-700 dark:text-slate-300 text-xs font-medium">
-                      {`${task.user.name} ${task.user.lastname}`}
+                      {`${task.user?.name} ${task.user?.lastname}`}
                     </span>
                   </div>
                 </TableCell>
@@ -181,7 +181,7 @@ const TableTasks: React.FC<Props> = ({
                 <TableCell className="whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{formatDate(task.createdAt)}</span>
+                    <span>{formatDate(task.createdAt!)}</span>
                   </div>
                 </TableCell>
 
@@ -204,7 +204,7 @@ const TableTasks: React.FC<Props> = ({
                       size="sm"
                       className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
                       title="Eliminar tarea"
-                      onClick={() => deleteTask(task.id)}
+                      onClick={() => deleteTask(task.id!)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

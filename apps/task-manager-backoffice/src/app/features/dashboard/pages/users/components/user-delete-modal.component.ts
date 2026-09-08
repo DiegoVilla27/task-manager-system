@@ -12,8 +12,8 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { firstValueFrom } from 'rxjs';
-import { UserResponse } from '../interfaces/response';
 import { UserService } from '../services/user.service';
+import { UserResponse } from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-user-delete-modal',
@@ -107,7 +107,7 @@ export class UserDeleteModalComponent {
   }
 
   async handleConfirm(): Promise<void> {
-    await this.deleteUserConfirm.mutate(this.user()!.id);
+    await this.deleteUserConfirm.mutate(this.user()!.id!);
     this.handleClose();
   }
 }

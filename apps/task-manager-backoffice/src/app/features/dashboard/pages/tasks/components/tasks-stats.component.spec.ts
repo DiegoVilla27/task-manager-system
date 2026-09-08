@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TasksStatsComponent } from './tasks-stats.component';
-import { TasksPagination } from '../interfaces/response';
+import { PageTaskResponse } from '@task-manager-system/api-types';
 
 describe('TasksStatsComponent', () => {
   let component: TasksStatsComponent;
   let fixture: ComponentFixture<TasksStatsComponent>;
 
-  const mockTasksPagination: TasksPagination = {
+  const mockTasksPagination: PageTaskResponse = {
     content: [],
     totalElements: 42,
     totalPages: 5,

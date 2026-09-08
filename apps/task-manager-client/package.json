@@ -37,7 +37,8 @@
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3",
-    "zustand": "^5.0.15"
+    "zustand": "^5.0.15",
+    "@task-manager-system/api-types": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

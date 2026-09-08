@@ -1,14 +1,14 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import useTasksPage from '.';
 import { getAllTasksSvc } from '@features/tasks/services';
-import { TaskStatus, type TasksResponse } from '@features/tasks/interfaces/response';
+import { TaskStatus, type PageTaskResponse } from '@task-manager-system/api-types';
 
 vi.mock('@features/tasks/services', () => ({
   getAllTasksSvc: vi.fn(),
 }));
 
 describe('Tasks: useTasksPage', () => {
-  const tasksMocked: TasksResponse = {
+  const tasksMocked: PageTaskResponse = {
     content: [
       {
         id: '123',
@@ -173,7 +173,7 @@ describe('Tasks: useTasksPage', () => {
         ...tasksMocked,
         content: [
           {
-            ...tasksMocked.content[0],
+            ...tasksMocked.content![0],
             status: TaskStatus.IN_PROGRESS,
           },
         ],

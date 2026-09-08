@@ -23,7 +23,8 @@
       "@core/*": ["./src/app/core/*"],
       "@shared/*": ["./src/app/shared/*"],
       "@features/*": ["./src/app/features/*"],
-      "@environments/*": ["./src/environments/*"]
+      "@environments/*": ["./src/environments/*"],
+      "@task-manager-system/api-types": ["../../libs/api-types/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

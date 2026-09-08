@@ -6,14 +6,17 @@ import {
   signal,
 } from '@angular/core';
 import { injectQuery } from '@tanstack/angular-query-experimental';
+import {
+  TaskResponse,
+  TasksPaginationRequest,
+} from '@task-manager-system/api-types';
 import { firstValueFrom } from 'rxjs';
-import { TaskFormModalComponent } from './components/task-form-modal.component';
 import { TaskDeleteModalComponent } from './components/task-delete-modal.component';
+import { TaskFormModalComponent } from './components/task-form-modal.component';
 import { TasksFiltersComponent } from './components/tasks-filters.component';
 import { TasksHeaderComponent } from './components/tasks-header.component';
 import { TasksStatsComponent } from './components/tasks-stats.component';
 import { TasksTableComponent } from './components/tasks-table.component';
-import { TaskResponse } from './interfaces/response';
 import { TaskService } from './services/task.service';
 
 @Component({
@@ -41,7 +44,7 @@ export class TasksListComponent {
   readonly page = signal<number>(1);
   readonly limit = signal<number>(10);
   readonly search = signal<string>('');
-  readonly status = signal<string>('');
+  readonly status = signal<TasksPaginationRequest['filters']['status']>('');
 
   private readonly tasksSvc = inject(TaskService);
 
@@ -60,8 +63,10 @@ export class TasksListComponent {
         this.tasksSvc.getTasks({
           page: this.page(),
           limit: this.limit(),
-          search: this.search(),
-          status: this.status(),
+          filters: {
+            search: this.search(),
+            status: this.status(),
+          },
         }),
       ),
   }));

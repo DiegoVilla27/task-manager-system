@@ -1,8 +1,8 @@
 import { logoutSvc } from '@features/auth/services';
-import type { UserMeResponse } from '@features/users/interfaces/response';
 import { act, renderHook } from '@testing-library/react';
 import { useNavigate } from 'react-router-dom';
 import useHeader from '.';
+import type { UserMeResponse } from '@task-manager-system/api-types';
 
 vi.mock('@features/auth/services', () => ({
   logoutSvc: vi.fn(),

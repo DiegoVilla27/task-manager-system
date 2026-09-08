@@ -6,7 +6,7 @@ import {
   output,
 } from '@angular/core';
 import { AvatarComponent, PaginationComponent } from '@shared/components/ui';
-import { UserResponse, UsersPagination } from '../interfaces/response';
+import { PageUserResponse, UserResponse } from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-users-table',
@@ -38,8 +38,8 @@ import { UserResponse, UsersPagination } from '../interfaces/response';
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-3">
                     <app-avatar
-                      [name]="user.name"
-                      [initials]="user.name[0] + '' + user.lastname[0]"
+                      [name]="user.name!"
+                      [initials]="user.name![0] + '' + user.lastname![0]"
                       size="md"
                     />
                     <div>
@@ -146,7 +146,7 @@ import { UserResponse, UsersPagination } from '../interfaces/response';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsersTableComponent {
-  readonly users = input.required<UsersPagination | undefined>();
+  readonly users = input.required<PageUserResponse | undefined>();
   readonly page = input.required<number>();
 
   readonly edit = output<UserResponse>();

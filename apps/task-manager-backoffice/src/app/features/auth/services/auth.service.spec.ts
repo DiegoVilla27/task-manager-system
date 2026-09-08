@@ -10,9 +10,11 @@ import { AuthService } from './auth.service';
 import { UserService } from '@features/dashboard/pages/users/services/user.service';
 import { StorageService } from '@shared/services/storage.service';
 import { environment } from '@environments/environment';
-import { LoginRequest } from '../interfaces/request';
-import { AuthResponse } from '../interfaces/response';
-import { UserMeResponse } from '@features/dashboard/pages/users/interfaces/response';
+import {
+  AuthLoginRequest,
+  AuthResponse,
+  UserMeResponse,
+} from '@task-manager-system/api-types';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -64,7 +66,7 @@ describe('AuthService', () => {
   });
 
   it('should authenticate user, save tokens in StorageService, and fetch me profile on login', (done) => {
-    const payload: LoginRequest = {
+    const payload: AuthLoginRequest = {
       email: 'admin@taskmanager.com',
       password: 'password123',
     };

@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TasksTableComponent } from './tasks-table.component';
-import {
-  TaskResponse,
-  TasksPagination,
-  TaskStatus,
-} from '../interfaces/response';
 import { By } from '@angular/platform-browser';
+import {
+  PageTaskResponse,
+  TaskResponse,
+  TaskStatus,
+} from '@task-manager-system/api-types';
 
 describe('TasksTableComponent', () => {
   let component: TasksTableComponent;
@@ -25,7 +25,7 @@ describe('TasksTableComponent', () => {
     createdAt: '2026-08-20',
   };
 
-  const mockTasksPagination: TasksPagination = {
+  const mockTasksPagination: PageTaskResponse = {
     content: [mockTask],
     totalElements: 1,
     totalPages: 1,

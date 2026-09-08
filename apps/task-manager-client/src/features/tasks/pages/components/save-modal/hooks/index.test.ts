@@ -1,5 +1,3 @@
-import type { Task } from '@features/tasks/interfaces/response';
-import { TaskStatus } from '@features/tasks/interfaces/response';
 import { createTaskSvc, updateTaskSvc } from '@features/tasks/services';
 import useModalStore from '@features/tasks/store/modalStore';
 import StorageService from '@shared/utils/storage';
@@ -8,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { toast } from 'sonner';
 import useSaveModal from '.';
+import { TaskStatus, type TaskResponse } from '@task-manager-system/api-types';
 
 vi.mock('@features/tasks/services', () => ({
   createTaskSvc: vi.fn(),
@@ -31,7 +30,7 @@ vi.mock('@shared/utils/storage', () => ({
 }));
 
 describe('Tasks: useSaveModal', () => {
-  const mockTask: Task = {
+  const mockTask: TaskResponse = {
     id: 'task-100',
     title: 'Existing Task',
     description: 'Existing Description',

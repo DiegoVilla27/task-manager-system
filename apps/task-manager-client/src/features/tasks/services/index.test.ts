@@ -7,8 +7,14 @@ import {
   startTaskSvc,
   updateTaskSvc,
 } from '.';
-import type { TaskCreateRequest, TasksRequest, TaskUpdateRequest } from '../interfaces/request';
-import { TaskStatus, type Task, type TasksResponse } from '../interfaces/response';
+import {
+  TaskStatus,
+  type PageTaskResponse,
+  type TaskCreateRequest,
+  type TaskResponse,
+  type TasksPaginationRequest,
+  type TaskUpdateRequest,
+} from '@task-manager-system/api-types';
 
 vi.mock('@core/http', () => ({
   httpService: {
@@ -26,11 +32,12 @@ describe('Tasks: Service', () => {
 
   it('should get all tasks with page and limit', async () => {
     // Arrange
-    const payload: TasksRequest = {
+    const payload: TasksPaginationRequest = {
       page: 1,
       limit: 10,
+      filters: {},
     };
-    const tasks: TasksResponse = {
+    const tasks: PageTaskResponse = {
       content: [
         {
           id: '123',
@@ -83,15 +90,15 @@ describe('Tasks: Service', () => {
 
   it('should get all tasks with filters', async () => {
     // Arrange
-    const payload: TasksRequest = {
+    const payload: TasksPaginationRequest = {
       page: 1,
       limit: 10,
       filters: {
         search: 'diego',
-        status: 'PENDING',
+        status: TaskStatus.PENDING,
       },
     };
-    const tasks: TasksResponse = {
+    const tasks: PageTaskResponse = {
       content: [
         {
           id: '123',
@@ -139,12 +146,7 @@ describe('Tasks: Service', () => {
     // Assert
     expect(res).toEqual(tasks);
     expect(httpService.get).toHaveBeenCalledTimes(1);
-    expect(httpService.get).toHaveBeenCalledWith('/tasks', {
-      page: payload.page,
-      limit: payload.limit,
-      search: payload.filters!.search,
-      status: payload.filters!.status,
-    });
+    expect(httpService.get).toHaveBeenCalledWith('/tasks', payload);
   });
 
   it('should create a task', async () => {
@@ -154,7 +156,7 @@ describe('Tasks: Service', () => {
       description: 'Description Task',
       userId: '123',
     };
-    const task: Task = {
+    const task: TaskResponse = {
       id: '456',
       title: payload.title,
       description: payload.description,
@@ -183,7 +185,7 @@ describe('Tasks: Service', () => {
       title: 'Update task',
       description: 'Udate description task',
     };
-    const task: Task = {
+    const task: TaskResponse = {
       id: taskId,
       title: payload.title!,
       description: payload.description!,

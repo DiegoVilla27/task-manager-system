@@ -1,6 +1,6 @@
 import { httpService } from '@core/http';
-import type { UserMeResponse } from '../interfaces/response';
 import { getMeSvc } from '.';
+import type { UserMeResponse } from '@task-manager-system/api-types';
 
 vi.mock('@core/http', () => ({
   httpService: {

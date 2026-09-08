@@ -7,7 +7,7 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { UserMeResponse } from '@features/dashboard/pages/users/interfaces/response';
+import { UserMeResponse } from '@task-manager-system/api-types';
 
 describe('LoginFormComponent', () => {
   let component: LoginFormComponent;

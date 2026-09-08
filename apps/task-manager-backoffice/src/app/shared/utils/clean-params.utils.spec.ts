@@ -39,4 +39,23 @@ describe('cleanParams', () => {
     expect(params.get('limit')).toBe('10');
     expect(params.get('active')).toBe('false');
   });
+
+  it('should flatten nested objects and filter out empty values', () => {
+    const params = cleanParams({
+      page: 1,
+      limit: 10,
+      filters: {
+        search: 'Diego',
+        status: '',
+        role: undefined,
+      },
+    });
+
+    expect(params.get('page')).toBe('1');
+    expect(params.get('limit')).toBe('10');
+    expect(params.get('search')).toBe('Diego');
+    expect(params.has('status')).toBeFalse();
+    expect(params.has('role')).toBeFalse();
+    expect(params.has('filters')).toBeFalse();
+  });
 });

@@ -1,0 +1,21 @@
+{
+  "name": "@task-manager-system/api-types",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "generate": "openapi-typescript http://localhost:8080/api/v1/api-docs -o ./src/schema.d.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.6.4",
+    "typescript": "^5.0.0"
+  }
+}

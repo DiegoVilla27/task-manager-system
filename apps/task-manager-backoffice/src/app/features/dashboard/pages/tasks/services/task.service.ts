@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '@environments/environment';
 import { cleanParams } from '@shared/utils/clean-params.utils';
-import { Observable } from 'rxjs';
 import {
-  CreateTaskRequest,
-  EditTaskRequest,
+  PageTaskResponse,
+  TaskCreateRequest,
+  TaskResponse,
   TasksPaginationRequest,
-} from '../interfaces/request';
-import { TaskResponse, TasksPagination } from '../interfaces/response';
+  TaskUpdateRequest,
+} from '@task-manager-system/api-types';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -19,18 +20,18 @@ export class TaskService {
 
   public getTasks(
     payload: TasksPaginationRequest,
-  ): Observable<TasksPagination> {
+  ): Observable<PageTaskResponse> {
     const params = cleanParams(payload);
-    return this.http.get<TasksPagination>(this.BASE_TASKS, { params });
+    return this.http.get<PageTaskResponse>(this.BASE_TASKS, { params });
   }
 
-  public createTask(payload: CreateTaskRequest): Observable<TaskResponse> {
+  public createTask(payload: TaskCreateRequest): Observable<TaskResponse> {
     return this.http.post<TaskResponse>(this.BASE_TASKS, payload);
   }
 
   public updateTask(
     taskId: string,
-    payload: EditTaskRequest,
+    payload: TaskUpdateRequest,
   ): Observable<TaskResponse> {
     return this.http.patch<TaskResponse>(
       `${this.BASE_TASKS}/${taskId}`,

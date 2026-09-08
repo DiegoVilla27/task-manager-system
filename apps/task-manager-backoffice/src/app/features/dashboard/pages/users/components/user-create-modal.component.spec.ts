@@ -6,7 +6,7 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { of } from 'rxjs';
-import { UserResponse } from '../interfaces/response';
+import { UserResponse } from '@task-manager-system/api-types';
 
 describe('UserCreateModalComponent', () => {
   let component: UserCreateModalComponent;

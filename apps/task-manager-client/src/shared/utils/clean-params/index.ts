@@ -1,42 +1,48 @@
 /**
- * Cleans a query parameters object by removing empty properties.
+ * Cleans a query parameters object by removing empty properties and flattening nested objects.
  *
  * @remarks
- * Properties considered empty and removed are `null`, `undefined`, empty string (`""`),
- * and empty arrays (`[]`). This is commonly used before sending query params to backend
- * endpoints to avoid trailing empty parameter keys in URLs.
+ * Recursively flattens nested plain objects. Trims string values and discards `null`,
+ * `undefined`, or whitespace-only strings (`""`). Preserves numeric values (including `0`)
+ * and booleans (including `false`), serializing all valid entries into their string representations.
  *
- * @param params - The raw parameters object to clean.
- * @returns A new record with only non-empty entries, or `undefined` if the input is empty or all properties are removed.
+ * @param payload - Plain object mapping query keys and values.
+ * @returns A cleaned Record with stringified values, or `undefined` if empty or invalid.
  *
  * @example
  * ```typescript
- * const rawParams = { page: 1, search: "", filter: null, tags: [] };
- * const cleaned = cleanParams(rawParams);
- * // Output: { page: 1 }
+ * const raw = { search: " Diego ", page: 1, filter: null, nested: { sort: "asc" } };
+ * const cleaned = cleanParams(raw);
+ * // Output: { search: "Diego", page: "1", sort: "asc" }
  * ```
  */
 export const cleanParams = (
-  params?: Record<string, unknown>,
-): Record<string, unknown> | undefined => {
-  if (!params) return undefined;
+  payload?: Record<string, unknown> | null,
+): Record<string, string> | undefined => {
+  if (!payload || typeof payload !== 'object') return undefined;
 
-  const cleaned = Object.entries(params).reduce(
-    (acc, [key, value]) => {
-      const isEmpty =
-        value === null ||
-        value === undefined ||
-        value === '' ||
-        (Array.isArray(value) && value.length === 0);
+  const result: Record<string, string> = {};
 
-      if (!isEmpty) {
-        acc[key] = value;
+  const appendEntries = (obj: Record<string, unknown>): void => {
+    for (const [key, value] of Object.entries(obj)) {
+      if (value === null || value === undefined) {
+        continue;
       }
 
-      return acc;
-    },
-    {} as Record<string, unknown>,
-  );
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed !== '') {
+          result[key] = trimmed;
+        }
+      } else if (typeof value === 'object' && !Array.isArray(value)) {
+        appendEntries(value as Record<string, unknown>);
+      } else if (!Array.isArray(value)) {
+        result[key] = String(value);
+      }
+    }
+  };
 
-  return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+  appendEntries(payload);
+
+  return Object.keys(result).length > 0 ? result : undefined;
 };

@@ -1,9 +1,8 @@
+import { registerSvc } from '@features/auth/services';
+import type { AuthResponse } from '@task-manager-system/api-types';
 import { act, renderHook } from '@testing-library/react';
 import { useNavigate } from 'react-router-dom';
-import useRegisterPage from '.';
-import { registerSvc } from '@features/auth/services';
-import type { AuthResponse } from '@features/auth/interfaces/response';
-import type { AuthRegisterRequest } from '@features/auth/interfaces/request';
+import useRegisterPage, { type AuthRegisterPayload } from '.';
 
 vi.mock('@features/auth/services', () => ({
   registerSvc: vi.fn(),
@@ -32,7 +31,7 @@ describe('Auth: useRegisterPage', () => {
 
   it('should submit form with value data', async () => {
     // Arrange
-    const payload: AuthRegisterRequest = {
+    const payload: AuthRegisterPayload = {
       name: 'Diego',
       lastname: 'Villa',
       email: 'dv@gmail.com',
@@ -59,13 +58,18 @@ describe('Auth: useRegisterPage', () => {
     });
     // Assert
     expect(registerSvc).toHaveBeenCalledTimes(1);
-    expect(registerSvc).toHaveBeenCalledWith(payload);
+    expect(registerSvc).toHaveBeenCalledWith({
+      name: payload.name,
+      lastname: payload.lastname,
+      email: payload.email,
+      password: payload.password,
+    });
     expect(mockedNavigate).toHaveBeenCalledWith('/');
   });
 
   it('should return error if payload is invalid', async () => {
     // Arrange
-    const payload: AuthRegisterRequest = {
+    const payload: AuthRegisterPayload = {
       name: '',
       lastname: 'Villa',
       email: 'dv@gmail.com',

@@ -14,7 +14,7 @@ import { UsersFiltersComponent } from './components/users-filters.component';
 import { UsersHeaderComponent } from './components/users-header.component';
 import { UsersTableComponent } from './components/users-table.component';
 import { UserService } from './services/user.service';
-import { UserResponse } from './interfaces/response';
+import { UserResponse } from '@task-manager-system/api-types';
 
 @Component({
   selector: 'app-users-list',
@@ -59,7 +59,9 @@ export class UsersListComponent {
         this.usersSvc.getUsers({
           page: this.page(),
           limit: this.limit(),
-          search: this.search(),
+          filters: {
+            search: this.search(),
+          },
         }),
       ),
   }));
